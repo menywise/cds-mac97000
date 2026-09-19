@@ -176,6 +176,68 @@ function buildFooterColumns(): Array<{ title: string; links: NavItem[] }> {
 const linkClass =
   "inline-flex min-h-11 items-center rounded px-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:min-h-9";
 
+function UnreadMessagesBadge() {
+  const { user } = useAuth();
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+
+    async function checkUnread() {
+      const { data: conversations } = await supabase
+        .from("conversations")
+        .select("id")
+        .or(`user_a.eq.${user!.id},user_b.eq.${user!.id}`);
+
+      if (!conversations || conversations.length === 0) {
+        if (active) setUnreadCount(0);
+        return;
+      }
+
+      const conversationIds = conversations.map((c) => c.id);
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .in("conversation_id", conversationIds)
+        .neq("sender_id", user!.id)
+        .is("read_at", null);
+
+      if (active) setUnreadCount(count ?? 0);
+    }
+
+    void checkUnread();
+
+    const channel = supabase
+      .channel("unread_messages_count")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+        },
+        () => {
+          void checkUnread();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      void supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  if (!unreadCount) return null;
+
+  return (
+    <span className="ml-1.5 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+      {unreadCount > 9 ? "9+" : unreadCount}
+    </span>
+  );
+}
+
 function AccountLinks({ onNavigate }: { onNavigate?: () => void }) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -273,6 +335,7 @@ export function SiteHeader() {
               activeProps={{ className: "bg-accent text-foreground" }}
             >
               {item.label}
+              {item.to === "/messagerie" && <UnreadMessagesBadge />}
             </Link>
           ))}
         </nav>
@@ -311,6 +374,7 @@ export function SiteHeader() {
                   activeProps={{ className: "bg-accent text-foreground" }}
                 >
                   {item.label}
+                  {item.to === "/messagerie" && <UnreadMessagesBadge />}
                 </Link>
               </li>
             ))}

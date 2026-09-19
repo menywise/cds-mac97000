@@ -69,6 +69,10 @@ function MemberPage() {
       toast.info("Connectez-vous pour envoyer un message.");
       return;
     }
+    if (!profile.accepts_messages) {
+      toast.error("Ce membre n'accepte pas les messages privés.");
+      return;
+    }
     setBusy(true);
     const [a, b] = [user.id, profile.user_id].sort();
     const { data: existing } = await supabase
