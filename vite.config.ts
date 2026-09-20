@@ -7,6 +7,12 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
+// The v0 sandbox assigns the dev-server port via DEV_PORT and its preview proxy
+// routes there. Bind to exactly that port (strictPort) so the server never drifts
+// to a fallback port the preview isn't watching, which surfaces as
+// "Failed to fetch dynamically imported module" errors in the browser.
+const devPort = Number(process.env.DEV_PORT) || 8080;
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
@@ -15,5 +21,9 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    server: {
+      port: devPort,
+      strictPort: true,
+    },
   },
 });
