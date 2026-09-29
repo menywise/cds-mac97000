@@ -99,6 +99,9 @@ function AdminRecettePage() {
   const results = report?.results ?? [];
   const fails = results.filter((r) => r.status === "echec");
   const oks = results.filter((r) => r.status === "ok");
+  const texts = results
+    .filter((r) => r.texte)
+    .sort((a, b) => (a.texte?.score ?? 0) - (b.texte?.score ?? 0));
   // Remarques non bloquantes, regroupées par contrôle du catalogue d'audit.
   const remarks = new Map<string, string[]>();
   for (const r of results) {
@@ -176,6 +179,54 @@ function AdminRecettePage() {
                 Aucune page en échec : zéro page blanche, zéro erreur console.
               </p>
             )}
+            {texts.length ? (
+              <div className="mt-5">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Qualité des textes (charte de rédaction, score sur 100)
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  85 et plus : publiable · 70 à 84 : corrections mineures · 50 à 69 : à retravailler
+                  · sous 50 : refusé.
+                </p>
+                <ul className="mt-2 space-y-2">
+                  {texts.map((r) => (
+                    <li key={r.url} className="rounded-md border border-border p-3 text-sm">
+                      <details>
+                        <summary className="cursor-pointer text-foreground">
+                          <span
+                            className={`font-semibold ${
+                              r.texte!.score >= 85
+                                ? "text-success-text"
+                                : r.texte!.score >= 50
+                                  ? "text-warning-text"
+                                  : "text-destructive"
+                            }`}
+                          >
+                            {r.texte!.score}/100
+                          </span>{" "}
+                          {r.label} <code className="text-xs">{r.url}</code>
+                        </summary>
+                        <ul className="mt-2 space-y-1.5 text-xs">
+                          {r.texte!.anomalies.map((a, i) => (
+                            <li key={i}>
+                              <span className="font-medium text-foreground">
+                                {a.regle} ({a.gravite})
+                              </span>{" "}
+                              <span className="text-muted-foreground">« {a.texte} »</span>
+                              <br />
+                              <span className="text-success-text">→ {a.proposition}</span>
+                            </li>
+                          ))}
+                          {r.texte!.anomalies.length === 0 ? (
+                            <li className="text-muted-foreground">Aucune anomalie.</li>
+                          ) : null}
+                        </ul>
+                      </details>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             {remarks.size ? (
               <div className="mt-5">
                 <h3 className="text-sm font-semibold text-foreground">

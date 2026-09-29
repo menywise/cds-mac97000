@@ -34,6 +34,7 @@ import {
   type QaViewport,
 } from "../../src/lib/qa-plan.ts";
 import { isModuleOn, normalizeModules, type FeatureKey } from "../../src/config/modules.ts";
+import { auditTexts, type PageTexts, type TextRules } from "./texte.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
@@ -55,6 +56,12 @@ function loadEnv() {
   return { ...env, ...process.env } as Record<string, string | undefined>;
 }
 const ENV = loadEnv();
+/** Charte de rédaction contrôlable (docs/redaction/text-rules.json). */
+const TEXT_RULES = JSON.parse(
+  readFileSync(join(ROOT, "docs", "redaction", "text-rules.json"), "utf8"),
+) as TextRules;
+/** Nom du site (marque) : protégé, ce n'est pas du vocabulaire interne. */
+let BRAND_NAMES: string[] = [];
 const BASE = (arg("url") ?? ENV["CDS_RECETTE_URL"] ?? "http://localhost:8080").replace(/\/+$/, "");
 const SUPABASE_URL = ENV["VITE_SUPABASE_URL"] ?? ENV["SUPABASE_URL"] ?? "";
 const SUPABASE_KEY = ENV["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? ENV["SUPABASE_PUBLISHABLE_KEY"] ?? "";
@@ -76,6 +83,19 @@ const READ_ONLY_RPC = new Set([
 ]);
 
 type Auth = { mode: "réel" | "simulé"; session: Record<string, unknown>; userId: string };
+
+async function brandNames(): Promise<string[]> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?select=value&key=eq.brand`, {
+    headers: { apikey: SUPABASE_KEY },
+  }).catch(() => null);
+  const rows = ((await res?.json().catch(() => [])) ?? []) as Array<{
+    value: Record<string, unknown>;
+  }>;
+  const v = rows[0]?.value ?? {};
+  return [v["name"], v["shortName"]].filter(
+    (x): x is string => typeof x === "string" && x.length > 0,
+  );
+}
 
 async function modulesState(): Promise<Record<string, boolean>> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?select=value&key=eq.modules`, {
@@ -234,6 +254,7 @@ async function checkPage(
   const started = Date.now();
   const problems: string[] = [];
   const warnings: string[] = [];
+  let textAudit: QaResult["texte"];
   const consoleErrors: string[] = [];
   const onConsole = (msg: import("playwright").ConsoleMessage) => {
     if (msg.type() !== "error") return;
@@ -356,6 +377,51 @@ async function checkPage(
       if (facts.heavy) warnings.push(`[p2] ${facts.heavy} image(s) de plus de 300 Ko`);
       if (viewport === "mobile" && facts.small)
         warnings.push(`[r3] ${facts.small} bouton(s) ou champ(s) de moins de 44 px de haut`);
+      // Qualité des textes : pages publiques, en visiteur, une fois (sur ordinateur).
+      if (
+        role === "visiteur" &&
+        viewport === "ordinateur" &&
+        RANK[qa.role] === 0 &&
+        qa.expectStatus !== 404
+      ) {
+        const texts: PageTexts = await page.evaluate(() => {
+          const main = document.querySelector("main") ?? document.body;
+          const outside = (el: Element) =>
+            Boolean(el.closest("nav, [role=dialog], footer, header"));
+          const seen = (el: Element) => {
+            const r = el.getBoundingClientRect();
+            return r.width > 0 && r.height > 0;
+          };
+          const text = (el: Element) =>
+            ((el as HTMLElement).innerText ?? "").replace(/\s+/g, " ").trim();
+          const cta = [...main.querySelectorAll("button, a")]
+            .filter((el) => seen(el) && !outside(el) && text(el))
+            .map((el) => ({ el, c: el.getAttribute("class") ?? "" }))
+            .filter(({ c }) => c.includes("inline-flex") && c.includes("rounded-md"))
+            .flatMap(({ el, c }) =>
+              c.includes("bg-primary ")
+                ? [{ libelle: text(el), role: "principal" as const }]
+                : c.includes("border border-input") || c.includes("bg-secondary")
+                  ? [{ libelle: text(el), role: "secondaire" as const }]
+                  : [],
+            );
+          return {
+            titre: document.title.trim(),
+            description:
+              document.querySelector('meta[name="description"]')?.getAttribute("content")?.trim() ??
+              "",
+            h1: text(document.querySelector("h1") ?? document.createElement("h1")),
+            paragraphes: [...main.querySelectorAll("p, li")]
+              .filter((el) => seen(el) && !outside(el) && !el.querySelector("p, li"))
+              .map(text)
+              .filter((t) => t.length > 0),
+            cta,
+          };
+        });
+        const res = auditTexts(texts, TEXT_RULES, { vitrine: qa.vitrine, protege: BRAND_NAMES });
+        textAudit = res;
+        if (res.score < 50) warnings.push(`[texte] score ${res.score}/100 (refusé sous 50)`);
+      }
       for (const href of facts.links) {
         const clean = href.split("#")[0]!.split("?")[0]!;
         if (clean && !clean.startsWith("/api/")) LINKS.set(clean, LINKS.get(clean) ?? url);
@@ -379,6 +445,7 @@ async function checkPage(
     problems,
     warnings,
     ms: Date.now() - started,
+    ...(textAudit ? { texte: textAudit } : {}),
   };
 }
 
@@ -386,6 +453,7 @@ async function main() {
   if (!SUPABASE_URL || !SUPABASE_KEY)
     throw new Error("Adresse ou clé publique Supabase absente (.env)");
   const states = await modulesState();
+  BRAND_NAMES = await brandNames();
   // Options Chromium facultatives, ex. derrière un proxy d'entreprise :
   // CDS_RECETTE_CHROMIUM_ARGS="--ignore-certificate-errors-spki-list=<empreinte du certificat du proxy>"
   const extra = (ENV["CDS_RECETTE_CHROMIUM_ARGS"] ?? "").split(" ").filter(Boolean);
@@ -510,6 +578,20 @@ async function main() {
     `**${oks.length} pages conformes, ${fails.length} en échec, ${report.results.length - oks.length - fails.length} ignorées.**`,
     "",
     ...fails.map((r) => `- ✘ ${r.viewport} · ${r.role} · \`${r.url}\` : ${r.problems.join(" ; ")}`),
+    "",
+    "## Qualité des textes (charte docs/redaction, score sur 100)",
+    "",
+    ...report.results
+      .filter((r) => r.texte)
+      .sort((a, b) => a.texte!.score - b.texte!.score)
+      .map(
+        (r) =>
+          `- ${r.texte!.score}/100 \`${r.url}\` : ${
+            r
+              .texte!.anomalies.map((a) => `${a.regle} (${a.gravite}) « ${a.texte.slice(0, 60)} »`)
+              .join(" ; ") || "aucune anomalie"
+          }`,
+      ),
     "",
     "## Remarques (non bloquantes) par contrôle d'audit",
     "",

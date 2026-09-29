@@ -29,12 +29,14 @@ export type QaPage = {
   raw?: boolean;
   /** Réponse attendue (404 pour la page introuvable). */
   expectStatus?: number;
+  /** Page vitrine : contrôle des textes complet (h1 de 40 caractères au moins, cible nommée). */
+  vitrine?: boolean;
 };
 
 export const QA_PAGES: QaPage[] = [
   // Socle public
-  { path: "/", label: "Accueil", role: "visiteur" },
-  { path: "/a-propos", label: "À propos", role: "visiteur" },
+  { path: "/", label: "Accueil", role: "visiteur", vitrine: true },
+  { path: "/a-propos", label: "À propos", role: "visiteur", vitrine: true },
   { path: "/plan-du-site", label: "Plan du site", role: "visiteur" },
   { path: "/login", label: "Connexion", role: "visiteur" },
   { path: "/signup", label: "Inscription", role: "visiteur" },
@@ -95,8 +97,8 @@ export const QA_PAGES: QaPage[] = [
   },
   { path: "/temoignages", label: "Témoignages", role: "visiteur", module: "testimonials" },
   { path: "/avis", label: "Avis", role: "visiteur", module: "reviews" },
-  { path: "/tarifs", label: "Tarifs", role: "visiteur", module: "pricing" },
-  { path: "/demarrer", label: "Démarrer", role: "visiteur", module: "onboarding" },
+  { path: "/tarifs", label: "Tarifs", role: "visiteur", module: "pricing", vitrine: true },
+  { path: "/demarrer", label: "Démarrer", role: "visiteur", module: "onboarding", vitrine: true },
   { path: "/annuaire", label: "Annuaire", role: "visiteur", module: "directory" },
   {
     path: "/annuaire/:slug",
@@ -226,6 +228,12 @@ export type QaResult = {
   problems: string[];
   /** Remarques non bloquantes (plusieurs h1, requête en échec…). */
   warnings: string[];
+  /** Qualité des textes (pages publiques, visiteur, ordinateur) : charte docs/redaction. */
+  texte?: {
+    score: number;
+    anomalies: Array<{ texte: string; regle: string; gravite: string; proposition: string }>;
+    nonEvalue: string[];
+  };
   ms: number;
 };
 
