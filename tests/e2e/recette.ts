@@ -33,6 +33,7 @@ import {
   type QaRole,
   type QaViewport,
 } from "../../src/lib/qa-plan.ts";
+import { isModuleOn, normalizeModules, type FeatureKey } from "../../src/config/modules.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
@@ -82,14 +83,9 @@ async function modulesState(): Promise<Record<string, boolean>> {
   return rows[0]?.value ?? {};
 }
 
-const REQUIRES: Record<string, string[]> = {
-  geo: ["directory"],
-  messaging: ["members"],
-  marketplace: ["messaging"],
-  payments: ["lms"],
-};
+/** Même règle que le site : valeurs par défaut pour les clés absentes, dépendances respectées. */
 function moduleOn(states: Record<string, boolean>, key: string): boolean {
-  return Boolean(states[key]) && (REQUIRES[key] ?? []).every((dep) => moduleOn(states, dep));
+  return isModuleOn(normalizeModules(states), key as FeatureKey);
 }
 
 function fakeJwt(sub: string, email: string) {
