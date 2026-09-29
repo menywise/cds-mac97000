@@ -28,6 +28,8 @@ export function seo({
   image = absoluteUrl("/og-cds.jpg"),
 }: SeoInput) {
   const { brand } = getSiteConfig();
+  // Garde-fou pour les textes saisis en admin (devise, extrait d'article) : 160 caractères au plus.
+  description = clampText(description, 160);
   const fullTitle = !brand.shortName || title.includes(brand.shortName) ? title : `${title} — ${brand.shortName}`;
   const url = absoluteUrl(path);
 
@@ -76,4 +78,13 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
       })),
     }),
   };
+}
+
+/** Coupe un texte au dernier mot entier avant `max` caractères, avec « … ». */
+export function clampText(text: string, max: number) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[\s,;:.–—-]+$/, "")}…`;
 }

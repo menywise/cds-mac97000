@@ -18,7 +18,7 @@ export const Route = createFileRoute("/blog/")({
     seo({
       title: "Blog",
       description:
-        "Méthodes concrètes pour les indépendants, artisans et solopreneurs qui lancent un site qui tient debout : socle réutilisable, conformité, référencement, conversion. Des retours d'expérience, pas des généralités.",
+        "Méthodes concrètes pour indépendants, artisans et solopreneurs : socle réutilisable, conformité, référencement, conversion. Du vécu, pas des généralités.",
       path: "/blog",
       type: "website",
     }),

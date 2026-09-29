@@ -92,6 +92,7 @@ import { Route as AuthenticatedMessagerieIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedMessagerieConversationIdRouteImport } from './routes/_authenticated/messagerie.$conversationId'
 import { Route as AnnuaireCategorieSlugRouteImport } from './routes/annuaire.categorie.$slug'
 import { Route as AnnuaireDepartementSlugRouteImport } from './routes/annuaire.departement.$slug'
+import { Route as ApiCronPurgeContactRouteImport } from './routes/api.cron.purge-contact'
 import { Route as FormationSlugIndexRouteImport } from './routes/formation.$slug.index'
 import { Route as ForumCategorieSlugRouteImport } from './routes/forum.categorie.$slug'
 import { Route as AuthenticatedCrmProspectProspectIdRouteImport } from './routes/_authenticated/crm.prospect.$prospectId'
@@ -535,6 +536,11 @@ const AnnuaireDepartementSlugRoute = AnnuaireDepartementSlugRouteImport.update({
   path: '/annuaire/departement/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronPurgeContactRoute = ApiCronPurgeContactRouteImport.update({
+  id: '/api/cron/purge-contact',
+  path: '/api/cron/purge-contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormationSlugIndexRoute = FormationSlugIndexRouteImport.update({
   id: '/formation/$slug/',
   path: '/formation/$slug/',
@@ -638,6 +644,7 @@ export interface FileRoutesByFullPath {
   '/messagerie/$conversationId': typeof AuthenticatedMessagerieConversationIdRoute
   '/annuaire/categorie/$slug': typeof AnnuaireCategorieSlugRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
+  '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
   '/forum/categorie/$slug': typeof ForumCategorieSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/crm/': typeof AuthenticatedCrmIndexRoute
@@ -726,6 +733,7 @@ export interface FileRoutesByTo {
   '/messagerie/$conversationId': typeof AuthenticatedMessagerieConversationIdRoute
   '/annuaire/categorie/$slug': typeof AnnuaireCategorieSlugRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
+  '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
   '/forum/categorie/$slug': typeof ForumCategorieSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/crm': typeof AuthenticatedCrmIndexRoute
@@ -816,6 +824,7 @@ export interface FileRoutesById {
   '/_authenticated/messagerie/$conversationId': typeof AuthenticatedMessagerieConversationIdRoute
   '/annuaire/categorie/$slug': typeof AnnuaireCategorieSlugRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
+  '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
   '/forum/categorie/$slug': typeof ForumCategorieSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/crm/': typeof AuthenticatedCrmIndexRoute
@@ -906,6 +915,7 @@ export interface FileRouteTypes {
     | '/messagerie/$conversationId'
     | '/annuaire/categorie/$slug'
     | '/annuaire/departement/$slug'
+    | '/api/cron/purge-contact'
     | '/forum/categorie/$slug'
     | '/admin/'
     | '/crm/'
@@ -994,6 +1004,7 @@ export interface FileRouteTypes {
     | '/messagerie/$conversationId'
     | '/annuaire/categorie/$slug'
     | '/annuaire/departement/$slug'
+    | '/api/cron/purge-contact'
     | '/forum/categorie/$slug'
     | '/admin'
     | '/crm'
@@ -1083,6 +1094,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messagerie/$conversationId'
     | '/annuaire/categorie/$slug'
     | '/annuaire/departement/$slug'
+    | '/api/cron/purge-contact'
     | '/forum/categorie/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/crm/'
@@ -1143,6 +1155,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   AnnuaireCategorieSlugRoute: typeof AnnuaireCategorieSlugRoute
   AnnuaireDepartementSlugRoute: typeof AnnuaireDepartementSlugRoute
+  ApiCronPurgeContactRoute: typeof ApiCronPurgeContactRoute
   ForumCategorieSlugRoute: typeof ForumCategorieSlugRoute
   FormationSlugIndexRoute: typeof FormationSlugIndexRoute
   FormationSlugLeconLessonIdRoute: typeof FormationSlugLeconLessonIdRoute
@@ -1731,6 +1744,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnuaireDepartementSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/purge-contact': {
+      id: '/api/cron/purge-contact'
+      path: '/api/cron/purge-contact'
+      fullPath: '/api/cron/purge-contact'
+      preLoaderRoute: typeof ApiCronPurgeContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/formation/$slug/': {
       id: '/formation/$slug/'
       path: '/formation/$slug'
@@ -1893,6 +1913,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   AnnuaireCategorieSlugRoute: AnnuaireCategorieSlugRoute,
   AnnuaireDepartementSlugRoute: AnnuaireDepartementSlugRoute,
+  ApiCronPurgeContactRoute: ApiCronPurgeContactRoute,
   ForumCategorieSlugRoute: ForumCategorieSlugRoute,
   FormationSlugIndexRoute: FormationSlugIndexRoute,
   FormationSlugLeconLessonIdRoute: FormationSlugLeconLessonIdRoute,

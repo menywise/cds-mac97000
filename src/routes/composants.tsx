@@ -55,7 +55,7 @@ export const Route = createFileRoute("/composants")({
     seo({
       title: "Composants",
       description:
-        "Bibliothèque de composants du Consensus Design System : boutons, champs, tableaux, badges, alertes, onglets, pagination, fenêtres modales et états de chargement.",
+        "Composants du Consensus Design System : boutons, champs, tableaux, badges, alertes, onglets, pagination, fenêtres modales et chargement.",
       path: "/composants",
       type: "website",
     }),

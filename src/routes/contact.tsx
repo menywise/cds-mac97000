@@ -17,7 +17,7 @@ export const Route = createFileRoute("/contact")({
     seo({
       title: "Contact",
       description:
-        "Écrivez-nous en deux minutes : formulaire protégé anti-spam, réponse personnelle aux indépendants, artisans et solopreneurs. Aucune adresse e-mail n'est affichée en clair.",
+        "Écrivez-nous en deux minutes : formulaire protégé contre le spam, réponse personnelle, aucune adresse e-mail affichée en clair.",
       path: "/contact",
       type: "website",
     }),

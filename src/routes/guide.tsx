@@ -9,7 +9,7 @@ export const Route = createFileRoute("/guide")({
     seo({
       title: "Guide de réutilisation",
       description:
-        "Comment réutiliser le Consensus Design System sur un nouveau site : fichiers à copier, configuration de marque à modifier, pages fournies (connexion, mot de passe, mentions légales, contact).",
+        "Réutiliser le Consensus Design System sur un nouveau site : fichiers à copier, marque à configurer, pages fournies (connexion, légal, contact).",
       path: "/guide",
       type: "article",
     }),

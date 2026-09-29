@@ -497,7 +497,7 @@ async function main() {
   const oks = report.results.filter((r) => r.status === "ok");
   // Remarques groupées par contrôle du catalogue d'audit.
   const byCode = new Map<string, number>();
-  for (const r of report.results)
+  for (const r of report.results.filter((x) => x.status !== "ignore"))
     for (const w of r.warnings) {
       const code = /^\[([a-z]\d)\]/.exec(w)?.[1] ?? "autre";
       byCode.set(code, (byCode.get(code) ?? 0) + 1);
