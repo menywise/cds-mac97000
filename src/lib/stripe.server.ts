@@ -68,6 +68,31 @@ export async function createCheckoutSession(input: CheckoutInput) {
   return session.id && session.url ? { id: session.id, url: session.url } : null;
 }
 
+/**
+ * Expire une session Checkout remplacée (deux onglets, nouvel essai).
+ * « paid » : la session a été réglée entre-temps, il ne faut pas en ouvrir une autre.
+ */
+export async function expireCheckoutSession(
+  sessionId: string,
+): Promise<"expired" | "paid" | "unknown"> {
+  const auth = { Authorization: `Bearer ${stripeSecretKey()}` };
+  const res = await fetch(
+    `${STRIPE_API}/checkout/sessions/${encodeURIComponent(sessionId)}/expire`,
+    {
+      method: "POST",
+      headers: auth,
+    },
+  );
+  if (res.ok) return "expired";
+  // Refus : session déjà terminée ou expirée. On regarde si elle a été payée.
+  const check = await fetch(`${STRIPE_API}/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+    headers: auth,
+  });
+  if (!check.ok) return "unknown";
+  const session = (await check.json()) as { payment_status?: string };
+  return session.payment_status === "paid" ? "paid" : "expired";
+}
+
 function toHex(buf: ArrayBuffer) {
   return Array.from(new Uint8Array(buf))
     .map((b) => b.toString(16).padStart(2, "0"))

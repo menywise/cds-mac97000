@@ -24,7 +24,8 @@ export const startCourseCheckout = createServerFn({ method: "POST" })
     return { courseId: String(input.courseId), waiver: input?.waiver === true };
   })
   .handler(async ({ data, context }) => {
-    const { stripeSecretKey, createCheckoutSession } = await import("@/lib/stripe.server");
+    const { stripeSecretKey, createCheckoutSession, expireCheckoutSession } =
+      await import("@/lib/stripe.server");
     if (!stripeSecretKey()) throw new Error("Le paiement en ligne n'est pas encore configuré.");
     if (!data.waiver) throw new Error("Cochez la renonciation au droit de rétractation.");
 
@@ -36,6 +37,17 @@ export const startCourseCheckout = createServerFn({ method: "POST" })
     });
     const payment = rows?.[0];
     if (error || !payment) throw new Error(error?.message ?? "Paiement impossible.");
+
+    // Tentatives précédentes (autre onglet, nouvel essai) : leurs sessions Stripe sont fermées
+    // avant d'en ouvrir une nouvelle, pour qu'un membre ne puisse jamais payer deux fois.
+    for (const old of payment.superseded_sessions ?? []) {
+      if ((await expireCheckoutSession(old)) === "paid") {
+        await supabaseAdmin.from("payments").update({ status: "failed" }).eq("id", payment.id);
+        throw new Error(
+          "Votre paiement précédent vient d'être reçu : l'accès s'ouvre dans un instant.",
+        );
+      }
+    }
 
     const origin = await siteOrigin();
     const back = `${origin}/formation/${encodeURIComponent(payment.course_slug)}`;

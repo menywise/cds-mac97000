@@ -2003,6 +2003,7 @@ export type Database = {
           currency: string
           product_label: string
           course_slug: string
+          superseded_sessions: string[]
         }[]
       }
       payment_attach_session: {
