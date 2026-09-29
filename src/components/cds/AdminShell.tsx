@@ -48,6 +48,12 @@ function buildAdminNav(): AdminNavItem[] {
       title: "Valider les avis, commentaires et discussions",
       anyOf: ["reviews", "blog", "forum"],
     },
+    {
+      to: "/admin/signalements",
+      label: "Signalements",
+      title: "Contenus signalés par les membres",
+      module: "reports",
+    },
     { to: "/admin/forum", label: "Forum", title: "Gérer les thématiques du forum", module: "forum" },
     {
       to: "/admin/temoignages",
@@ -75,6 +81,12 @@ function buildAdminNav(): AdminNavItem[] {
       module: "lms",
     },
     {
+      to: "/admin/paiements",
+      label: "Paiements",
+      title: "Paiements Stripe des formations",
+      module: "payments",
+    },
+    {
       to: "/admin/marketplace",
       label: "Annonces",
       title: "Modérer les annonces et les catégories",
@@ -96,6 +108,12 @@ function buildAdminNav(): AdminNavItem[] {
       to: "/admin/conformite",
       label: "Conformité",
       title: "Grille de recettage du modèle et score de complétude",
+      module: "studio",
+    },
+    {
+      to: "/admin/recettage",
+      label: "Recette",
+      title: "Plan de recette du site et résultats de la recette automatisée",
       module: "studio",
     },
     {

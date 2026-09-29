@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/cds/SiteHeader";
 import { ModerationNote } from "@/components/cds/ModerationNote";
+import { ReportButton } from "@/components/cds/ReportButton";
 import { ShareButtons } from "@/components/cds/ShareButtons";
 import { AdSlot } from "@/components/cds/AdSlot";
 import { Button } from "@/components/ui/button";
@@ -153,6 +154,7 @@ function BlogPostPage() {
 
         <div className="mt-8 border-t border-border pt-6">
           <ShareButtons path={`/blog/${post.slug}`} title={post.title} />
+          <ReportButton contentType="article" contentId={post.id} className="mt-2" />
         </div>
 
         {related.length > 0 ? (
@@ -199,6 +201,7 @@ function BlogPostPage() {
                     {comment.content}
                   </p>
                   <ModerationNote note={comment.moderation_note} at={comment.moderated_at} />
+                  <ReportButton contentType="commentaire" contentId={comment.id} />
                 </li>
               ))}
             </ul>

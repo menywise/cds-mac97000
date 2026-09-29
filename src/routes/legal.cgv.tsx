@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ContactChannel, LegalPage, Section, editorName } from "@/components/cds/LegalPage";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
 import { getSiteConfig } from "@/lib/site-config";
+import { isFeatureOn } from "@/config/features";
 
 import { seo } from "@/lib/seo";
 
@@ -67,6 +68,27 @@ function CgvPage() {
           est calculé au prorata de la période consommée.
         </p>
       </Section>
+      {isFeatureOn("payments") ? (
+        <Section title="Formations en ligne">
+          <ul>
+            <li>
+              Le prix d'une formation est affiché sur sa page, toutes taxes comprises. Le paiement
+              se fait par carte bancaire sur la page sécurisée de notre prestataire Stripe ; nous ne
+              recevons jamais vos coordonnées bancaires.
+            </li>
+            <li>L'accès à toutes les leçons s'ouvre dès que Stripe confirme le paiement.</li>
+            <li>
+              Contenu numérique fourni immédiatement : avant de payer, vous demandez expressément
+              l'accès immédiat et renoncez à votre droit de rétractation (article L221-28 13° du
+              Code de la consommation). La date de cet accord est conservée avec le paiement.
+            </li>
+            <li>
+              En cas de remboursement, l'accès aux leçons réservées se ferme. Les paiements sont
+              conservés dix ans, comme l'exige la loi pour les pièces comptables.
+            </li>
+          </ul>
+        </Section>
+      ) : null}
       <Section title="Garanties et responsabilité">
         <p>
           {editor} s'engage à mettre en œuvre les moyens nécessaires au bon fonctionnement du

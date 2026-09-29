@@ -22,11 +22,12 @@
 - V0 · lot 5 A « Médiathèque » : envoi d'images et de PDF dans Supabase Storage (l'admin dépose, le public lit), écran d'administration, sélecteur d'image dans les formulaires (articles, formations, fiches, annonces, régie)
 - V0 · lot 5 C « Pages libres » : pages par sections modifiables sans code, accueil compris (format de données Puck, éditeur maison)
 - V0 · lot 6 : CRUD complet dans toute l'administration (annuaire, annonces, formations, régie, témoignages, thématiques du forum) et modération avec note visible (« Modéré par l'équipe : lien retiré »)
+- V0 · lot 7 : recette automatisée (robot Playwright, 81 pages, visiteur/membre/admin, ordinateur et mobile, écran « Recette »), module D « Paiement » Stripe pour les formations, signalements de contenus, purge automatique des messages de contact après 3 ans
 - Thème tactile léger : surfaces hiérarchisées, cartes mieux détachées, champs creusés et états actifs renforcés
 
 ## En pause (décision utilisateur)
 
-- Paiement des offres — sera Stripe, activation plus tard
+- Paiement des offres de la page Tarifs (abonnements) — Stripe est branché pour les formations depuis le lot 7
 - Envoi des e-mails — passera par le domaine des projets, configuration plus tard
 
 ## À venir

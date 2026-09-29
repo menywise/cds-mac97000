@@ -25,6 +25,8 @@ export const MODULES = [
   { key: "showcase", label: "Composants et guide", requires: [], defaultOn: true },
   { key: "media", label: "Médiathèque (envoi d'images et de fichiers)", requires: [], defaultOn: true },
   { key: "pages", label: "Pages libres par sections (dont l'accueil)", requires: [], defaultOn: false },
+  { key: "payments", label: "Paiement en ligne (Stripe) des formations", requires: ["lms"], defaultOn: false },
+  { key: "reports", label: "Signalements de contenus", requires: [], defaultOn: true },
 ] as const satisfies ReadonlyArray<{
   key: string;
   label: string;
@@ -82,4 +84,47 @@ export function onlyActive<T extends object>(states: ModuleStates, items: readon
       (!tag.anyOf || tag.anyOf.some((key) => isModuleOn(states, key)))
     );
   });
+}
+
+/**
+ * Pages de l'espace connecté rattachées à un module. Ces pages sont rendues dans le navigateur
+ * seulement : la route racine vérifie cette liste côté serveur pour renvoyer à l'accueil AVANT
+ * l'affichage (une redirection pendant l'hydratation provoque une erreur React).
+ * Chaque page garde aussi son `requireFeature` pour la navigation interne.
+ * Toute nouvelle page d'un module sous /admin ou l'espace membre s'ajoute ici.
+ */
+export const PROTECTED_PATH_MODULES: ReadonlyArray<{ prefix: string; anyOf: readonly FeatureKey[] }> = [
+  { prefix: "/admin/abonnes", anyOf: ["newsletter"] },
+  { prefix: "/admin/annuaire", anyOf: ["directory"] },
+  { prefix: "/admin/conformite", anyOf: ["studio"] },
+  { prefix: "/admin/contenus", anyOf: ["faq", "pricing", "blog"] },
+  { prefix: "/admin/crm", anyOf: ["crm"] },
+  { prefix: "/admin/formations", anyOf: ["lms"] },
+  { prefix: "/admin/forum", anyOf: ["forum"] },
+  { prefix: "/admin/geographie", anyOf: ["geo"] },
+  { prefix: "/admin/marketplace", anyOf: ["marketplace"] },
+  { prefix: "/admin/mediatheque", anyOf: ["media"] },
+  { prefix: "/admin/messages", anyOf: ["contact"] },
+  { prefix: "/admin/moderation", anyOf: ["reviews", "blog", "forum"] },
+  { prefix: "/admin/pages", anyOf: ["pages"] },
+  { prefix: "/admin/paiements", anyOf: ["payments"] },
+  { prefix: "/admin/pilotage", anyOf: ["studio"] },
+  { prefix: "/admin/recettage", anyOf: ["studio"] },
+  { prefix: "/admin/regie", anyOf: ["adNetwork"] },
+  { prefix: "/admin/signalements", anyOf: ["reports"] },
+  { prefix: "/admin/temoignages", anyOf: ["testimonials"] },
+  { prefix: "/crm", anyOf: ["crm"] },
+  { prefix: "/decouvrir", anyOf: ["onboarding"] },
+  { prefix: "/mes-annonces", anyOf: ["marketplace"] },
+  { prefix: "/mes-formations", anyOf: ["lms"] },
+  { prefix: "/messagerie", anyOf: ["messaging"] },
+];
+
+/** Vrai si l'adresse appartient à un module entièrement éteint. */
+export function isPathOff(states: ModuleStates, pathname: string): boolean {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  const rule = PROTECTED_PATH_MODULES.find(
+    (r) => path === r.prefix || path.startsWith(`${r.prefix}/`),
+  );
+  return rule ? !rule.anyOf.some((key) => isModuleOn(states, key)) : false;
 }

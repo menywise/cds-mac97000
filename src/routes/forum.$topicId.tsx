@@ -4,6 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/cds/SiteHeader";
 import { ModerationNote } from "@/components/cds/ModerationNote";
+import { ReportButton } from "@/components/cds/ReportButton";
 import { ShareButtons } from "@/components/cds/ShareButtons";
 import {
   CategoryBadge,
@@ -160,6 +161,7 @@ function TopicPage() {
 
         <RichText value={topic.content} className="mt-4 text-sm text-muted-foreground" />
         <ModerationNote note={topic.moderation_note} at={topic.moderated_at} />
+        <ReportButton contentType="sujet" contentId={topic.id} authorId={topic.author_id} />
 
         <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-border pt-5">
           <LikeButton topicId={topic.id} initialCount={topic.likes} />
@@ -202,6 +204,7 @@ function TopicPage() {
                 <RichText value={item.content} className="mt-2 text-sm text-muted-foreground" />
                 <ModerationNote note={item.moderation_note} at={item.moderated_at} />
                 <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <ReportButton contentType="reponse" contentId={item.id} authorId={item.author_id} />
                   <LikeButton replyId={item.id} initialCount={item.likes} />
                   {isOwner ? (
                     <button

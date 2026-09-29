@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { isFeatureOn } from "@/config/features";
 import { ContactChannel, LegalPage, Section, editorName } from "@/components/cds/LegalPage";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
 import { getSiteConfig } from "@/lib/site-config";
@@ -54,13 +55,19 @@ function ConfidentialitePage() {
           Les données de compte sont conservées pendant la durée d'utilisation du service. Quand
           vous supprimez votre compte, elles sont effacées immédiatement ; vos contributions
           publiques restent en ligne sous le nom « Ancien membre ». Les journaux techniques sont conservés 12 mois. Les messages de
-          contact sont conservés 3 ans à compter du dernier échange.
+          contact sont conservés 3 ans à compter du dernier échange, puis effacés automatiquement.
+          {isFeatureOn("payments")
+            ? " Les paiements (montant, date, formation, accord sur la rétractation) sont conservés 10 ans, obligation comptable ; ils sont anonymisés si vous supprimez votre compte."
+            : ""}
+          {isFeatureOn("reports")
+            ? " Un signalement de contenu est conservé le temps de son traitement ; son auteur n'est jamais révélé à la personne signalée."
+            : ""}
         </p>
       </Section>
       <Section title="Destinataires et sous-traitants">
         <p>
           {host.name ? `Les données sont hébergées par ${host.name}. ` : ""}D'autres prestataires
-          (envoi d'e-mails, mesure d'audience) peuvent intervenir, encadrés par des clauses
+          (envoi d'e-mails, mesure d'audience{isFeatureOn("payments") ? ", paiement par carte avec Stripe" : ""}) peuvent intervenir, encadrés par des clauses
           contractuelles conformes au RGPD.
         </p>
       </Section>

@@ -45,6 +45,7 @@ import { Route as AnnuaireIndexRouteImport } from './routes/annuaire.index'
 import { Route as AnnuaireSlugRouteImport } from './routes/annuaire.$slug'
 import { Route as AnnuaireDepartementsRouteImport } from './routes/annuaire.departements'
 import { Route as AnnuaireSoumettreRouteImport } from './routes/annuaire.soumettre'
+import { Route as ApiStripeWebhookRouteImport } from './routes/api.stripe-webhook'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as FormationsIndexRouteImport } from './routes/formations.index'
@@ -77,8 +78,11 @@ import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated/admin.moderation'
 import { Route as AuthenticatedAdminModulesRouteImport } from './routes/_authenticated/admin.modules'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
+import { Route as AuthenticatedAdminPaiementsRouteImport } from './routes/_authenticated/admin.paiements'
 import { Route as AuthenticatedAdminPilotageRouteImport } from './routes/_authenticated/admin.pilotage'
+import { Route as AuthenticatedAdminRecettageRouteImport } from './routes/_authenticated/admin.recettage'
 import { Route as AuthenticatedAdminRegieRouteImport } from './routes/_authenticated/admin.regie'
+import { Route as AuthenticatedAdminSignalementsRouteImport } from './routes/_authenticated/admin.signalements'
 import { Route as AuthenticatedAdminTemoignagesRouteImport } from './routes/_authenticated/admin.temoignages'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm.index'
@@ -276,6 +280,11 @@ const AnnuaireSoumettreRoute = AnnuaireSoumettreRouteImport.update({
   path: '/annuaire/soumettre',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
+  id: '/api/stripe-webhook',
+  path: '/api/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -447,10 +456,22 @@ const AuthenticatedAdminPagesRoute = AuthenticatedAdminPagesRouteImport.update({
   path: '/admin/pages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminPaiementsRoute =
+  AuthenticatedAdminPaiementsRouteImport.update({
+    id: '/admin/paiements',
+    path: '/admin/paiements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPilotageRoute =
   AuthenticatedAdminPilotageRouteImport.update({
     id: '/admin/pilotage',
     path: '/admin/pilotage',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRecettageRoute =
+  AuthenticatedAdminRecettageRouteImport.update({
+    id: '/admin/recettage',
+    path: '/admin/recettage',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminRegieRoute = AuthenticatedAdminRegieRouteImport.update({
@@ -458,6 +479,12 @@ const AuthenticatedAdminRegieRoute = AuthenticatedAdminRegieRouteImport.update({
   path: '/admin/regie',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminSignalementsRoute =
+  AuthenticatedAdminSignalementsRouteImport.update({
+    id: '/admin/signalements',
+    path: '/admin/signalements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminTemoignagesRoute =
   AuthenticatedAdminTemoignagesRouteImport.update({
     id: '/admin/temoignages',
@@ -566,6 +593,7 @@ export interface FileRoutesByFullPath {
   '/annuaire/$slug': typeof AnnuaireSlugRoute
   '/annuaire/departements': typeof AnnuaireDepartementsRoute
   '/annuaire/soumettre': typeof AnnuaireSoumettreRoute
+  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/forum/$topicId': typeof ForumTopicIdRoute
   '/legal/cgu': typeof LegalCguRoute
@@ -598,8 +626,11 @@ export interface FileRoutesByFullPath {
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/admin/modules': typeof AuthenticatedAdminModulesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
+  '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/admin/pilotage': typeof AuthenticatedAdminPilotageRoute
+  '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
+  '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/crm/actions': typeof AuthenticatedCrmActionsRoute
@@ -650,6 +681,7 @@ export interface FileRoutesByTo {
   '/annuaire/$slug': typeof AnnuaireSlugRoute
   '/annuaire/departements': typeof AnnuaireDepartementsRoute
   '/annuaire/soumettre': typeof AnnuaireSoumettreRoute
+  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/forum/$topicId': typeof ForumTopicIdRoute
   '/legal/cgu': typeof LegalCguRoute
@@ -682,8 +714,11 @@ export interface FileRoutesByTo {
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/admin/modules': typeof AuthenticatedAdminModulesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
+  '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/admin/pilotage': typeof AuthenticatedAdminPilotageRoute
+  '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
+  '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/crm/actions': typeof AuthenticatedCrmActionsRoute
@@ -736,6 +771,7 @@ export interface FileRoutesById {
   '/annuaire/$slug': typeof AnnuaireSlugRoute
   '/annuaire/departements': typeof AnnuaireDepartementsRoute
   '/annuaire/soumettre': typeof AnnuaireSoumettreRoute
+  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/forum/$topicId': typeof ForumTopicIdRoute
   '/legal/cgu': typeof LegalCguRoute
@@ -768,8 +804,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/_authenticated/admin/modules': typeof AuthenticatedAdminModulesRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
+  '/_authenticated/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/_authenticated/admin/pilotage': typeof AuthenticatedAdminPilotageRoute
+  '/_authenticated/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/_authenticated/admin/regie': typeof AuthenticatedAdminRegieRoute
+  '/_authenticated/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/_authenticated/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/crm/actions': typeof AuthenticatedCrmActionsRoute
@@ -822,6 +861,7 @@ export interface FileRouteTypes {
     | '/annuaire/$slug'
     | '/annuaire/departements'
     | '/annuaire/soumettre'
+    | '/api/stripe-webhook'
     | '/blog/$slug'
     | '/forum/$topicId'
     | '/legal/cgu'
@@ -854,8 +894,11 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/modules'
     | '/admin/pages'
+    | '/admin/paiements'
     | '/admin/pilotage'
+    | '/admin/recettage'
     | '/admin/regie'
+    | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
     | '/crm/actions'
@@ -906,6 +949,7 @@ export interface FileRouteTypes {
     | '/annuaire/$slug'
     | '/annuaire/departements'
     | '/annuaire/soumettre'
+    | '/api/stripe-webhook'
     | '/blog/$slug'
     | '/forum/$topicId'
     | '/legal/cgu'
@@ -938,8 +982,11 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/admin/modules'
     | '/admin/pages'
+    | '/admin/paiements'
     | '/admin/pilotage'
+    | '/admin/recettage'
     | '/admin/regie'
+    | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
     | '/crm/actions'
@@ -991,6 +1038,7 @@ export interface FileRouteTypes {
     | '/annuaire/$slug'
     | '/annuaire/departements'
     | '/annuaire/soumettre'
+    | '/api/stripe-webhook'
     | '/blog/$slug'
     | '/forum/$topicId'
     | '/legal/cgu'
@@ -1023,8 +1071,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/moderation'
     | '/_authenticated/admin/modules'
     | '/_authenticated/admin/pages'
+    | '/_authenticated/admin/paiements'
     | '/_authenticated/admin/pilotage'
+    | '/_authenticated/admin/recettage'
     | '/_authenticated/admin/regie'
+    | '/_authenticated/admin/signalements'
     | '/_authenticated/admin/temoignages'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/crm/actions'
@@ -1071,6 +1122,7 @@ export interface RootRouteChildren {
   AnnuaireSlugRoute: typeof AnnuaireSlugRoute
   AnnuaireDepartementsRoute: typeof AnnuaireDepartementsRoute
   AnnuaireSoumettreRoute: typeof AnnuaireSoumettreRoute
+  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ForumTopicIdRoute: typeof ForumTopicIdRoute
   LegalCguRoute: typeof LegalCguRoute
@@ -1350,6 +1402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnuaireSoumettreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stripe-webhook': {
+      id: '/api/stripe-webhook'
+      path: '/api/stripe-webhook'
+      fullPath: '/api/stripe-webhook'
+      preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -1574,6 +1633,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/paiements': {
+      id: '/_authenticated/admin/paiements'
+      path: '/admin/paiements'
+      fullPath: '/admin/paiements'
+      preLoaderRoute: typeof AuthenticatedAdminPaiementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/pilotage': {
       id: '/_authenticated/admin/pilotage'
       path: '/admin/pilotage'
@@ -1581,11 +1647,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPilotageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/recettage': {
+      id: '/_authenticated/admin/recettage'
+      path: '/admin/recettage'
+      fullPath: '/admin/recettage'
+      preLoaderRoute: typeof AuthenticatedAdminRecettageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/regie': {
       id: '/_authenticated/admin/regie'
       path: '/admin/regie'
       fullPath: '/admin/regie'
       preLoaderRoute: typeof AuthenticatedAdminRegieRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/signalements': {
+      id: '/_authenticated/admin/signalements'
+      path: '/admin/signalements'
+      fullPath: '/admin/signalements'
+      preLoaderRoute: typeof AuthenticatedAdminSignalementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/temoignages': {
@@ -1703,8 +1783,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminModerationRoute: typeof AuthenticatedAdminModerationRoute
   AuthenticatedAdminModulesRoute: typeof AuthenticatedAdminModulesRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
+  AuthenticatedAdminPaiementsRoute: typeof AuthenticatedAdminPaiementsRoute
   AuthenticatedAdminPilotageRoute: typeof AuthenticatedAdminPilotageRoute
+  AuthenticatedAdminRecettageRoute: typeof AuthenticatedAdminRecettageRoute
   AuthenticatedAdminRegieRoute: typeof AuthenticatedAdminRegieRoute
+  AuthenticatedAdminSignalementsRoute: typeof AuthenticatedAdminSignalementsRoute
   AuthenticatedAdminTemoignagesRoute: typeof AuthenticatedAdminTemoignagesRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedCrmActionsRoute: typeof AuthenticatedCrmActionsRoute
@@ -1737,8 +1820,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminModerationRoute: AuthenticatedAdminModerationRoute,
   AuthenticatedAdminModulesRoute: AuthenticatedAdminModulesRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
+  AuthenticatedAdminPaiementsRoute: AuthenticatedAdminPaiementsRoute,
   AuthenticatedAdminPilotageRoute: AuthenticatedAdminPilotageRoute,
+  AuthenticatedAdminRecettageRoute: AuthenticatedAdminRecettageRoute,
   AuthenticatedAdminRegieRoute: AuthenticatedAdminRegieRoute,
+  AuthenticatedAdminSignalementsRoute: AuthenticatedAdminSignalementsRoute,
   AuthenticatedAdminTemoignagesRoute: AuthenticatedAdminTemoignagesRoute,
   AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
   AuthenticatedCrmActionsRoute: AuthenticatedCrmActionsRoute,
@@ -1786,6 +1872,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnuaireSlugRoute: AnnuaireSlugRoute,
   AnnuaireDepartementsRoute: AnnuaireDepartementsRoute,
   AnnuaireSoumettreRoute: AnnuaireSoumettreRoute,
+  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
   BlogSlugRoute: BlogSlugRoute,
   ForumTopicIdRoute: ForumTopicIdRoute,
   LegalCguRoute: LegalCguRoute,

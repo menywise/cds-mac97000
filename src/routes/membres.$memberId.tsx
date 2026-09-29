@@ -10,6 +10,7 @@ import { richTextToPlain } from "@/lib/richtext";
 import { breadcrumbJsonLd, seo } from "@/lib/seo";
 import { requireFeature, isFeatureOn } from "@/config/features";
 import { getSiteConfig } from "@/lib/site-config";
+import { ReportButton } from "@/components/cds/ReportButton";
 
 export const Route = createFileRoute("/membres/$memberId")({
   beforeLoad: () => requireFeature("members"),
@@ -118,6 +119,7 @@ function MemberPage() {
           </span>
           <div>
             <h1 className="text-2xl font-bold text-foreground">{profile.display_name}</h1>
+            <ReportButton contentType="membre" contentId={profile.user_id} authorId={profile.user_id} />
             {profile.job_title ? (
               <p className="text-sm text-muted-foreground">{profile.job_title}</p>
             ) : null}

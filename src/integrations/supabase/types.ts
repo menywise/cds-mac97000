@@ -1382,6 +1382,99 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount_cents: number
+          course_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          product_label: string
+          refunded_at: string | null
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          user_id: string
+          waiver_accepted_at: string
+        }
+        Insert: {
+          amount_cents: number
+          course_id?: string | null
+          created_at?: string
+          currency: string
+          id?: string
+          paid_at?: string | null
+          product_label: string
+          refunded_at?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+          waiver_accepted_at: string
+        }
+        Update: {
+          amount_cents?: number
+          course_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          product_label?: string
+          refunded_at?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+          waiver_accepted_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          admin_note: string | null
+          content_id: string | null
+          content_type: string
+          created_at: string
+          details: string | null
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          reason: string
+          reported_url: string | null
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          content_id?: string | null
+          content_type: string
+          created_at?: string
+          details?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          reason: string
+          reported_url?: string | null
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          content_id?: string | null
+          content_type?: string
+          created_at?: string
+          details?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          reason?: string
+          reported_url?: string | null
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       member_profiles: {
         Row: {
           accepts_messages: boolean
@@ -1901,6 +1994,27 @@ export type Database = {
       member_accepts_messages: { Args: { _user_id: string }; Returns: boolean }
       module_defaults: { Args: never; Returns: Json }
       module_enabled: { Args: { _key: string }; Returns: boolean }
+      purge_contact_messages: { Args: never; Returns: number }
+      payment_start_course: {
+        Args: { _user_id: string; _course_id: string; _waiver: boolean }
+        Returns: {
+          id: string
+          amount_cents: number
+          currency: string
+          product_label: string
+          course_slug: string
+        }[]
+      }
+      payment_attach_session: {
+        Args: { _payment_id: string; _session_id: string }
+        Returns: undefined
+      }
+      payment_mark_paid: {
+        Args: { _session_id: string; _intent: string; _amount: number; _currency: string }
+        Returns: boolean
+      }
+      payment_mark_status: { Args: { _session_id: string; _status: string }; Returns: boolean }
+      payment_mark_refunded: { Args: { _intent: string }; Returns: boolean }
       valid_page_data: { Args: { _data: Json }; Returns: boolean }
       request_directory_claim: {
         Args: { _listing_id: string }

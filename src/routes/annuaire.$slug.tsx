@@ -4,6 +4,7 @@ import { BadgeCheck, Globe, Mail, MapPin, Phone, Star } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/cds/SiteHeader";
 import { ModerationNote } from "@/components/cds/ModerationNote";
+import { ReportButton } from "@/components/cds/ReportButton";
 import { AdSlot } from "@/components/cds/AdSlot";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -195,6 +196,7 @@ function ListingPage() {
         ) : null}
 
         <h1 className="mt-4 text-3xl font-bold text-foreground">{listing.name}</h1>
+        <ReportButton contentType="fiche" contentId={listing.id} />
         <p className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           {listing.city ? (
             <span className="inline-flex items-center gap-1">
@@ -270,6 +272,7 @@ function ListingPage() {
                         <p className="mt-2 text-sm text-foreground">{review.content}</p>
                       ) : null}
                       <ModerationNote note={review.moderation_note} at={review.moderated_at} />
+                      <ReportButton contentType="avis_fiche" contentId={review.id} />
                     </li>
                   ))}
                 </ul>

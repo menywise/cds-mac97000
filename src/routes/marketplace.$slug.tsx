@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { absoluteUrl } from "@/lib/site-config";
 import { breadcrumbJsonLd, seo } from "@/lib/seo";
 import { formatDate, formatPrice } from "@/lib/format";
+import { ReportButton } from "@/components/cds/ReportButton";
 
 export const Route = createFileRoute("/marketplace/$slug")({
   beforeLoad: () => requireFeature("marketplace"),
@@ -137,6 +138,7 @@ function ListingPage() {
         </nav>
 
         <h1 className="mt-4 text-3xl font-bold text-foreground">{listing.title}</h1>
+        <ReportButton contentType="annonce" contentId={listing.id} authorId={listing.seller_id} />
         <p className="mt-2 text-xl font-semibold text-primary-text">
           {formatPrice(listing.price_cents, listing.currency ?? "EUR")}
           {listing.negotiable ? (

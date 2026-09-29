@@ -57,6 +57,18 @@ function AdminMessagesPage() {
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
 
+  async function purge() {
+    const { data, error } = await supabase.rpc("purge_contact_messages");
+    if (error) {
+      toast.error("La purge a échoué.");
+      return;
+    }
+    toast.success(
+      data ? `${data} message${data > 1 ? "s" : ""} effacé${data > 1 ? "s" : ""}.` : "Aucun message à effacer.",
+    );
+    void load();
+  }
+
   const load = useCallback(async () => {
     setLoadError(false);
     const { data, error } = await supabase
@@ -254,6 +266,23 @@ function AdminMessagesPage() {
           })
         )}
       </div>
+
+      <section className="mt-10 rounded-xl border border-border bg-card p-5 text-sm">
+        <h2 className="text-base font-semibold text-foreground">Durée de conservation</h2>
+        <p className="mt-2 text-muted-foreground">
+          Comme l'annonce la politique de confidentialité, un message est effacé 3 ans après le
+          dernier échange (réception ou traitement). La base fait ce ménage chaque nuit ; vous
+          pouvez aussi le lancer maintenant.
+        </p>
+        <ConfirmButton
+          label="Purger maintenant"
+          title="Effacer les messages de plus de 3 ans"
+          question="Effacer les messages dont le dernier échange date de plus de 3 ans ?"
+          detail="Les messages plus récents ne sont pas touchés."
+          confirmLabel="Purger"
+          onConfirm={purge}
+        />
+      </section>
     </AdminShell>
   );
 }

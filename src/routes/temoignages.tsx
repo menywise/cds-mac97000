@@ -4,6 +4,7 @@ import { Quote } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/cds/SiteHeader";
 import { ModerationNote } from "@/components/cds/ModerationNote";
+import { ReportButton } from "@/components/cds/ReportButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -126,6 +127,7 @@ function TestimonialsPage() {
                 <Quote className="size-5 text-primary-text" aria-hidden="true" />
                 <p className="mt-3 text-sm text-foreground">{item.content}</p>
                 <ModerationNote note={item.moderation_note} at={item.moderated_at} />
+                <ReportButton contentType="temoignage" contentId={item.id} />
                 {item.outcome ? (
                   <p className="mt-3 rounded-md bg-muted px-3 py-2 text-xs font-medium text-success-text">
                     Résultat : {item.outcome}

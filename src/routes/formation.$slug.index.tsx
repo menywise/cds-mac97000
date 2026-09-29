@@ -6,8 +6,10 @@ import { PageShell } from "@/components/cds/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { RichText } from "@/lib/richtext";
-import { requireFeature } from "@/config/features";
+import { isFeatureOn, requireFeature } from "@/config/features";
 import { getCourse } from "@/lib/lms.functions";
+import { startCourseCheckout } from "@/lib/payments.functions";
+import { RetractionWaiver } from "@/components/cds/RetractionWaiver";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { breadcrumbJsonLd, seo } from "@/lib/seo";
@@ -19,7 +21,13 @@ const LEVEL_LABEL: Record<string, string> = {
   avance: "Avancé",
 };
 
+type CourseSearch = { paiement?: "reussi" | "annule" };
+
 export const Route = createFileRoute("/formation/$slug/")({
+  validateSearch: (search: Record<string, unknown>): CourseSearch =>
+    search["paiement"] === "reussi" || search["paiement"] === "annule"
+      ? { paiement: search["paiement"] }
+      : {},
   beforeLoad: () => requireFeature("lms"),
   loader: async ({ params }) => {
     const data = await getCourse({ data: { slug: params.slug } });
@@ -71,20 +79,31 @@ export const Route = createFileRoute("/formation/$slug/")({
 
 function CoursePage() {
   const { course, modules, lessons } = Route.useLoaderData();
+  const { paiement } = Route.useSearch();
   const { user } = useAuth();
   const router = useRouter();
   const [enrolled, setEnrolled] = useState(false);
+  const [paid, setPaid] = useState(false);
   const [doneIds, setDoneIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [waiver, setWaiver] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const isPaidCourse = course.price_cents > 0;
+  const onlinePayment = isPaidCourse && isFeatureOn("payments");
+  // Accès au contenu : formation gratuite, ou payante et réglée.
+  const hasAccess = enrolled && (!isPaidCourse || paid);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    void (async () => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    // Retour de Stripe : le webhook peut arriver quelques secondes après la redirection.
+    let attempts = paiement === "reussi" ? 6 : 1;
+    const load = async () => {
       const [{ data: enrollment }, { data: progress }] = await Promise.all([
         supabase
           .from("lms_enrollments")
-          .select("id")
+          .select("id, paid_at")
           .eq("user_id", user.id)
           .eq("course_id", course.id)
           .maybeSingle(),
@@ -92,12 +111,44 @@ function CoursePage() {
       ]);
       if (cancelled) return;
       setEnrolled(Boolean(enrollment));
+      setPaid(Boolean(enrollment?.paid_at));
       setDoneIds((progress ?? []).map((row) => row.lesson_id));
-    })();
+      attempts -= 1;
+      if (!enrollment?.paid_at && attempts > 0) timer = setTimeout(load, 2500);
+    };
+    void load();
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
-  }, [user, course.id]);
+  }, [user, course.id, paiement]);
+
+  useEffect(() => {
+    if (paiement === "reussi") {
+      toast.success("Paiement reçu, merci.", {
+        description: "L'accès s'ouvre dès que Stripe nous confirme le règlement.",
+      });
+    } else if (paiement === "annule") {
+      toast.info("Paiement annulé.", { description: "Aucun montant n'a été débité." });
+    }
+  }, [paiement]);
+
+  async function pay() {
+    if (!waiver) {
+      toast.info("Cochez la case de renonciation pour continuer.");
+      return;
+    }
+    setPaying(true);
+    try {
+      const { url } = await startCourseCheckout({ data: { courseId: course.id, waiver } });
+      window.location.assign(url);
+    } catch (err) {
+      setPaying(false);
+      toast.error("Paiement impossible.", {
+        description: err instanceof Error ? err.message : "Réessayez dans un instant.",
+      });
+    }
+  }
 
   const lessonIds = lessons.map((lesson) => lesson.id);
   const doneCount = lessonIds.filter((id) => doneIds.includes(id)).length;
@@ -116,7 +167,11 @@ function CoursePage() {
       return;
     }
     setEnrolled(true);
-    toast.success("Vous êtes inscrit.", { description: "Commencez par la première leçon." });
+    toast.success(isPaidCourse ? "Place réservée." : "Vous êtes inscrit.", {
+      description: isPaidCourse
+        ? "L'équipe vous contacte pour le règlement."
+        : "Commencez par la première leçon.",
+    });
     router.invalidate();
   }
 
@@ -168,7 +223,7 @@ function CoursePage() {
               </Link>{" "}
               pour suivre cette formation et garder votre progression.
             </p>
-          ) : enrolled ? (
+          ) : hasAccess ? (
             <>
               <p className="text-sm font-medium text-foreground">
                 Votre progression : {doneCount} / {lessonIds.length} leçons
@@ -185,11 +240,33 @@ function CoursePage() {
                 </Button>
               ) : null}
             </>
+          ) : onlinePayment ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {paiement === "reussi"
+                  ? "Paiement en cours de confirmation : cette page s'actualise toute seule."
+                  : `Réglez ${formatPrice(course.price_cents, course.currency ?? "EUR")} par carte : l'accès aux leçons s'ouvre dès la confirmation du paiement.`}
+              </p>
+              <RetractionWaiver checked={waiver} onChange={setWaiver} />
+              <Button
+                className="mt-4"
+                disabled={paying || !waiver}
+                onClick={pay}
+                title="Payer cette formation sur la page sécurisée de Stripe"
+              >
+                {paying ? "Ouverture du paiement…" : "Payer et accéder à la formation"}
+              </Button>
+            </>
+          ) : enrolled ? (
+            <p className="text-sm text-muted-foreground">
+              Votre place est réservée. L'accès aux leçons s'ouvre dès que l'équipe a enregistré
+              votre règlement.
+            </p>
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                {course.price_cents > 0
-                  ? "Le paiement en ligne arrive bientôt : inscrivez-vous pour réserver votre place."
+                {isPaidCourse
+                  ? "Inscrivez-vous pour réserver votre place : l'équipe vous contacte pour le règlement."
                   : "Cette formation est offerte : inscrivez-vous et commencez tout de suite."}
               </p>
               <Button
@@ -219,7 +296,7 @@ function CoursePage() {
                     </h3>
                     <ul className="mt-3 space-y-1.5 text-sm">
                       {items.map((lesson) => {
-                        const open = enrolled || lesson.free_preview;
+                        const open = hasAccess || lesson.free_preview;
                         const done = doneIds.includes(lesson.id);
                         return (
                           <li key={lesson.id} className="flex items-center gap-2">
@@ -246,7 +323,7 @@ function CoursePage() {
                             ) : (
                               <span className="text-muted-foreground">{lesson.title}</span>
                             )}
-                            {lesson.free_preview && !enrolled ? (
+                            {lesson.free_preview && !hasAccess ? (
                               <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-success-text">
                                 Aperçu libre
                               </span>
