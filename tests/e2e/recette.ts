@@ -382,7 +382,8 @@ async function checkPage(
         role === "visiteur" &&
         viewport === "ordinateur" &&
         RANK[qa.role] === 0 &&
-        qa.expectStatus !== 404
+        qa.expectStatus !== 404 &&
+        !qa.sansTexte
       ) {
         const texts: PageTexts = await page.evaluate(() => {
           const main = document.querySelector("main") ?? document.body;

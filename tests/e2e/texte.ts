@@ -146,11 +146,13 @@ export function auditTexts(
         `Entre ${rules.cta.longueurMin} et ${rules.cta.longueurMax} mots, verbe en tête`,
       );
     }
-    const w = words(label);
-    const head = w[0] === "je" && w[1] ? `je ${w[1]}` : (w[0] ?? "");
+    // Verbe pronominal ou précédé d'un pronom : « Se connecter », « Nous contacter ».
+    const all = words(label);
+    const w = /^(se|s'|s’|nous|vous|me|m'|m’)$/u.test(all[0] ?? "") && all[1] ? all.slice(1) : all;
+    const head = all[0] === "je" && all[1] ? `je ${all[1]}` : (w[0] ?? "");
     if (rules.cta.imperatifNuInterdit && /ez$/u.test(w[0] ?? "") && !verbes.has(head)) {
       add(c.libelle, "ctaImperatifNu", "Verbe à l'infinitif ou à la première personne");
-    } else if (!verbes.has(head) && !/(er|ir|re|oir)$/u.test(w[0] ?? "") && w[0] !== "je") {
+    } else if (!verbes.has(head) && !/(er|ir|re|oir)$/u.test(w[0] ?? "") && all[0] !== "je") {
       add(c.libelle, "ctaHorsRegles", "Commencer par un verbe d'action");
     }
   }

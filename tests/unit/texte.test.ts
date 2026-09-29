@@ -59,6 +59,9 @@ test("les 10 mauvais boutons de la charte sont refusés", () => {
     assert.ok(ctaRules(b).length > 0, b);
   }
   assert.deepEqual(ctaRules("Cliquez ici"), ["ctaFormuleInterdite"]);
+  // Verbes pronominaux ou précédés d'un pronom : acceptés.
+  assert.deepEqual(ctaRules("Se connecter"), []);
+  assert.deepEqual(ctaRules("Nous contacter"), []);
   assert.ok(ctaRules("Réservez").includes("ctaImperatifNu"));
 });
 

@@ -31,6 +31,8 @@ export type QaPage = {
   expectStatus?: number;
   /** Page vitrine : contrôle des textes complet (h1 de 40 caractères au moins, cible nommée). */
   vitrine?: boolean;
+  /** Page du studio (démonstration de composants) : textes non notés. */
+  sansTexte?: boolean;
 };
 
 export const QA_PAGES: QaPage[] = [
@@ -168,8 +170,14 @@ export const QA_PAGES: QaPage[] = [
     module: "pages",
     discover: { from: "/plan-du-site", match: "^/pages/[^/?#]+$" },
   },
-  { path: "/composants", label: "Composants", role: "visiteur", module: "showcase" },
-  { path: "/guide", label: "Guide", role: "visiteur", module: "showcase" },
+  {
+    path: "/composants",
+    label: "Composants",
+    role: "visiteur",
+    module: "showcase",
+    sansTexte: true,
+  },
+  { path: "/guide", label: "Guide", role: "visiteur", module: "showcase", sansTexte: true },
 
   // Espace membre
   { path: "/tableau-de-bord", label: "Tableau de bord", role: "membre" },
