@@ -1,0 +1,83 @@
+# CDS — Contrôles automatiques à chaque PR et sur main (lot 7).
+# bun.lock pointe vers le registre privé de Lovable : ici, installation depuis le registre npm
+# public, sans écrire de fichier de verrouillage (rien n'est commité).
+name: Qualité
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: qualite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifications:
+    name: Types, tests, base de données, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dépendances (registre npm public)
+        run: npm install --no-package-lock --no-audit --no-fund
+      - name: Types
+        run: npx tsc --noEmit -p .
+      - name: Tests unitaires
+        run: node --test tests/unit/*.test.ts
+      - name: Migrations et règles d'accès
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: tests/db/run.sh
+      - name: Build
+        run: npx vite build
+
+  recette:
+    name: Recette automatisée (robot)
+    needs: verifications
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dépendances et navigateur
+        run: |
+          npm install --no-package-lock --no-audit --no-fund
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Site en local
+        run: |
+          nohup npx vite dev --port 8080 --host 127.0.0.1 > vite.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:8080/ && exit 0; sleep 2; done
+          cat vite.log; exit 1
+      - name: Robot (visiteur réel, membre et admin simulés, lecture seule)
+        env:
+          CDS_RECETTE_MEMBRE_EMAIL: ${{ secrets.CDS_RECETTE_MEMBRE_EMAIL }}
+          CDS_RECETTE_MEMBRE_MDP: ${{ secrets.CDS_RECETTE_MEMBRE_MDP }}
+          CDS_RECETTE_ADMIN_EMAIL: ${{ secrets.CDS_RECETTE_ADMIN_EMAIL }}
+          CDS_RECETTE_ADMIN_MDP: ${{ secrets.CDS_RECETTE_ADMIN_MDP }}
+        run: node tests/e2e/recette.ts --url http://127.0.0.1:8080
+      - name: Rapport (à importer dans /admin/recettage)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-recette
+          path: tests/e2e/rapport/
+          if-no-files-found: ignore
