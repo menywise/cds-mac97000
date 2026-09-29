@@ -22,6 +22,9 @@ import { isPathOff } from "@/config/modules";
 export function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      {/* Aucune route ne fournit de titre ici : React place ces balises dans <head>. */}
+      <title>{`Page introuvable — ${getSiteConfig().brand.shortName}`}</title>
+      <meta name="robots" content="noindex" />
       <div className="max-w-md text-center">
         <p className="text-7xl font-bold text-primary-text">404</p>
         <h1 className="mt-4 text-xl font-semibold text-foreground">Page introuvable</h1>
