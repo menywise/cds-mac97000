@@ -31,7 +31,7 @@ export const Route = createFileRoute("/faq")({
     const base = seo({
       title: "Questions fréquentes",
       description:
-        "Les questions que se posent les indépendants, artisans et solopreneurs avant de démarrer : délais, administration sans code, sécurité des données, référencement. Des réponses directes, sans jargon.",
+        "Délais, administration sans code, données, référencement : les réponses directes aux questions des indépendants, artisans et solopreneurs avant de démarrer.",
       path: "/faq",
       type: "website",
     });

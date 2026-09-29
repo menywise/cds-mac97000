@@ -409,3 +409,16 @@ export const QA_CHECKLIST: QaSection[] = [
 ];
 
 export const QA_CHECKLIST_TOTAL = QA_CHECKLIST.reduce((n, s) => n + s.items.length, 0);
+
+/**
+ * Contrôles du catalogue d'audit (dépôt agents-mac97000, src/lib/audit-offer.ts) que le robot
+ * mesure automatiquement. Les remarques du rapport commencent par leur code, ex. « [s1] … ».
+ */
+export const QA_AUDIT_CODES: Record<string, { label: string; agent: string }> = {
+  r1: { label: "Liens morts et erreurs 404", agent: "Kestrel" },
+  r3: { label: "Affichage mobile (cibles de 44 px)", agent: "Kestrel" },
+  p2: { label: "Poids des images", agent: "Atlas" },
+  s1: { label: "Titres et méta-descriptions", agent: "Sonar" },
+  s3: { label: "Structure des titres (H1)", agent: "Sonar" },
+  l3: { label: "Alternatives textuelles", agent: "Bay" },
+};

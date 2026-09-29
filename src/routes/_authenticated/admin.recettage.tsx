@@ -9,6 +9,7 @@ import { requireFeature } from "@/config/features";
 import {
   QA_CHECKLIST,
   QA_CHECKLIST_TOTAL,
+  QA_AUDIT_CODES,
   QA_PAGES,
   type QaItem,
   type QaReport,
@@ -98,6 +99,15 @@ function AdminRecettePage() {
   const results = report?.results ?? [];
   const fails = results.filter((r) => r.status === "echec");
   const oks = results.filter((r) => r.status === "ok");
+  // Remarques non bloquantes, regroupées par contrôle du catalogue d'audit.
+  const remarks = new Map<string, string[]>();
+  for (const r of results) {
+    for (const w of r.warnings) {
+      const code = /^\[([a-z]\d)\]/.exec(w)?.[1];
+      if (!code) continue;
+      remarks.set(code, [...(remarks.get(code) ?? []), `${r.viewport} · ${r.url} : ${w.slice(5)}`]);
+    }
+  }
 
   return (
     <AdminShell
@@ -166,6 +176,34 @@ function AdminRecettePage() {
                 Aucune page en échec : zéro page blanche, zéro erreur console.
               </p>
             )}
+            {remarks.size ? (
+              <div className="mt-5">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Remarques par contrôle d'audit (non bloquantes)
+                </h3>
+                <ul className="mt-2 space-y-2">
+                  {[...remarks].map(([code, lines]) => (
+                    <li key={code} className="rounded-md border border-border p-3 text-sm">
+                      <details>
+                        <summary className="cursor-pointer text-foreground">
+                          <span className="font-medium">
+                            {code} · {QA_AUDIT_CODES[code]?.label ?? code}
+                          </span>{" "}
+                          <span className="text-muted-foreground">
+                            ({QA_AUDIT_CODES[code]?.agent ?? "—"}) — {lines.length}
+                          </span>
+                        </summary>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                          {lines.slice(0, 50).map((line) => (
+                            <li key={line}>{line}</li>
+                          ))}
+                        </ul>
+                      </details>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         ) : (
           <p className="mt-4 text-sm text-muted-foreground">

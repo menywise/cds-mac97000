@@ -62,6 +62,8 @@ const PROJECT_REF = /^https:\/\/([^.]+)\./.exec(SUPABASE_URL)?.[1] ?? "";
 const ONLY = arg("only");
 const ROLES = (arg("roles") ?? "visiteur,membre,admin").split(",") as QaRole[];
 const RANK: Record<QaRole, number> = { visiteur: 0, membre: 1, admin: 2 };
+/** Liens internes rencontrés (adresse → première page où il apparaît), vérifiés en fin de passage. */
+const LINKS = new Map<string, string>();
 
 /** Fonctions de la base qui ne font que lire : les seules permises au robot. */
 const READ_ONLY_RPC = new Set([
@@ -289,21 +291,75 @@ async function checkPage(
       /* attendu */
     } else if (expected === 200 && status >= 400) problems.push(`réponse ${status}`);
     if (!problems.length) {
-      const facts = await page.evaluate(() => ({
-        text: document.body?.innerText.trim().length ?? 0,
-        h1: document.querySelectorAll("h1").length,
-        title: document.title.trim(),
-        overflow: document.documentElement.scrollWidth - window.innerWidth,
-        errorPage: /Something went wrong|Une erreur est survenue/i.test(
-          document.body?.innerText ?? "",
-        ),
-      }));
+      const facts = await page.evaluate(() => {
+        const visible = (el: Element) => {
+          const r = el.getBoundingClientRect();
+          return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden";
+        };
+        // Cibles tactiles : boutons et champs (les liens dans un paragraphe sont exclus).
+        const small = [
+          ...document.querySelectorAll("button, [role=button], input:not([type=hidden]), select"),
+        ].filter((el) => {
+          // Champ piège anti-robot (hors tabulation) : pas une cible pour un humain.
+          if (!visible(el) || el.getAttribute("tabindex") === "-1") return false;
+          const r = el.getBoundingClientRect();
+          return (
+            r.height < 44 &&
+            !(el as HTMLInputElement).matches("input[type=checkbox], input[type=radio]")
+          );
+        }).length;
+        const heavy = performance
+          .getEntriesByType("resource")
+          .filter(
+            (e) =>
+              (e as PerformanceResourceTiming).initiatorType === "img" &&
+              (e as PerformanceResourceTiming).encodedBodySize > 300_000,
+          ).length;
+        return {
+          text: document.body?.innerText.trim().length ?? 0,
+          h1: document.querySelectorAll("h1").length,
+          title: document.title.trim(),
+          description:
+            document.querySelector('meta[name="description"]')?.getAttribute("content")?.trim() ??
+            "",
+          noindex: /noindex/i.test(
+            document.querySelector('meta[name="robots"]')?.getAttribute("content") ?? "",
+          ),
+          noAlt: [...document.images].filter((img) => visible(img) && !img.hasAttribute("alt"))
+            .length,
+          small,
+          heavy,
+          overflow: document.documentElement.scrollWidth - window.innerWidth,
+          errorPage: /Something went wrong|Une erreur est survenue/i.test(
+            document.body?.innerText ?? "",
+          ),
+          links: [...document.querySelectorAll("a[href]")]
+            .map((a) => a.getAttribute("href") ?? "")
+            .filter((h) => h.startsWith("/") && !h.startsWith("//")),
+        };
+      });
       if (facts.text < 40) problems.push("page blanche");
       if (facts.errorPage) problems.push("page d'erreur affichée");
       if (facts.h1 === 0 && !qa.noH1) problems.push("aucun titre h1");
-      if (facts.h1 > 1) warnings.push(`${facts.h1} titres h1`);
-      if (!facts.title) warnings.push("balise <title> vide");
       if (facts.overflow > 1) problems.push(`débordement horizontal de ${facts.overflow} px`);
+      // Contrôles du catalogue d'audit (agents-mac97000, src/lib/audit-offer.ts) : remarques.
+      if (facts.h1 > 1) warnings.push(`[s3] ${facts.h1} titres h1`);
+      if (!facts.title) warnings.push("[s1] balise <title> vide");
+      else if (facts.title.length > 60)
+        warnings.push(`[s1] titre de ${facts.title.length} caractères (> 60)`);
+      if (!facts.noindex && RANK[qa.role] === 0) {
+        if (!facts.description) warnings.push("[s1] pas de méta-description");
+        else if (facts.description.length > 160)
+          warnings.push(`[s1] méta-description de ${facts.description.length} caractères (> 160)`);
+      }
+      if (facts.noAlt) warnings.push(`[l3] ${facts.noAlt} image(s) sans attribut alt`);
+      if (facts.heavy) warnings.push(`[p2] ${facts.heavy} image(s) de plus de 300 Ko`);
+      if (viewport === "mobile" && facts.small)
+        warnings.push(`[r3] ${facts.small} bouton(s) ou champ(s) de moins de 44 px de haut`);
+      for (const href of facts.links) {
+        const clean = href.split("#")[0]!.split("?")[0]!;
+        if (clean && !clean.startsWith("/api/")) LINKS.set(clean, LINKS.get(clean) ?? url);
+      }
     }
   }
   if (consoleErrors.length)
@@ -411,11 +467,41 @@ async function main() {
   }
   await browser.close();
 
+  // [r1] Liens internes morts : chaque adresse rencontrée est demandée une fois au serveur.
+  const dead: string[] = [];
+  for (const [href, from] of LINKS) {
+    const res = await fetch(BASE + href, { redirect: "manual" }).catch(() => null);
+    const code = res?.status ?? 0;
+    if (code === 0 || code === 404 || code >= 500)
+      dead.push(`${href} (${code || "injoignable"}, vu sur ${from})`);
+  }
+  report.results.push({
+    path: "(liens internes)",
+    url: `${LINKS.size} liens`,
+    label: "Liens internes morts",
+    role: "visiteur",
+    viewport: "ordinateur",
+    status: dead.length ? "echec" : "ok",
+    problems: dead.map((d) => `[r1] lien mort : ${d}`),
+    warnings: [],
+    ms: 0,
+  });
+  console.log(
+    `${dead.length ? "✘" : "✔"} [r1] ${LINKS.size} liens internes vérifiés, ${dead.length} mort(s)`,
+  );
+
   const dir = join(ROOT, "tests", "e2e", "rapport");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "recette.json"), JSON.stringify(report, null, 2));
   const fails = report.results.filter((r) => r.status === "echec");
   const oks = report.results.filter((r) => r.status === "ok");
+  // Remarques groupées par contrôle du catalogue d'audit.
+  const byCode = new Map<string, number>();
+  for (const r of report.results)
+    for (const w of r.warnings) {
+      const code = /^\[([a-z]\d)\]/.exec(w)?.[1] ?? "autre";
+      byCode.set(code, (byCode.get(code) ?? 0) + 1);
+    }
   const md = [
     `# Recette automatisée — ${report.startedAt}`,
     "",
@@ -424,6 +510,14 @@ async function main() {
     `**${oks.length} pages conformes, ${fails.length} en échec, ${report.results.length - oks.length - fails.length} ignorées.**`,
     "",
     ...fails.map((r) => `- ✘ ${r.viewport} · ${r.role} · \`${r.url}\` : ${r.problems.join(" ; ")}`),
+    "",
+    "## Remarques (non bloquantes) par contrôle d'audit",
+    "",
+    ...[...byCode].map(([code, n]) => `- ${code} : ${n}`),
+    "",
+    ...report.results
+      .filter((r) => r.warnings.length && r.status !== "ignore")
+      .map((r) => `- ${r.viewport} · ${r.role} · \`${r.url}\` : ${r.warnings.join(" ; ")}`),
   ].join("\n");
   writeFileSync(join(dir, "recette.md"), md + "\n");
   console.log(

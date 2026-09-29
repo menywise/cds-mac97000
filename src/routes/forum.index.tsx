@@ -23,7 +23,7 @@ export const Route = createFileRoute("/forum/")({
     seo({
       title: "Forum de la communauté",
       description:
-        "Posez votre question, trouvez la réponse d'un indépendant, d'un artisan ou d'un solopreneur passé par là avant vous : thématiques, discussions récentes et membres actifs.",
+        "Posez votre question et trouvez la réponse d'un indépendant, d'un artisan ou d'un solopreneur passé par là : thématiques, discussions et membres actifs.",
       path: "/forum",
       type: "website",
     }),
