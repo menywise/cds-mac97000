@@ -16,7 +16,7 @@ export const Route = createFileRoute("/demarrer")({
     seo({
       title: "Démarrer",
       description:
-        "Trois étapes pour lancer votre site : clarifier ce que vous attendez, choisir l'offre adaptée, créer votre compte. Sans engagement et sans mauvaise surprise.",
+        "Trois étapes pour lancer votre site : clarifier vos attentes, choisir l'offre adaptée, créer votre compte. Résiliable à tout moment.",
       path: "/demarrer",
       type: "website",
     }),

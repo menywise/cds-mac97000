@@ -14,7 +14,7 @@ export const Route = createFileRoute("/tarifs")({
     seo({
       title: "Tarifs",
       description:
-        "Trois offres sans engagement : démarrez gratuitement, passez Pro quand votre site doit convertir, choisissez Expert pour piloter plusieurs projets.",
+        "Trois offres résiliables à tout moment : démarrez gratuitement, passez Pro quand votre site doit convertir, choisissez Expert pour plusieurs projets.",
       path: "/tarifs",
       type: "website",
     }),
