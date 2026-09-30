@@ -56,6 +56,11 @@ jobs:
     needs: verifications
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # Parcours réels : un seul passage à la fois (la purge d'un passage effacerait les données
+    # d'un autre en cours).
+    concurrency:
+      group: parcours-reels
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -78,6 +83,14 @@ jobs:
           CDS_RECETTE_ADMIN_EMAIL: ${{ secrets.CDS_RECETTE_ADMIN_EMAIL }}
           CDS_RECETTE_ADMIN_MDP: ${{ secrets.CDS_RECETTE_ADMIN_MDP }}
         run: node tests/e2e/recette.ts --url http://127.0.0.1:8080
+      - name: Parcours cliqués (données « [recette] » purgées ; simulés sans compte admin)
+        if: success() || failure()
+        env:
+          CDS_RECETTE_MEMBRE_EMAIL: ${{ secrets.CDS_RECETTE_MEMBRE_EMAIL }}
+          CDS_RECETTE_MEMBRE_MDP: ${{ secrets.CDS_RECETTE_MEMBRE_MDP }}
+          CDS_RECETTE_ADMIN_EMAIL: ${{ secrets.CDS_RECETTE_ADMIN_EMAIL }}
+          CDS_RECETTE_ADMIN_MDP: ${{ secrets.CDS_RECETTE_ADMIN_MDP }}
+        run: node tests/e2e/parcours.ts --url http://127.0.0.1:8080
       - name: Rapport (à importer dans /admin/recettage)
         if: always()
         uses: actions/upload-artifact@v4

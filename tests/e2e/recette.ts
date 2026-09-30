@@ -20,9 +20,8 @@
  *
  * Rapport : tests/e2e/rapport/recette.json (à importer dans /admin/recettage) et recette.md.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   chromium,
   firefox,
@@ -41,7 +40,21 @@ import {
   type QaRole,
   type QaViewport,
 } from "../../src/lib/qa-plan.ts";
-import { isModuleOn, normalizeModules, type FeatureKey } from "../../src/config/modules.ts";
+import {
+  AUTH_STORAGE_KEY,
+  BASE,
+  CHROMIUM_ARGS,
+  NAVIGATEUR,
+  PROJECT_REF,
+  ROOT,
+  SUPABASE_KEY,
+  SUPABASE_URL,
+  arg,
+  args,
+  moduleOn,
+  modulesState,
+  realSession,
+} from "./commun.ts";
 import { auditTexts, type PageTexts, type TextRules } from "./texte.ts";
 import { createRequire } from "node:module";
 
@@ -57,41 +70,15 @@ function optional(name: string): string | null {
 const AXE = optional("axe-core/axe.min.js");
 const HTML_VALIDATE = optional("html-validate");
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const args = process.argv.slice(2);
-const arg = (name: string) => {
-  const i = args.indexOf(`--${name}`);
-  return i >= 0 ? args[i + 1] : undefined;
-};
-
-// Variables d'environnement : .env du projet (adresse et clé publique Supabase) puis environnement.
-function loadEnv() {
-  const env: Record<string, string> = {};
-  const file = join(ROOT, ".env");
-  if (existsSync(file)) {
-    for (const line of readFileSync(file, "utf8").split("\n")) {
-      const m = /^\s*([A-Z0-9_]+)\s*=\s*"?([^"]*)"?\s*$/.exec(line);
-      if (m) env[m[1]!] = m[2]!;
-    }
-  }
-  return { ...env, ...process.env } as Record<string, string | undefined>;
-}
-const ENV = loadEnv();
 /** Charte de rédaction contrôlable (docs/redaction/text-rules.json). */
 const TEXT_RULES = JSON.parse(
   readFileSync(join(ROOT, "docs", "redaction", "text-rules.json"), "utf8"),
 ) as TextRules;
 /** Nom du site (marque) : protégé, ce n'est pas du vocabulaire interne. */
 let BRAND_NAMES: string[] = [];
-const BASE = (arg("url") ?? ENV["CDS_RECETTE_URL"] ?? "http://localhost:8080").replace(/\/+$/, "");
-const SUPABASE_URL = ENV["VITE_SUPABASE_URL"] ?? ENV["SUPABASE_URL"] ?? "";
-const SUPABASE_KEY = ENV["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? ENV["SUPABASE_PUBLISHABLE_KEY"] ?? "";
-const PROJECT_REF = /^https:\/\/([^.]+)\./.exec(SUPABASE_URL)?.[1] ?? "";
 const ONLY = arg("only");
 /** Mesures de vitesse et de poids : site publié (https), ou forcées avec --perf. */
 const PERF = BASE.startsWith("https://") || args.includes("--perf");
-/** Moteur de rendu : chromium (défaut), firefox ou webkit (Safari). */
-const NAVIGATEUR = (arg("navigateur") ?? "chromium") as "chromium" | "firefox" | "webkit";
 const ROLES = (arg("roles") ?? "visiteur,membre,admin").split(",") as QaRole[];
 const RANK: Record<QaRole, number> = { visiteur: 0, membre: 1, admin: 2 };
 /** Liens internes rencontrés (adresse → première page où il apparaît), vérifiés en fin de passage. */
@@ -167,19 +154,6 @@ async function brandNames(): Promise<string[]> {
   );
 }
 
-async function modulesState(): Promise<Record<string, boolean>> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?select=value&key=eq.modules`, {
-    headers: { apikey: SUPABASE_KEY },
-  });
-  const rows = (await res.json()) as Array<{ value: Record<string, boolean> }>;
-  return rows[0]?.value ?? {};
-}
-
-/** Même règle que le site : valeurs par défaut pour les clés absentes, dépendances respectées. */
-function moduleOn(states: Record<string, boolean>, key: string): boolean {
-  return isModuleOn(normalizeModules(states), key as FeatureKey);
-}
-
 function fakeJwt(sub: string, email: string) {
   const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
   const exp = Math.floor(Date.now() / 1000) + 3600;
@@ -187,18 +161,8 @@ function fakeJwt(sub: string, email: string) {
 }
 
 async function signIn(role: "membre" | "admin"): Promise<Auth> {
-  const email = ENV[`CDS_RECETTE_${role.toUpperCase()}_EMAIL`];
-  const password = ENV[`CDS_RECETTE_${role.toUpperCase()}_MDP`];
-  if (email && password) {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: "POST",
-      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) throw new Error(`Connexion ${role} refusée (${res.status})`);
-    const session = (await res.json()) as Record<string, unknown> & { user: { id: string } };
-    return { mode: "réel", session, userId: session.user.id };
-  }
+  const real = await realSession(role);
+  if (real) return { mode: "réel", session: real, userId: real.user.id };
   const userId =
     role === "admin"
       ? "00000000-0000-4000-8000-0000000000ad"
@@ -291,7 +255,7 @@ async function newContext(browser: Browser, viewport: QaViewport, role: QaRole, 
       ([key, value]) => {
         window.localStorage.setItem(key!, value!);
       },
-      [`sb-${PROJECT_REF}-auth-token`, JSON.stringify(auth.session)],
+      [AUTH_STORAGE_KEY, JSON.stringify(auth.session)],
     );
   }
   await guardNetwork(context, role, auth);
@@ -343,8 +307,7 @@ async function measurePerf(page: Page): Promise<Perf> {
     () =>
       new Promise<Perf>((resolve) => {
         const nav = performance.getEntriesByType("navigation")[0] as
-          | PerformanceNavigationTiming
-          | undefined;
+          PerformanceNavigationTiming | undefined;
         const res = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
         const bytes = (nav?.transferSize ?? 0) + res.reduce((n, r) => n + (r.transferSize || 0), 0);
         let lcp: number | null = null;
@@ -727,10 +690,9 @@ async function main() {
   BRAND_NAMES = await brandNames();
   // Options Chromium facultatives, ex. derrière un proxy d'entreprise :
   // CDS_RECETTE_CHROMIUM_ARGS="--ignore-certificate-errors-spki-list=<empreinte du certificat du proxy>"
-  const extra = (ENV["CDS_RECETTE_CHROMIUM_ARGS"] ?? "").split(" ").filter(Boolean);
   const engine = { chromium, firefox, webkit }[NAVIGATEUR];
   // Les options Chromium (proxy, certificats) ne s'appliquent qu'à Chromium.
-  const browser = await engine.launch(NAVIGATEUR === "chromium" ? { args: extra } : {});
+  const browser = await engine.launch(NAVIGATEUR === "chromium" ? { args: CHROMIUM_ARGS } : {});
   const auths: Partial<Record<QaRole, Auth | null>> = { visiteur: null };
   const report: QaReport = {
     version: 1,

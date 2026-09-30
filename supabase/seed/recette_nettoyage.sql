@@ -1,5 +1,7 @@
 -- CDS — Retire tout le contenu du seed de recette (recette_seed.sql). Rejouable sans danger.
--- Ne touche qu'aux identifiants e7000000-…-00000000XXXX créés par le seed.
+-- Ne touche qu'aux identifiants e7000000-…-00000000XXXX créés par le seed, et aux données
+-- marquées « [recette] » laissées par un parcours cliqué interrompu (lot 9, recette_purge).
+SELECT public.recette_purge(NULL);
 DELETE FROM public.blog_comments WHERE id = 'e7000000-0000-4000-8000-000000000050';
 DELETE FROM public.testimonials WHERE id = 'e7000000-0000-4000-8000-000000000041';
 DELETE FROM public.reviews WHERE id = 'e7000000-0000-4000-8000-000000000040';
