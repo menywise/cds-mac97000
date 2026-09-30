@@ -27,6 +27,7 @@ export const MODULES = [
   { key: "pages", label: "Pages libres par sections (dont l'accueil)", requires: [], defaultOn: false },
   { key: "payments", label: "Paiement en ligne (Stripe) des formations", requires: ["lms"], defaultOn: false },
   { key: "reports", label: "Signalements de contenus", requires: [], defaultOn: true },
+  { key: "search", label: "Recherche globale", requires: [], defaultOn: true },
 ] as const satisfies ReadonlyArray<{
   key: string;
   label: string;

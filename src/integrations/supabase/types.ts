@@ -1995,6 +1995,18 @@ export type Database = {
       module_defaults: { Args: never; Returns: Json }
       module_enabled: { Args: { _key: string }; Returns: boolean }
       purge_contact_messages: { Args: never; Returns: number }
+      recette_purge: { Args: { _membre?: string | null }; Returns: Json }
+      search_site: {
+        Args: { _q: string; _limit?: number }
+        Returns: {
+          kind: string
+          title: string
+          excerpt: string
+          url: string
+          rank: number
+          updated_at: string | null
+        }[]
+      }
       payment_start_course: {
         Args: { _user_id: string; _course_id: string; _waiver: boolean }
         Returns: {

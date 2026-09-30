@@ -73,6 +73,13 @@ export const QA_PAGES: QaPage[] = [
     discover: { from: "/blog", match: "^/blog/[^/?#]+$" },
   },
   { path: "/faq", label: "FAQ", role: "visiteur", module: "faq" },
+  { path: "/recherche", label: "Recherche", role: "visiteur", module: "search" },
+  {
+    path: "/recherche?q=exemple",
+    label: "Recherche (résultats)",
+    role: "visiteur",
+    module: "search",
+  },
   { path: "/contact", label: "Contact", role: "visiteur", module: "contact" },
   { path: "/forum", label: "Forum", role: "visiteur", module: "forum" },
   {

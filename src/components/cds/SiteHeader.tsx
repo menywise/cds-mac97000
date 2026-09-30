@@ -1,5 +1,5 @@
 import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
 import { useAuth } from "@/hooks/useAuth";
@@ -111,7 +111,12 @@ function buildMemberNav(): NavItem[] {
       title: "Gérer vos annonces publiées",
       module: "marketplace",
     },
-    { to: "/crm", label: "Mes contacts", title: "Suivre vos contacts et vos relances", module: "crm" },
+    {
+      to: "/crm",
+      label: "Mes contacts",
+      title: "Suivre vos contacts et vos relances",
+      module: "crm",
+    },
     { to: "/blog", label: "Blog", title: "Lire les derniers articles", module: "blog" },
   ]);
 }
@@ -342,6 +347,18 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
+
+        {isFeatureOn("search") ? (
+          <Link
+            to="/recherche"
+            title="Rechercher dans tout le site"
+            aria-label="Rechercher"
+            className="ml-auto grid size-11 place-items-center rounded-md text-foreground hover:bg-accent"
+            activeProps={{ className: "bg-accent" }}
+          >
+            <Search className="size-5" aria-hidden="true" />
+          </Link>
+        ) : null}
 
         <div className="ml-auto hidden items-center gap-2 text-sm lg:flex">
           <AccountLinks />

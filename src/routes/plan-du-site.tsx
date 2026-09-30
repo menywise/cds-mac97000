@@ -32,6 +32,7 @@ const groupes: Array<{ title: string; links: PlanLink[] }> = [
     links: [
       { to: "/", label: "Accueil", title: "Revenir à la page d'accueil" },
       { to: "/a-propos", label: "À propos", title: "Qui édite le site et selon quels engagements" },
+      { to: "/recherche", label: "Recherche", title: "Rechercher dans tout le site", module: "search" },
       {
         to: "/demarrer",
         label: "Démarrer",

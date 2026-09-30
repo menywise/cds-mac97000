@@ -25,6 +25,7 @@
 - V0 · lot 7 : recette automatisée (robot Playwright, 81 pages, visiteur/membre/admin, ordinateur et mobile, écran « Recette »), module D « Paiement » Stripe pour les formations, signalements de contenus, purge automatique des messages de contact après 3 ans
 - V0 · lot 8 : qualité premium (accessibilité, HTML valide, SEO, sécurité, Firefox et Safari, vitesse et poids des pages, textes selon la charte)
 - V0 · lot 9 : parcours cliqués (inscription, contact, forum, signalement, formation offerte) avec données « [recette] » purgées ; actifs en écriture réelle dès que les comptes de test sont fournis
+- V0 · lot 10 : recherche globale (module F) en français sans accents sur tous les contenus publics, règles de visibilité du site respectées, loupe dans l'en-tête
 - Thème tactile léger : surfaces hiérarchisées, cartes mieux détachées, champs creusés et états actifs renforcés
 
 ## En attente (décision du 29/09 : « beaucoup à faire avant de lancer les paiements »)
@@ -38,15 +39,16 @@
 
 Premier projet à dupliquer et mettre en conformité : **l'annuaire des sites français** (`annuaire-mac97000`). Il fixe l'ordre des lots 10 à 13.
 
-1. **Lot 10 · Recherche globale (module F)** — recherche plein texte Postgres sur tous les contenus publics ; Meilisearch plus tard si le volume l'exige.
-2. **Lot 11 · Géographie complète** — le module géographie monte au niveau de l'annuaire : régions, départements, communes, intercommunalités, codes postaux, coordonnées, voisinages (geo.api.gouv.fr).
-3. **Lot 12 · Veille de sites** — module propre à l'annuaire : découverte de sites (Firecrawl, clé en secret), détection des technologies, contrôles réguliers d'état.
-4. **Lot 13 · Duplication : annuaire** — kit de démarrage d'un projet (marque, réglages, modules, nettoyage de la démo), annuaire reconstruit sur le socle, données reprises. Sortie de la V0 : grille de conformité à 100 %, robot vert, chaque module « fini » (8 critères de V0.md).
-5. **Lot 14 · Briques externes** — Umami (audience sans cookie), zone Revive dans l'emplacement Régie, Ghost en cohabitation.
-6. **Lot 15 · Pages libres v2** — éditeur de menu, historique des versions ; Puck quand la dépendance pourra être validée côté Lovable.
-7. **Ensuite** — E Notifications (sur le site d'abord), H Événements, I Réalisations, G Rendez-vous, dans l'ordre des besoins des projets. Rôle Modérateur (reporté le 29/09).
+1. **Lot 11 · Géographie complète** — le module géographie monte au niveau de l'annuaire : régions, départements, communes, intercommunalités, codes postaux, coordonnées, voisinages (geo.api.gouv.fr).
+2. **Lot 12 · Veille de sites** — module propre à l'annuaire : découverte de sites (Firecrawl, clé en secret), détection des technologies, contrôles réguliers d'état.
+3. **Lot 13 · Duplication : annuaire** — kit de démarrage d'un projet (marque, réglages, modules, nettoyage de la démo), annuaire reconstruit sur le socle, données reprises. Sortie de la V0 : grille de conformité à 100 %, robot vert, chaque module « fini » (8 critères de V0.md).
+4. **Lot 14 · Briques externes** — Umami (audience sans cookie), zone Revive dans l'emplacement Régie, Ghost en cohabitation.
+5. **Lot 15 · Pages libres v2** — éditeur de menu, historique des versions ; Puck quand la dépendance pourra être validée côté Lovable.
+6. **Ensuite** — E Notifications (sur le site d'abord), H Événements, I Réalisations, G Rendez-vous, dans l'ordre des besoins des projets. Rôle Modérateur (reporté le 29/09).
 
 ## Points de vigilance
+
+- `/tarifs` sur mobile : bouton principal sous la ligne de flottaison (remarque c2 du robot, antérieure au lot 10)
 
 - Comptes de test membre et admin à fournir (secrets GitHub `CDS_RECETTE_*`) : sans eux, recette membre/admin simulée et parcours sans écriture réelle
 
