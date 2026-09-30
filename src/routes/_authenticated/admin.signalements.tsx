@@ -102,12 +102,12 @@ function AdminReportsPage() {
       title="Signalements"
       intro="Les contenus que les membres vous ont signalés. Ouvrez la page, modérez si besoin (écran Modération), puis classez le signalement avec une note. L'auteur du contenu ne voit jamais qui a signalé."
     >
-      <div role="tablist" aria-label="Filtrer par statut" className="flex flex-wrap gap-2">
+      <div role="group" aria-label="Filtrer par statut" className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <Button
             key={f.value}
-            role="tab"
-            aria-selected={filter === f.value}
+            type="button"
+            aria-pressed={filter === f.value}
             size="sm"
             variant={filter === f.value ? "default" : "outline"}
             onClick={() => setFilter(f.value)}

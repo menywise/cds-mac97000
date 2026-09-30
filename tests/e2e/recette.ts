@@ -587,8 +587,8 @@ async function checkPage(
         for (const v of found ?? []) {
           const code = v.id === "color-contrast" ? "l2" : "a11y";
           const line = `[${code}] ${v.id} (${v.impact}) : ${v.n} élément(s)`;
-          if (v.impact === "critical") problems.push(line);
-          else if (v.impact === "serious") warnings.push(line);
+          // Critique ou sérieux : bloquant (le site n'en a plus aucun depuis le lot 8).
+          if (v.impact === "critical" || v.impact === "serious") problems.push(line);
         }
       }
       // HTML valide (html-validate, règles de la norme) : pages publiques, rendu serveur, une fois.

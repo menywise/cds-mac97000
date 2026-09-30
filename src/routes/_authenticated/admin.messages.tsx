@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { requireFeature } from "@/config/features";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
@@ -64,7 +63,9 @@ function AdminMessagesPage() {
       return;
     }
     toast.success(
-      data ? `${data} message${data > 1 ? "s" : ""} effacé${data > 1 ? "s" : ""}.` : "Aucun message à effacer.",
+      data
+        ? `${data} message${data > 1 ? "s" : ""} effacé${data > 1 ? "s" : ""}.`
+        : "Aucun message à effacer.",
     );
     void load();
   }
@@ -153,15 +154,21 @@ function AdminMessagesPage() {
       ) : null}
 
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <Tabs value={status} onValueChange={(v) => setStatus(v as Status)}>
-          <TabsList>
-            {(Object.keys(STATUS_LABEL) as Status[]).map((key) => (
-              <TabsTrigger key={key} value={key}>
-                {STATUS_LABEL[key]} {messages ? `(${counts[key]})` : ""}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        {/* Filtre (et non onglets : pas de panneau par statut, la liste est unique). */}
+        <div role="group" aria-label="Filtrer par statut" className="flex flex-wrap gap-2">
+          {(Object.keys(STATUS_LABEL) as Status[]).map((key) => (
+            <Button
+              key={key}
+              type="button"
+              size="sm"
+              variant={status === key ? "default" : "outline"}
+              aria-pressed={status === key}
+              onClick={() => setStatus(key)}
+            >
+              {STATUS_LABEL[key]} {messages ? `(${counts[key]})` : ""}
+            </Button>
+          ))}
+        </div>
         <div className="w-full space-y-1.5 sm:w-64">
           <Label htmlFor="message-search" className="sr-only">
             Rechercher un message
