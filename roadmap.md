@@ -25,17 +25,29 @@
 - V0 · lot 7 : recette automatisée (robot Playwright, 81 pages, visiteur/membre/admin, ordinateur et mobile, écran « Recette »), module D « Paiement » Stripe pour les formations, signalements de contenus, purge automatique des messages de contact après 3 ans
 - Thème tactile léger : surfaces hiérarchisées, cartes mieux détachées, champs creusés et états actifs renforcés
 
-## En pause (décision utilisateur)
+## En attente (décision du 29/09 : « beaucoup à faire avant de lancer les paiements »)
 
-- Paiement des offres de la page Tarifs (abonnements) — Stripe est branché pour les formations depuis le lot 7
-- Envoi des e-mails — passera par le domaine des projets, configuration plus tard
+- Paiement Stripe : code prêt et éteint. Avant activation : SQL du lot 7 b (double paiement), secrets `STRIPE_SECRET_KEY` et `STRIPE_WEBHOOK_SECRET`, webhook, parcours test 4242
+- E-mails transactionnels (module B) : domaine d'envoi des projets à configurer
+- Purge planifiée des messages de contact : pg_cron absent, planifier `/api/cron/purge-contact` dans les tâches Lovable ; en attendant, bouton « Purger maintenant »
+- Paiement des offres de la page Tarifs (abonnements)
 
-## À venir
+## À venir (validé le 30/09)
 
-- Rôle Modérateur (distinct d'Admin) : reporté, décision du 29/09
-- Pages libres : éditeur de menu, historique des versions, éditeur Puck glisser-déposer (quand la dépendance pourra être validée côté Lovable)
-- V0 · lot 5 B : e-mails transactionnels (en pause, décision du 29/09)
+Premier projet à dupliquer et mettre en conformité : **l'annuaire des sites français** (`annuaire-mac97000`). Il fixe l'ordre des lots 10 à 13.
+
+1. **Lot 8 · Qualité premium** — robot : accessibilité (axe-core), HTML valide, en-têtes de sécurité, SEO avancé (doublons, canonical, sitemap = pages réelles), pages légales remplies, prix cohérents, bouton d'action visible, Firefox et Safari, secrets dans le code. Réécriture des textes signalés (tarifs, démarrer, à propos, boutons sans verbe). Comptes de test membre et admin pour une recette sur données réelles.
+2. **Lot 9 · Parcours réels** — scénarios cliqués (inscription, contact, forum, signalement, formation gratuite). Décision préalable : données de test marquées puis nettoyées, ou base de recette séparée.
+3. **Lot 10 · Recherche globale (module F)** — recherche plein texte Postgres sur tous les contenus publics ; Meilisearch plus tard si le volume l'exige.
+4. **Lot 11 · Géographie complète** — le module géographie monte au niveau de l'annuaire : régions, départements, communes, intercommunalités, codes postaux, coordonnées, voisinages (geo.api.gouv.fr).
+5. **Lot 12 · Veille de sites** — module propre à l'annuaire : découverte de sites (Firecrawl, clé en secret), détection des technologies, contrôles réguliers d'état.
+6. **Lot 13 · Duplication : annuaire** — kit de démarrage d'un projet (marque, réglages, modules, nettoyage de la démo), annuaire reconstruit sur le socle, données reprises. Sortie de la V0 : grille de conformité à 100 %, robot vert, chaque module « fini » (8 critères de V0.md).
+7. **Lot 14 · Briques externes** — Umami (audience sans cookie), zone Revive dans l'emplacement Régie, Ghost en cohabitation.
+8. **Lot 15 · Pages libres v2** — éditeur de menu, historique des versions ; Puck quand la dépendance pourra être validée côté Lovable.
+9. **Ensuite** — E Notifications (sur le site d'abord), H Événements, I Réalisations, G Rendez-vous, dans l'ordre des besoins des projets. Rôle Modérateur (reporté le 29/09).
+
+## Points de vigilance
 
 - Vulnérabilités js-yaml héritées de @tanstack/react-start : aucun correctif amont, à re-vérifier
-- Mesures non réalisées : poids des fichiers livrés, temps de réponse, test mobile réel, test lecteur d'écran
-- [x] Audit de correction des bugs d'interface (recette robot 40+ pages, ordinateur et mobile, connecté/déconnecté : zéro page blanche, zéro erreur)
+- Mesures non réalisées : poids des fichiers livrés, temps de réponse, test lecteur d'écran (prévus au lot 8)
+- Plan directeur et feuille de route de l'écran Pilotage : à rafraîchir avec `supabase/seed/pilotage_v2.sql`
