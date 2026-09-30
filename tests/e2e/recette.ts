@@ -634,6 +634,26 @@ async function checkPage(
   };
 }
 
+/**
+ * Serveur de développement local (vite dev) : Vite découvre certaines dépendances à la première
+ * ouverture d'une page et recharge alors le navigateur (« optimized dependencies changed »).
+ * Un chargement pris au milieu de ce rechargement échoue (« Importing a module script failed »)
+ * sans que l'application soit en cause. Premier passage à blanc, sans contrôle, pour stabiliser.
+ */
+async function warmUp(browser: Browser, pages: typeof QA_PAGES) {
+  if (!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(BASE)) return;
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  for (const qa of pages) {
+    if (qa.discover || qa.raw) continue;
+    await page
+      .goto(`${BASE}${qa.path}`, { waitUntil: "load", timeout: 30_000 })
+      .then(() => page.waitForLoadState("networkidle", { timeout: 5_000 }))
+      .catch(() => undefined);
+  }
+  await context.close();
+}
+
 async function main() {
   if (!SUPABASE_URL || !SUPABASE_KEY)
     throw new Error("Adresse ou clé publique Supabase absente (.env)");
@@ -660,6 +680,7 @@ async function main() {
   }
 
   const pages = QA_PAGES.filter((p) => !ONLY || p.path.startsWith(ONLY));
+  await warmUp(browser, pages);
   const resolved = new Map<string, string>();
   for (const viewport of Object.keys(QA_VIEWPORTS) as QaViewport[]) {
     for (const role of ROLES) {
