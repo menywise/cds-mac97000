@@ -97,10 +97,14 @@ RETURNS tsquery LANGUAGE sql STABLE SET search_path = public AS $$
 $$;
 GRANT EXECUTE ON FUNCTION public.search_query(text) TO anon, authenticated, service_role;
 
--- Résumé affiché : texte brut, sans balises ni marques de mise en forme.
+-- Résumé affiché : texte brut, sans balises ni marques de mise en forme (# * _ ` > [ ]).
+-- Caractères écrits avec chr() : certains éditeurs SQL coupent le script sur l'accent grave.
 CREATE OR REPLACE FUNCTION public.search_excerpt(_t text)
 RETURNS text LANGUAGE sql IMMUTABLE AS $$
-  SELECT left(btrim(regexp_replace(regexp_replace(coalesce(_t, ''), '<[^>]*>|[#*_`>\[\]]', ' ', 'g'), '\s+', ' ', 'g')), 180)
+  SELECT left(btrim(regexp_replace(
+    translate(regexp_replace(coalesce(_t, ''), '<[^>]*>', ' ', 'g'),
+      '#*_' || chr(96) || '>' || chr(91) || chr(93), '       '),
+    '\s+', ' ', 'g')), 180)
 $$;
 GRANT EXECUTE ON FUNCTION public.search_excerpt(text) TO anon, authenticated, service_role;
 
