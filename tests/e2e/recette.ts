@@ -32,6 +32,7 @@ import {
   type Page,
 } from "playwright";
 import {
+  QA_BUDGETS,
   QA_PAGES,
   QA_VIEWPORTS,
   type QaPage,
@@ -87,6 +88,8 @@ const SUPABASE_URL = ENV["VITE_SUPABASE_URL"] ?? ENV["SUPABASE_URL"] ?? "";
 const SUPABASE_KEY = ENV["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? ENV["SUPABASE_PUBLISHABLE_KEY"] ?? "";
 const PROJECT_REF = /^https:\/\/([^.]+)\./.exec(SUPABASE_URL)?.[1] ?? "";
 const ONLY = arg("only");
+/** Mesures de vitesse et de poids : site publié (https), ou forcées avec --perf. */
+const PERF = BASE.startsWith("https://") || args.includes("--perf");
 /** Moteur de rendu : chromium (défaut), firefox ou webkit (Safari). */
 const NAVIGATEUR = (arg("navigateur") ?? "chromium") as "chromium" | "firefox" | "webkit";
 const ROLES = (arg("roles") ?? "visiteur,membre,admin").split(",") as QaRole[];
@@ -332,6 +335,60 @@ async function validateHtml(html: string): Promise<string[]> {
   );
 }
 
+type Perf = { ttfb: number | null; lcp: number | null; cls: number | null; ko: number };
+
+/** Mesures du navigateur : TTFB (tous), LCP et CLS (Chromium ; Firefox pour LCP), poids transféré. */
+async function measurePerf(page: Page): Promise<Perf> {
+  return page.evaluate(
+    () =>
+      new Promise<Perf>((resolve) => {
+        const nav = performance.getEntriesByType("navigation")[0] as
+          | PerformanceNavigationTiming
+          | undefined;
+        const res = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+        const bytes = (nav?.transferSize ?? 0) + res.reduce((n, r) => n + (r.transferSize || 0), 0);
+        let lcp: number | null = null;
+        let cls: number | null = null;
+        const observe = (type: string, cb: (e: PerformanceEntry) => void) => {
+          try {
+            new PerformanceObserver((l) => l.getEntries().forEach(cb)).observe({
+              type,
+              buffered: true,
+            });
+          } catch {
+            /* type non pris en charge par ce navigateur */
+          }
+        };
+        observe("largest-contentful-paint", (e) => (lcp = e.startTime));
+        observe("layout-shift", (e) => {
+          const s = e as unknown as { value: number; hadRecentInput: boolean };
+          if (!s.hadRecentInput) cls = (cls ?? 0) + s.value;
+        });
+        if (PerformanceObserver.supportedEntryTypes?.includes("layout-shift")) cls ??= 0;
+        setTimeout(
+          () =>
+            resolve({
+              ttfb: nav ? Math.round(nav.responseStart - nav.requestStart) : null,
+              lcp: lcp === null ? null : Math.round(lcp),
+              cls: cls === null ? null : Math.round(cls * 1000) / 1000,
+              ko: Math.round(bytes / 1024),
+            }),
+          200,
+        );
+      }),
+  );
+}
+
+function perfWarnings(p: Perf) {
+  const w: string[] = [];
+  const b = QA_BUDGETS;
+  if (p.lcp !== null && p.lcp > b.lcpMs) w.push(`[p1] LCP ${p.lcp} ms (> ${b.lcpMs})`);
+  if (p.cls !== null && p.cls > b.cls) w.push(`[p1] CLS ${p.cls} (> ${b.cls})`);
+  if (p.ttfb !== null && p.ttfb > b.ttfbMs) w.push(`[p5] TTFB ${p.ttfb} ms (> ${b.ttfbMs})`);
+  if (p.ko > b.pageKo) w.push(`[p2] page de ${p.ko} Ko transférés (> ${b.pageKo})`);
+  return w;
+}
+
 async function checkPage(
   page: Page,
   qa: QaPage,
@@ -516,6 +573,9 @@ async function checkPage(
       }
       if (facts.noAlt) warnings.push(`[l3] ${facts.noAlt} image(s) sans attribut alt`);
       if (facts.heavy) warnings.push(`[p2] ${facts.heavy} image(s) de plus de 300 Ko`);
+      if (PERF && role === "visiteur" && qa.expectStatus !== 404) {
+        warnings.push(...perfWarnings(await measurePerf(page)));
+      }
       if (viewport === "mobile" && facts.small)
         warnings.push(`[r3] ${facts.small} bouton(s) ou champ(s) de moins de 44 px de haut`);
       // Qualité des textes : pages publiques, en visiteur, une fois (sur ordinateur).

@@ -292,6 +292,14 @@ export const QA_CHECKLIST: QaSection[] = [
         severity: "mineur",
       },
       {
+        id: "lecteur-ecran",
+        label:
+          "Lecteur d'écran (NVDA ou VoiceOver) : accueil, inscription et contact se parcourent au clavier, chaque bouton est annoncé",
+        path: "/signup",
+        role: "visiteur",
+        severity: "majeur",
+      },
+      {
         id: "modules-eteints",
         label: "Éteindre un module : ses pages renvoient à l'accueil, ses liens disparaissent",
         path: "/admin/modules",
@@ -424,6 +432,17 @@ export const QA_CHECKLIST: QaSection[] = [
   },
 ];
 
+/**
+ * Budgets de performance (seuils « bons » de web.dev pour LCP, CLS et TTFB). Mesurés sur le site
+ * publié seulement : le serveur de développement ne compresse ni ne regroupe les fichiers.
+ */
+export const QA_BUDGETS = {
+  lcpMs: 2500,
+  cls: 0.1,
+  ttfbMs: 800,
+  pageKo: 1500,
+};
+
 export const QA_CHECKLIST_TOTAL = QA_CHECKLIST.reduce((n, s) => n + s.items.length, 0);
 
 /**
@@ -433,7 +452,9 @@ export const QA_CHECKLIST_TOTAL = QA_CHECKLIST.reduce((n, s) => n + s.items.leng
 export const QA_AUDIT_CODES: Record<string, { label: string; agent: string }> = {
   r1: { label: "Liens morts et erreurs 404", agent: "Kestrel" },
   r3: { label: "Affichage mobile (cibles de 44 px)", agent: "Kestrel" },
-  p2: { label: "Poids des images", agent: "Atlas" },
+  p1: { label: "Vitesse de chargement (LCP, CLS)", agent: "Atlas" },
+  p2: { label: "Poids des images et de la page", agent: "Atlas" },
+  p5: { label: "Temps de réponse serveur (TTFB)", agent: "Atlas" },
   s1: { label: "Titres et méta-descriptions", agent: "Sonar" },
   s3: { label: "Structure des titres (H1)", agent: "Sonar" },
   l3: { label: "Alternatives textuelles", agent: "Bay" },
