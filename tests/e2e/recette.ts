@@ -370,10 +370,16 @@ async function checkPage(
   const needsLogin = RANK[qa.role] > RANK[role];
   let status = 0;
   try {
-    const res = await page.goto(BASE + url, { waitUntil: "networkidle", timeout: 45000 });
-    status = res?.status() ?? 0;
-    // Laisse le temps aux écrans rendus dans le navigateur (espace membre, admin).
-    await page.waitForTimeout(qa.raw ? 0 : 800);
+    if (qa.raw) {
+      // Fichier brut (XML, manifeste) : Firefox le télécharge au lieu de l'afficher,
+      // on lit donc la réponse HTTP directement.
+      status = (await page.request.get(BASE + url, { timeout: 45000 })).status();
+    } else {
+      const res = await page.goto(BASE + url, { waitUntil: "networkidle", timeout: 45000 });
+      status = res?.status() ?? 0;
+      // Laisse le temps aux écrans rendus dans le navigateur (espace membre, admin).
+      await page.waitForTimeout(800);
+    }
   } catch (err) {
     problems.push(`chargement impossible : ${(err as Error).message.split("\n")[0]}`);
   }
