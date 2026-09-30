@@ -52,7 +52,7 @@ Il n'existe **aucun** `tailwind.config.ts` ni `src/index.css` : en Tailwind v4 l
 | `--foreground`         | `#1e293b` | Texte principal                                  | 13,98:1                 |
 | `--card` / `--popover` | `#ffffff` | Surfaces surélevées                              | —                       |
 | `--muted` / `--accent` | `#f3f4f6` | Fonds discrets                                   | —                       |
-| `--muted-foreground`   | `#64748b` | Texte secondaire                                 | 4,55:1                  |
+| `--muted-foreground`   | `#5d6b80` | Texte secondaire (ancien `#64748b` : 4,32:1 sur `--accent`, non conforme) | 5,17:1 (4,92:1 sur `--accent`) |
 | `--text-light`         | `#5b6472` | Texte tertiaire (ancien `#8e95a1`, non conforme) | 5,72:1                  |
 | `--border` / `--input` | `#e5e7eb` | Bordures et champs                               | —                       |
 | `--border-strong`      | `#cbd5e1` | Bordure renforcée au survol ou sur une sélection | —                       |

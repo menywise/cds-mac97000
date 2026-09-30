@@ -25,7 +25,7 @@ export const cds = {
     purple: "#7c3aed",
     purpleLight: "#ede9fe",
     text: "#1e293b",
-    textMuted: "#64748b",
+    textMuted: "#5d6b80",
     textLight: "#5b6472",
     bg: "#f8fafc",
     bgAlt: "#f3f4f6",

@@ -8,10 +8,13 @@ import { isFeatureOn } from "@/config/features";
 
 export function CategoryBadge({ name, color }: { name: string; color: string }) {
   return (
+    // Couleur choisie en admin : bordure et pastille seulement ; le texte garde un contraste
+    // suffisant quelle que soit la couleur saisie (WCAG 1.4.3).
     <span
-      className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium"
-      style={{ borderColor: color, color }}
+      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground"
+      style={{ borderColor: color }}
     >
+      <span className="size-2 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
       {name}
     </span>
   );

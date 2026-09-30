@@ -129,3 +129,24 @@ test("exemple de sortie de la grille : 4 anomalies, score 49", () => {
     );
   }
 });
+
+test("un seul bouton principal par écran, pas par page", () => {
+  const regles = (cta: PageTexts["cta"]) =>
+    auditTexts(page({ cta }), rules).anomalies.map((a) => a.regle);
+  // Deux principaux sur des écrans différents : conforme.
+  assert.deepEqual(
+    regles([
+      { libelle: "Demander mon devis", role: "principal", ecran: 0 },
+      { libelle: "Recevoir la lettre", role: "principal", ecran: 3 },
+    ]),
+    [],
+  );
+  // Deux principaux sur le même écran : refusé.
+  assert.deepEqual(
+    regles([
+      { libelle: "Demander mon devis", role: "principal", ecran: 0 },
+      { libelle: "Recevoir la lettre", role: "principal", ecran: 0 },
+    ]),
+    ["ctaPrincipalMultiple"],
+  );
+});

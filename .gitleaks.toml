@@ -1,0 +1,11 @@
+# Recherche de secrets (gitleaks, licence MIT), lancée par le CI à chaque PR.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Clé publique Supabase (faite pour être visible dans le navigateur) et build local non versionné"
+paths = [
+  '''^\.env$''',
+  '''^\.output/''',
+  '''^node_modules/''',
+]

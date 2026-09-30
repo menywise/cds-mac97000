@@ -106,7 +106,7 @@ function AdminRecettePage() {
   const remarks = new Map<string, string[]>();
   for (const r of results) {
     for (const w of r.warnings) {
-      const code = /^\[([a-z]\d)\]/.exec(w)?.[1];
+      const code = /^\[([a-z0-9]+)\]/.exec(w)?.[1];
       if (!code) continue;
       remarks.set(code, [...(remarks.get(code) ?? []), `${r.viewport} · ${r.url} : ${w.slice(5)}`]);
     }

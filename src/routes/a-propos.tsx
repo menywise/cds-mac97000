@@ -22,7 +22,7 @@ export const Route = createFileRoute("/a-propos")({
 const engagements = [
   {
     title: "Vous restez propriétaire",
-    body: "Vos contenus, vos membres et vos réglages vous appartiennent. Rien n'est revendu, rien n'est cédé à un tiers publicitaire.",
+    body: "Vos contenus, vos membres et vos réglages vous appartiennent et restent chez vous, hors de toute régie publicitaire.",
   },
   {
     title: "Vous comprenez ce que vous utilisez",
@@ -30,7 +30,7 @@ const engagements = [
   },
   {
     title: "Vous êtes accessible à tous vos visiteurs",
-    body: "Contrastes conformes au niveau AA, navigation au clavier, textes lisibles : votre site accueille tout le monde, y compris les personnes en situation de handicap.",
+    body: "Contrastes conformes au niveau AA, navigation au clavier, textes lisibles : votre site accueille chaque visiteur, handicap compris.",
   },
 ];
 
@@ -49,13 +49,12 @@ function AProposPage() {
       <article className="mx-auto max-w-[760px]">
         <p className="text-xs font-medium uppercase tracking-wide text-primary-text">À propos</p>
         <h1 className="mt-2 text-3xl font-bold text-foreground">
-          Un socle solide pour celles et ceux qui travaillent seuls
+          Un socle solide pour artisans et indépendants
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          {settings.name} est né d'un constat simple : un indépendant, un artisan ou un
-          solopreneur n'a ni le temps ni le budget de reconstruire à chaque projet un site sérieux,
-          conforme et trouvable. Ce socle est assemblé une fois pour toutes, pour que vous
-          consacriez votre énergie à votre métier.
+          {settings.name} est né d'un constat simple. Un artisan ou un indépendant manque de temps
+          pour refaire, à chaque projet, un site sérieux, conforme et trouvable. Ce socle est
+          assemblé une fois pour toutes : votre énergie va à votre métier.
         </p>
 
         <h2 className="mt-10 text-lg font-semibold text-foreground">Qui édite ce site</h2>

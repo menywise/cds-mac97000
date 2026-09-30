@@ -95,7 +95,7 @@ function ResetPasswordPage() {
           />
         </div>
         <Button type="submit" className="w-full" disabled={busy}>
-          {busy ? "Enregistrement…" : "Enregistrer"}
+          {busy ? "Enregistrement…" : "Enregistrer mon mot de passe"}
         </Button>
       </form>
     </AuthLayout>

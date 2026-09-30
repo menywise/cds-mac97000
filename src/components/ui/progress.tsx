@@ -11,6 +11,9 @@ const Progress = React.forwardRef<
 >(({ className, value, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
+    // Valeur transmise pour les lecteurs d'écran, et nom par défaut (WCAG : aria-progressbar-name).
+    value={value}
+    aria-label={props["aria-label"] ?? "Progression"}
     className={cn("relative h-2 w-full overflow-hidden rounded-full bg-primary/20", className)}
     {...props}
   >

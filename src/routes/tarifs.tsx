@@ -49,11 +49,11 @@ function TarifsPage() {
         <div className="mx-auto max-w-[680px] text-center">
           <p className="text-xs font-medium uppercase tracking-wide text-primary-text">Tarifs</p>
           <h1 className="mt-2 text-3xl font-bold text-foreground">
-            Payez pour ce qui vous fait avancer, rien de plus
+            Des tarifs clairs pour artisans et indépendants
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Vous commencez sans rien avancer. Le jour où votre site doit convaincre et encaisser,
-            vous montez d'un cran — et vous redescendez quand vous voulez.
+            Démarrez gratuitement. Le jour où votre site doit convaincre et encaisser, vous montez
+            d'un cran, et vous redescendez quand vous voulez.
           </p>
         </div>
 
@@ -107,12 +107,12 @@ function TarifsPage() {
         <section className="mt-12 rounded-xl border border-border bg-card p-6 text-center">
           <h2 className="text-base font-semibold text-foreground">Une hésitation légitime ?</h2>
           <p className="mx-auto mt-1.5 max-w-[560px] text-sm text-muted-foreground">
-            Vous n'avez pas à décider seul. Décrivez votre projet en deux lignes : vous recevrez une
-            recommandation honnête, y compris si l'offre gratuite suffit.
+            Décrivez votre projet en deux lignes : nous vous recommandons l'offre adaptée, y compris
+            quand l'offre gratuite suffit.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">
             {isFeatureOn("contact") ? (
-              <Button asChild>
+              <Button asChild variant="outline">
                 <Link to="/contact" title="Décrire votre projet et recevoir une recommandation">
                   Décrire mon projet
                 </Link>

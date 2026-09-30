@@ -23,7 +23,14 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import {
+  chromium,
+  firefox,
+  webkit,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "playwright";
 import {
   QA_PAGES,
   QA_VIEWPORTS,
@@ -35,6 +42,19 @@ import {
 } from "../../src/lib/qa-plan.ts";
 import { isModuleOn, normalizeModules, type FeatureKey } from "../../src/config/modules.ts";
 import { auditTexts, type PageTexts, type TextRules } from "./texte.ts";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+/** Outils de test facultatifs (npm i --no-save axe-core html-validate) : absents = contrôle non évalué. */
+function optional(name: string): string | null {
+  try {
+    return require.resolve(name);
+  } catch {
+    return null;
+  }
+}
+const AXE = optional("axe-core/axe.min.js");
+const HTML_VALIDATE = optional("html-validate");
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
@@ -67,10 +87,57 @@ const SUPABASE_URL = ENV["VITE_SUPABASE_URL"] ?? ENV["SUPABASE_URL"] ?? "";
 const SUPABASE_KEY = ENV["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? ENV["SUPABASE_PUBLISHABLE_KEY"] ?? "";
 const PROJECT_REF = /^https:\/\/([^.]+)\./.exec(SUPABASE_URL)?.[1] ?? "";
 const ONLY = arg("only");
+/** Moteur de rendu : chromium (défaut), firefox ou webkit (Safari). */
+const NAVIGATEUR = (arg("navigateur") ?? "chromium") as "chromium" | "firefox" | "webkit";
 const ROLES = (arg("roles") ?? "visiteur,membre,admin").split(",") as QaRole[];
 const RANK: Record<QaRole, number> = { visiteur: 0, membre: 1, admin: 2 };
 /** Liens internes rencontrés (adresse → première page où il apparaît), vérifiés en fin de passage. */
 const LINKS = new Map<string, string>();
+/** Titres et descriptions des pages publiques, comparés en fin de passage (doublons). */
+const META: Array<{ url: string; title: string; description: string }> = [];
+
+/** Même rendu que formatPrice (src/lib/format.ts), espaces normalisées. */
+function formatPrice(cents: number, currency = "EUR") {
+  if (!cents) return "Gratuit";
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
+  })
+    .format(cents / 100)
+    .replace(/\s+/g, " ");
+}
+
+async function pricingPlans(): Promise<
+  Array<{ name: string; price_cents: number; currency: string }>
+> {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/pricing_plans?select=name,price_cents,currency`,
+    {
+      headers: { apikey: SUPABASE_KEY },
+    },
+  ).catch(() => null);
+  return ((await res?.json().catch(() => [])) ?? []) as Array<{
+    name: string;
+    price_cents: number;
+    currency: string;
+  }>;
+}
+
+/** Résultat de contrôle transversal (liens, plan du site, doublons, en-têtes). */
+function transversal(label: string, problems: string[], warnings: string[] = []): QaResult {
+  return {
+    path: `(${label})`,
+    url: label,
+    label,
+    role: "visiteur",
+    viewport: "ordinateur",
+    status: problems.length ? "echec" : "ok",
+    problems,
+    warnings,
+    ms: 0,
+  };
+}
 
 /** Fonctions de la base qui ne font que lire : les seules permises au robot. */
 const READ_ONLY_RPC = new Set([
@@ -203,7 +270,8 @@ async function guardNetwork(context: BrowserContext, role: QaRole, auth: Auth | 
 async function newContext(browser: Browser, viewport: QaViewport, role: QaRole, auth: Auth | null) {
   const context = await browser.newContext({
     viewport: QA_VIEWPORTS[viewport],
-    isMobile: viewport === "mobile",
+    // Firefox ne gère pas l'émulation mobile : la largeur d'écran suffit à tester la mise en page.
+    ...(NAVIGATEUR === "firefox" ? {} : { isMobile: viewport === "mobile" }),
     hasTouch: viewport === "mobile",
     locale: "fr-FR",
   });
@@ -240,6 +308,28 @@ async function discover(page: Page, qa: QaPage, resolved: Map<string, string>) {
   const hit = hrefs.map((h) => h.split("#")[0]!.split("?")[0]!).find((h) => re.test(h));
   if (hit) resolved.set(qa.path, hit);
   return hit ?? null;
+}
+
+let htmlValidator: {
+  validateString: (
+    s: string,
+  ) => Promise<{ results: Array<{ messages: Array<{ ruleId: string; severity: number }> }> }>;
+} | null = null;
+async function validateHtml(html: string): Promise<string[]> {
+  if (!htmlValidator) {
+    const mod = (await import(HTML_VALIDATE!)) as {
+      HtmlValidate: new (c: unknown) => typeof htmlValidator;
+    };
+    htmlValidator = new mod.HtmlValidate({
+      extends: ["html-validate:standard"],
+      // Attributs posés par les outils de développement (data-tsd-source) : tolérés.
+      rules: { "no-unknown-elements": "off" },
+    });
+  }
+  const report = await htmlValidator!.validateString(html);
+  return report.results.flatMap((r) =>
+    r.messages.filter((m) => m.severity === 2).map((m) => m.ruleId),
+  );
 }
 
 async function checkPage(
@@ -351,6 +441,16 @@ async function checkPage(
           small,
           heavy,
           overflow: document.documentElement.scrollWidth - window.innerWidth,
+          canonical: document.querySelector('link[rel="canonical"]')?.getAttribute("href") ?? "",
+          // Bouton principal visible sans défiler (premier bouton plein dans le contenu).
+          ctaTop: (() => {
+            const main = document.querySelector("main") ?? document.body;
+            const el = [...main.querySelectorAll("a, button")].find((e) =>
+              (e.getAttribute("class") ?? "").includes("bg-primary "),
+            );
+            return el ? el.getBoundingClientRect().top : null;
+          })(),
+          bodyText: document.body?.innerText ?? "",
           errorPage: /Something went wrong|Une erreur est survenue/i.test(
             document.body?.innerText ?? "",
           ),
@@ -363,6 +463,41 @@ async function checkPage(
       if (facts.errorPage) problems.push("page d'erreur affichée");
       if (facts.h1 === 0 && !qa.noH1) problems.push("aucun titre h1");
       if (facts.overflow > 1) problems.push(`débordement horizontal de ${facts.overflow} px`);
+      if (role === "visiteur" && RANK[qa.role] === 0 && qa.expectStatus !== 404) {
+        // [s2] Adresse canonique : présente et identique à la page (hors paramètres).
+        if (!facts.noindex) {
+          const canon = facts.canonical
+            ? new URL(facts.canonical, BASE).pathname.replace(/\/$/, "")
+            : "";
+          if (!canon) warnings.push("[s2] pas d'adresse canonique");
+          else if (canon !== (url.replace(/\/$/, "") || ""))
+            warnings.push(`[s2] canonique ${canon} ≠ ${url}`);
+        }
+        // [l1] Pages légales remplies : aucun champ vide ou technique.
+        if (
+          url.startsWith("/legal/") &&
+          /\bundefined\b|\bnull\b|à compléter|\[.*?\]|XXX/i.test(facts.bodyText)
+        ) {
+          problems.push(
+            "[l1] page légale incomplète (champ vide, « à compléter » ou valeur technique)",
+          );
+        }
+        // [prix] Offres en base affichées au bon prix sur la page Tarifs.
+        if (url === "/tarifs" && viewport === "ordinateur") {
+          const txt = facts.bodyText.replace(/\s+/g, " ");
+          for (const plan of await pricingPlans()) {
+            const price = formatPrice(plan.price_cents, plan.currency);
+            if (!txt.includes(price))
+              problems.push(`[prix] « ${plan.name} » : ${price} absent de la page`);
+          }
+        }
+        // [c2] Page vitrine : bouton principal visible sans défiler.
+        if (qa.vitrine && (facts.ctaTop === null || facts.ctaTop > QA_VIEWPORTS[viewport].height)) {
+          warnings.push(`[c2] aucun bouton principal visible sans défiler (${viewport})`);
+        }
+        if (viewport === "ordinateur")
+          META.push({ url, title: facts.title, description: facts.description });
+      }
       // Contrôles du catalogue d'audit (agents-mac97000, src/lib/audit-offer.ts) : remarques.
       if (facts.h1 > 1) warnings.push(`[s3] ${facts.h1} titres h1`);
       if (!facts.title) warnings.push("[s1] balise <title> vide");
@@ -401,7 +536,15 @@ async function checkPage(
             .filter(({ c }) => c.includes("inline-flex") && c.includes("rounded-md"))
             .flatMap(({ el, c }) =>
               c.includes("bg-primary ")
-                ? [{ libelle: text(el), role: "principal" as const }]
+                ? [
+                    {
+                      libelle: text(el),
+                      role: "principal" as const,
+                      ecran: Math.floor(
+                        (el.getBoundingClientRect().top + window.scrollY) / window.innerHeight,
+                      ),
+                    },
+                  ]
                 : c.includes("border border-input") || c.includes("bg-secondary")
                   ? [{ libelle: text(el), role: "secondaire" as const }]
                   : [],
@@ -422,6 +565,47 @@ async function checkPage(
         const res = auditTexts(texts, TEXT_RULES, { vitrine: qa.vitrine, protege: BRAND_NAMES });
         textAudit = res;
         if (res.score < 50) warnings.push(`[texte] score ${res.score}/100 (refusé sous 50)`);
+      }
+      // Accessibilité (axe-core, WCAG 2.1 A et AA) : une fois par page et par rôle, sur ordinateur.
+      if (AXE && viewport === "ordinateur") {
+        await page.addScriptTag({ path: AXE }).catch(() => null);
+        const found = await page
+          .evaluate(async () => {
+            const axe = (window as unknown as { axe?: { run: (o: unknown) => Promise<unknown> } })
+              .axe;
+            if (!axe) return null;
+            const res = (await axe.run({
+              runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] },
+            })) as { violations: Array<{ id: string; impact: string | null; nodes: unknown[] }> };
+            return res.violations.map((v) => ({
+              id: v.id,
+              impact: v.impact ?? "minor",
+              n: v.nodes.length,
+            }));
+          })
+          .catch(() => null);
+        for (const v of found ?? []) {
+          const code = v.id === "color-contrast" ? "l2" : "a11y";
+          const line = `[${code}] ${v.id} (${v.impact}) : ${v.n} élément(s)`;
+          if (v.impact === "critical") problems.push(line);
+          else if (v.impact === "serious") warnings.push(line);
+        }
+      }
+      // HTML valide (html-validate, règles de la norme) : pages publiques, rendu serveur, une fois.
+      if (
+        HTML_VALIDATE &&
+        role === "visiteur" &&
+        viewport === "ordinateur" &&
+        RANK[qa.role] === 0
+      ) {
+        const html = await fetch(BASE + url)
+          .then((r) => r.text())
+          .catch(() => "");
+        const errors = html ? await validateHtml(html) : [];
+        if (errors.length) {
+          const rules = [...new Set(errors)].slice(0, 5).join(", ");
+          warnings.push(`[w3c] ${errors.length} erreur(s) HTML (${rules})`);
+        }
       }
       for (const href of facts.links) {
         const clean = href.split("#")[0]!.split("?")[0]!;
@@ -458,7 +642,9 @@ async function main() {
   // Options Chromium facultatives, ex. derrière un proxy d'entreprise :
   // CDS_RECETTE_CHROMIUM_ARGS="--ignore-certificate-errors-spki-list=<empreinte du certificat du proxy>"
   const extra = (ENV["CDS_RECETTE_CHROMIUM_ARGS"] ?? "").split(" ").filter(Boolean);
-  const browser = await chromium.launch({ args: extra });
+  const engine = { chromium, firefox, webkit }[NAVIGATEUR];
+  // Les options Chromium (proxy, certificats) ne s'appliquent qu'à Chromium.
+  const browser = await engine.launch(NAVIGATEUR === "chromium" ? { args: extra } : {});
   const auths: Partial<Record<QaRole, Auth | null>> = { visiteur: null };
   const report: QaReport = {
     version: 1,
@@ -536,6 +722,55 @@ async function main() {
   }
   await browser.close();
 
+  // [s1] Titres et descriptions en double entre pages publiques.
+  const dup = (key: "title" | "description") => {
+    const seen = new Map<string, string[]>();
+    for (const m of META) if (m[key]) seen.set(m[key], [...(seen.get(m[key]) ?? []), m.url]);
+    return [...seen]
+      .filter(([, urls]) => urls.length > 1)
+      .map(
+        ([v, urls]) =>
+          `[s1] ${key === "title" ? "titre" : "description"} en double « ${v.slice(0, 60)} » : ${urls.join(", ")}`,
+      );
+  };
+  if (META.length)
+    report.results.push(
+      transversal("Titres et descriptions uniques", [], [...dup("title"), ...dup("description")]),
+    );
+
+  // [s2] Plan du site : chaque adresse du sitemap répond.
+  const sitemap = await fetch(`${BASE}/sitemap.xml`)
+    .then((r) => r.text())
+    .catch(() => "");
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]!).pathname);
+  const deadLocs: string[] = [];
+  for (const path of [...new Set(locs)]) {
+    const res = await fetch(BASE + path, { redirect: "manual" }).catch(() => null);
+    if (!res || res.status !== 200) deadLocs.push(`[s2] ${path} (${res?.status ?? "injoignable"})`);
+  }
+  report.results.push(transversal(`Plan du site (${locs.length} adresses)`, deadLocs));
+
+  // [secu] En-têtes de sécurité : évalués sur un site publié (https) seulement.
+  if (BASE.startsWith("https://")) {
+    const h = (await fetch(`${BASE}/`).catch(() => null))?.headers;
+    const miss = [
+      ["strict-transport-security", "HSTS"],
+      ["x-content-type-options", "X-Content-Type-Options"],
+      ["referrer-policy", "Referrer-Policy"],
+      ["content-security-policy", "Content-Security-Policy"],
+    ]
+      .filter(([k]) => !h?.get(k!))
+      .map(([, n]) => `[secu] en-tête ${n} absent`);
+    if (
+      !h?.get("x-frame-options") &&
+      !/frame-ancestors/.test(h?.get("content-security-policy") ?? "")
+    )
+      miss.push(
+        "[secu] protection contre l'intégration en cadre absente (X-Frame-Options ou frame-ancestors)",
+      );
+    report.results.push(transversal("En-têtes de sécurité", [], miss));
+  }
+
   // [r1] Liens internes morts : chaque adresse rencontrée est demandée une fois au serveur.
   const dead: string[] = [];
   for (const [href, from] of LINKS) {
@@ -568,13 +803,13 @@ async function main() {
   const byCode = new Map<string, number>();
   for (const r of report.results.filter((x) => x.status !== "ignore"))
     for (const w of r.warnings) {
-      const code = /^\[([a-z]\d)\]/.exec(w)?.[1] ?? "autre";
+      const code = /^\[([a-z0-9]+)\]/.exec(w)?.[1] ?? "autre";
       byCode.set(code, (byCode.get(code) ?? 0) + 1);
     }
   const md = [
     `# Recette automatisée — ${report.startedAt}`,
     "",
-    `Adresse : ${BASE} · membre : ${report.auth.membre} · admin : ${report.auth.admin}`,
+    `Adresse : ${BASE} · navigateur : ${NAVIGATEUR} · membre : ${report.auth.membre} · admin : ${report.auth.admin}`,
     "",
     `**${oks.length} pages conformes, ${fails.length} en échec, ${report.results.length - oks.length - fails.length} ignorées.**`,
     "",

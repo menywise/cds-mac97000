@@ -31,6 +31,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Secrets dans le code (gitleaks, MIT)
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz | tar xz gitleaks
+          ./gitleaks dir . --no-banner --redact --config .gitleaks.toml
       - name: Dépendances (registre npm public)
         run: npm install --no-package-lock --no-audit --no-fund
       - name: Types
@@ -60,7 +64,7 @@ jobs:
       - name: Dépendances et navigateur
         run: |
           npm install --no-package-lock --no-audit --no-fund
-          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1 axe-core@4.13.0 html-validate@11.16.1
           npx playwright install --with-deps chromium
       - name: Site en local
         run: |
@@ -79,5 +83,39 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rapport-recette
+          path: tests/e2e/rapport/
+          if-no-files-found: ignore
+
+  navigateurs:
+    name: Recette Firefox et Safari (visiteur)
+    needs: verifications
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        navigateur: [firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dépendances et navigateur
+        run: |
+          npm install --no-package-lock --no-audit --no-fund
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps ${{ matrix.navigateur }}
+      - name: Site en local
+        run: |
+          nohup npx vite dev --port 8080 --host 127.0.0.1 > vite.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:8080/ && exit 0; sleep 2; done
+          cat vite.log; exit 1
+      - name: Robot (${{ matrix.navigateur }})
+        run: node tests/e2e/recette.ts --url http://127.0.0.1:8080 --roles visiteur --navigateur ${{ matrix.navigateur }}
+      - name: Rapport
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-recette-${{ matrix.navigateur }}
           path: tests/e2e/rapport/
           if-no-files-found: ignore

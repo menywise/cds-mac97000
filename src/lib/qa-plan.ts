@@ -437,4 +437,12 @@ export const QA_AUDIT_CODES: Record<string, { label: string; agent: string }> = 
   s1: { label: "Titres et méta-descriptions", agent: "Sonar" },
   s3: { label: "Structure des titres (H1)", agent: "Sonar" },
   l3: { label: "Alternatives textuelles", agent: "Bay" },
+  l2: { label: "Contrastes et lisibilité", agent: "Bay" },
+  a11y: { label: "Accessibilité (axe-core, WCAG 2.1 AA)", agent: "Bay" },
+  w3c: { label: "HTML valide (norme W3C)", agent: "Atlas" },
+  s2: { label: "Indexation (canonique, plan du site)", agent: "Sonar" },
+  c2: { label: "Appel à l'action visible", agent: "Kestrel" },
+  secu: { label: "En-têtes de sécurité", agent: "Atlas" },
+  l1: { label: "Mentions légales et RGPD", agent: "Bay" },
+  prix: { label: "Prix affichés = prix en base", agent: "Kestrel" },
 };

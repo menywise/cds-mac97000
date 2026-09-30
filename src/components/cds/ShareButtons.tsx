@@ -50,7 +50,7 @@ export function ShareButtons({ path, title }: { path: string; title: string }) {
           title={link.title}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="inline-flex max-md:min-h-11 items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <link.icon className="size-3.5" aria-hidden="true" />
           {link.label}
@@ -60,7 +60,7 @@ export function ShareButtons({ path, title }: { path: string; title: string }) {
         type="button"
         onClick={copy}
         title="Copier le lien de cet article"
-        className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        className="inline-flex max-md:min-h-11 items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
         <Link2 className="size-3.5" aria-hidden="true" />
         Copier le lien

@@ -68,7 +68,7 @@
   --secondary: #6c757d;
   --secondary-foreground: #ffffff;
   --muted: #f3f4f6;
-  --muted-foreground: #64748b;
+  --muted-foreground: #5d6b80;
   --accent: #f3f4f6;
   --accent-foreground: #1e293b;
   --success: #198754;
@@ -99,6 +99,12 @@
   * {
     box-sizing: border-box;
     border-color: var(--color-border);
+  }
+
+  /* Lien dans un paragraphe : souligné, jamais repérable par la seule couleur (WCAG 1.4.1). */
+  p a:not([class*="inline-flex"]) {
+    text-decoration-line: underline;
+    text-underline-offset: 2px;
   }
 
   body {

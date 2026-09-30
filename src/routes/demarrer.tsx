@@ -64,11 +64,11 @@ function DemarrerPage() {
       <div className="mx-auto max-w-[880px]">
         <p className="text-xs font-medium uppercase tracking-wide text-primary-text">Démarrer</p>
         <h1 className="mt-2 text-3xl font-bold text-foreground">
-          Trois étapes, et votre site travaille pour vous
+          Artisans, indépendants : votre site en trois étapes
         </h1>
         <p className="mt-2 max-w-[640px] text-sm text-muted-foreground">
-          Vous n'avez pas besoin de tout décider aujourd'hui. Avancez pas à pas : vous verrez à
-          chaque étape ce que vous obtenez, et vous pouvez revenir en arrière à tout moment.
+          Avancez pas à pas. À chaque étape, vous voyez ce que vous obtenez, et vous revenez en
+          arrière quand vous voulez.
         </p>
 
         <ol className="mt-8 grid gap-3 sm:grid-cols-3">

@@ -46,7 +46,8 @@ export type PageTexts = {
   description: string;
   h1: string;
   paragraphes: string[];
-  cta: Array<{ libelle: string; role: "principal" | "secondaire" }>;
+  /** `ecran` : numéro de la hauteur d'écran où se trouve le bouton (0 = visible au chargement). */
+  cta: Array<{ libelle: string; role: "principal" | "secondaire"; ecran?: number }>;
 };
 
 export type TextAnomaly = { texte: string; regle: string; gravite: Gravite; proposition: string };
@@ -156,13 +157,20 @@ export function auditTexts(
       add(c.libelle, "ctaHorsRegles", "Commencer par un verbe d'action");
     }
   }
-  const principaux = [...new Set(ctas.filter((c) => c.role === "principal").map((c) => c.libelle))];
-  if (principaux.length > rules.cta.principalParEcranMax) {
-    add(
-      principaux.join(" | "),
-      "ctaPrincipalMultiple",
-      "Un seul bouton principal, les autres en secondaire",
-    );
+  // Un seul bouton principal par écran (charte § 8.6) : comparaison hauteur d'écran par hauteur.
+  const parEcran = new Map<number, Set<string>>();
+  for (const c of ctas.filter((x) => x.role === "principal")) {
+    const e = c.ecran ?? 0;
+    parEcran.set(e, (parEcran.get(e) ?? new Set()).add(c.libelle));
+  }
+  for (const labels of parEcran.values()) {
+    if (labels.size > rules.cta.principalParEcranMax) {
+      add(
+        [...labels].join(" | "),
+        "ctaPrincipalMultiple",
+        "Un seul bouton principal, les autres en secondaire",
+      );
+    }
   }
 
   // 3-5. Mots interdits, jargon, négations (termes protégés écartés d'abord).
