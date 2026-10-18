@@ -182,7 +182,9 @@ END $$;
 DO $$ BEGIN
   IF (SELECT modules FROM public.template_checks WHERE code = 'V1-SIGNALEMENTS-VISITEURS') <> ARRAY['reports']
   THEN RAISE EXCEPTION 'point de la grille'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.7.0' THEN RAISE EXCEPTION 'version'; END IF;
+  -- Réglage relevé au moins à 1.7.0 (une version suivante le relève encore).
+  IF string_to_array((SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle'), '.')::int[]
+     < string_to_array('1.7.0', '.')::int[] THEN RAISE EXCEPTION 'version'; END IF;
 END $$;
 SET client_min_messages = warning;
 \i supabase/migrations/20261015120000_v1_7_0_signalements_ouverts.sql

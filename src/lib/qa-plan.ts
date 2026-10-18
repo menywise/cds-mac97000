@@ -496,6 +496,43 @@ export const QA_CHECKLIST: QaSection[] = [
     ],
   },
   {
+    id: "messagerie",
+    zone: "Messagerie",
+    objectif: "Deux membres échangent en direct, sans recharger la page.",
+    items: [
+      {
+        id: "msg-direct",
+        label:
+          "Deux comptes, deux fenêtres, même conversation : le message de l'un apparaît chez l'autre sans recharger",
+        path: "/messagerie",
+        role: "membre",
+        severity: "majeur",
+      },
+      {
+        id: "msg-vu",
+        label:
+          "« Envoyé » passe à « Vu à … » dès que l'autre membre a la conversation sous les yeux",
+        path: "/messagerie",
+        role: "membre",
+        severity: "mineur",
+      },
+      {
+        id: "msg-non-lus",
+        label: "En-tête : « Messagerie » porte le nombre de non lus, qui retombe à la lecture",
+        role: "membre",
+        severity: "mineur",
+      },
+      {
+        id: "msg-signaler",
+        label:
+          "« Signaler ce membre » : le signalement arrive sur l'écran Signalements, type « Membre »",
+        path: "/admin/signalements",
+        role: "admin",
+        severity: "mineur",
+      },
+    ],
+  },
+  {
     id: "donnees",
     zone: "Données personnelles",
     objectif: "Les durées annoncées dans la politique de confidentialité sont tenues.",

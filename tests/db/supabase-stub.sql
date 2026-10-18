@@ -63,3 +63,6 @@ CREATE FUNCTION storage.foldername(name text) RETURNS text[] LANGUAGE sql IMMUTA
   SELECT (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1]
 $$;
 GRANT EXECUTE ON FUNCTION storage.foldername(text) TO anon, authenticated, service_role;
+
+-- Publication du temps réel, créée vide par Supabase.
+CREATE PUBLICATION supabase_realtime;

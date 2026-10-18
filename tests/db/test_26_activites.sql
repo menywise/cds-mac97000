@@ -58,6 +58,6 @@ RESET ROLE;
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.activites) <> 165 THEN RAISE EXCEPTION 'rejeu : doublons ou pertes'; END IF;
   IF (SELECT statut FROM public.activites WHERE code = 'NP-SPI') <> 'actif' THEN RAISE EXCEPTION 'rejeu : le registre fait foi'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.7.0' THEN RAISE EXCEPTION 'version'; END IF;
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.8.0' THEN RAISE EXCEPTION 'version'; END IF;
 END $$;
 ROLLBACK;
