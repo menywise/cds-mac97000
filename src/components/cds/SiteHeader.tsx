@@ -4,6 +4,7 @@ import { useCart } from "@/hooks/useCart";
 import { useEffect, useState } from "react";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { CookieBanner, openCookieBanner } from "@/components/cds/CookieBanner";
 import { NewsletterForm } from "@/components/cds/NewsletterForm";
@@ -355,11 +356,27 @@ function AccountLinks({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
+/** Pastille des messages non lus, à côté du lien « Messagerie » (socle 1.8.0). */
+function UnreadBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  const label = count > 1 ? `${count} messages non lus` : "1 message non lu";
+  return (
+    <span
+      title={label}
+      className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold leading-5 text-primary-foreground"
+    >
+      <span aria-hidden="true">{count > 9 ? "9+" : count}</span>
+      <span className="sr-only">{label}</span>
+    </span>
+  );
+}
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { settings } = useBrandSettings();
   const { user } = useAuth();
   const nav = user ? buildMemberNav() : buildPublicNav();
+  const unread = useUnreadMessages();
 
   useEffect(() => {
     if (!open) return;
@@ -403,6 +420,7 @@ export function SiteHeader() {
               activeProps={{ className: "bg-accent text-foreground" }}
             >
               {item.label}
+              {item.to === "/messagerie" ? <UnreadBadge count={unread} /> : null}
             </Link>
           ))}
         </nav>
@@ -458,6 +476,7 @@ export function SiteHeader() {
                   activeProps={{ className: "bg-accent text-foreground" }}
                 >
                   {item.label}
+                  {item.to === "/messagerie" ? <UnreadBadge count={unread} /> : null}
                 </Link>
               </li>
             ))}

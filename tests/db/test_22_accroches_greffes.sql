@@ -101,7 +101,7 @@ END $$;
 
 -- 5. Version ---------------------------------------------------------------------------------------
 DO $$ BEGIN
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.7.0' THEN
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.8.0' THEN
     RAISE EXCEPTION 'réglage socle'; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.socle_versions WHERE version = '1.3.0') THEN RAISE EXCEPTION 'version 1.3.0'; END IF;
 END $$;
