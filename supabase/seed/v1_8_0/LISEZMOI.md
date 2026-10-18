@@ -27,6 +27,10 @@ l'ancien code, rien ne change pour le membre.
 | point de la grille        | 1      |
 | version 1.8.0 publiee     | 1      |
 
+« visiteur lit les messages » contrôle les règles d'accès de la table (actives, aucune règle de lecture
+pour un visiteur), pas le droit sur la table : Supabase accorde ce droit à `anon` par défaut, et ce sont
+les règles d'accès qui filtrent les lignes.
+
 ## À vérifier après le passage
 
 Deux comptes membres, chacun dans sa fenêtre, sur la même conversation. Un message envoyé par l'un
