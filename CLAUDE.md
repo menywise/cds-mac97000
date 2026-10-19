@@ -6,9 +6,11 @@
 - Comptes de recette du robot local : `~/.config/<nom du dossier du dépôt>/recette-comptes.env`,
   hors dépôt. Jamais dans `.env`, qui est versionné.
 
-## Quota GitHub Actions serré
+## Sobriété GitHub Actions
 
-Le quota s'épuise chaque début de mois. Tout ce qui peut tourner sur le poste tourne sur le poste.
+Ce dépôt est public : ses minutes Actions ne sont pas décomptées. Les clones privés, eux, épuisent
+le quota chaque début de mois. Même discipline partout : tout ce qui peut tourner sur le poste
+tourne sur le poste.
 
 - `qualite.yml` : sur une demande de fusion en brouillon, seules les vérifications tournent
   (types, style, tests, base, build). Les recettes dans un navigateur attendent le passage en
