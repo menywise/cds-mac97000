@@ -55,7 +55,7 @@ Utilisateurs. Le dernier administrateur ne peut ni se retirer ni supprimer son c
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | paiement des formations ou Boutique | Stripe ; webhook vers `<adresse>/api/stripe-webhook` |
 | `CDS_RECETTE_*` (secrets GitHub) | recette en écriture réelle | comptes de test du robot |
 | `CDS_GEO_URL`, `CDS_GEO_CLE` | géographie du projet (socle 1.5.0) | adresse du référentiel géographique du Studio (GeoAnnonces) et clé d'accès propre au projet ; import par Administration → Géographie |
-| `CDS_URL_PUBLIQUE` (variable GitHub) | recette du site public | adresse en ligne visée par le workflow « Recette du site public » (lancement manuel, et chaque lundi) |
+| `CDS_URL_PUBLIQUE` (variable GitHub) | recette du site public | adresse en ligne visée par le workflow « Recette du site public » (lancement manuel ; sur le poste : `scripts/recette-locale.ps1`) |
 
 Les clés ne vont jamais dans le code ni en base.
 

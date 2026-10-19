@@ -1,10 +1,13 @@
 # CDS — Contrôles automatiques à chaque PR et sur main (lot 7).
+# Quota GitHub Actions (19/10/2026) : sur une PR en brouillon, seules les vérifications tournent.
+# Les recettes dans un navigateur attendent le passage en « prête » (ready_for_review).
 # bun.lock pointe vers le registre privé de Lovable : ici, installation depuis le registre npm
 # public, sans écrire de fichier de verrouillage (rien n'est commité).
 name: Qualité
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main]
   workflow_dispatch:
@@ -60,6 +63,7 @@ jobs:
   recette:
     name: Recette automatisée (robot)
     needs: verifications
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     # Parcours réels : un seul passage à la fois (la purge d'un passage effacerait les données
@@ -110,6 +114,7 @@ jobs:
   navigateurs:
     name: Recette Firefox et Safari (visiteur)
     needs: verifications
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
