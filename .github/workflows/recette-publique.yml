@@ -1,5 +1,7 @@
 # CDS — Recette du site public (en ligne), et non d'une copie locale.
 # Lecture seule : seul le robot de pages tourne, jamais les parcours qui écrivent.
+# Lancement manuel seulement (19/10/2026, quota GitHub Actions) : la recette de chaque semaine
+# tourne sur le poste, scripts/recette-locale.ps1.
 # Adresse : saisie au lancement, sinon la variable de dépôt CDS_URL_PUBLIQUE
 # (Settings → Secrets and variables → Actions → Variables). Sans adresse, rien ne tourne.
 # Comptes réels si les secrets CDS_RECETTE_* existent, sinon membre et admin simulés.
@@ -12,9 +14,6 @@ on:
         description: "Adresse publique du site (vide : variable CDS_URL_PUBLIQUE)"
         required: false
         default: ""
-  schedule:
-    # Chaque lundi, 6 h 17 UTC.
-    - cron: "17 6 * * 1"
 
 concurrency:
   group: recette-publique
