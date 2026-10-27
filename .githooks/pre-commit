@@ -1,0 +1,32 @@
+#!/bin/sh
+# Avant chaque commit : contrôles locaux, aucun appel réseau. Charte de style 2.0
+# (docs/CHARTE_STYLE_CDS.md), lint des seuls fichiers TypeScript du commit, types de tout le projet.
+# « npm run verifier » contrôle tout le dépôt. Le hook ne corrige rien : il refuse et dit pourquoi.
+# Activation, une fois par machine : git config core.hooksPath .githooks
+# (faite seule au démarrage d'une session Claude Code : .claude/settings.json).
+
+node scripts/verifier-couleurs.mjs || {
+  echo "Commit refusé : couleur hors charte (voir ci-dessus)."
+  exit 1
+}
+node scripts/verifier-contrastes.mjs >/dev/null || {
+  echo "Commit refusé : une couleur de src/styles.css passe sous le contraste AA."
+  echo "Détail : node scripts/verifier-contrastes.mjs"
+  exit 1
+}
+
+# Fichiers TypeScript ajoutés, copiés, modifiés ou renommés dans ce commit (pas les supprimés).
+if ! git diff --cached --quiet --diff-filter=ACMR -- '*.ts' '*.tsx'; then
+  git diff --cached --name-only -z --diff-filter=ACMR -- '*.ts' '*.tsx' |
+    xargs -0 npx eslint --no-warn-ignored || {
+    echo ""
+    echo "Commit refusé : erreurs de lint dans les fichiers ci-dessus (fichier, ligne, règle)."
+    echo "Règle prettier/prettier = mise en forme : npx prettier --write <fichier> la corrige."
+    exit 1
+  }
+fi
+
+npx tsc --noEmit -p . || {
+  echo "Commit refusé : erreur de type TypeScript dans le projet (voir ci-dessus)."
+  exit 1
+}

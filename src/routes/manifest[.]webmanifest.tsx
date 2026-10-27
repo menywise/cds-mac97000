@@ -18,8 +18,8 @@ export const Route = createFileRoute("/manifest.webmanifest")({
           scope: "/",
           display: "standalone",
           orientation: "portrait",
-          background_color: "#f8fafc",
-          theme_color: brand.apparence.couleurNavigateur || "#f8fafc",
+          background_color: "#eaeff5",
+          theme_color: brand.apparence.couleurNavigateur || "#eaeff5",
           // Icône d'application réglée en admin (Paramètres → Apparence), sinon icônes neutres.
           icons: brand.apparence.icone
             ? [

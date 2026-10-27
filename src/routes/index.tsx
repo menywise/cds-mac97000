@@ -218,15 +218,25 @@ function Demonstration() {
         </div>
       </Block>
 
-      <Block title="Surfaces subtiles" description="Fonds et textes associés pour les statuts.">
+      <Block
+        title="Couleurs d'état"
+        description="Quatre usages par couleur : fond plein, fond pâle, texte, bordure."
+      >
         <div className="flex flex-wrap gap-2">
-          {Object.entries(cds.subtle).map(([name, v]) => (
-            <span
-              key={name}
-              className="rounded-full px-3 py-1 text-xs font-medium"
-              style={{ backgroundColor: v.bg, color: v.text }}
-            >
-              {name}
+          {Object.entries(cds.state).map(([name, v]) => (
+            <span key={name} className="flex gap-1">
+              <span
+                className="rounded-full px-3 py-1 text-xs font-medium text-white"
+                style={{ backgroundColor: v.solid }}
+              >
+                {name}
+              </span>
+              <span
+                className="rounded-full border px-3 py-1 text-xs font-medium"
+                style={{ backgroundColor: v.soft, color: v.text, borderColor: v.border }}
+              >
+                {name}
+              </span>
             </span>
           ))}
         </div>
@@ -239,7 +249,9 @@ function Demonstration() {
             Titre 1.5rem / 600
           </p>
           <p className="text-[1.15rem] font-semibold text-foreground">Sous-titre 1.15rem / 600</p>
-          <p className="text-[0.88rem] text-foreground">Corps de texte 0.88rem — Inter</p>
+          <p className="text-[0.88rem] text-foreground">
+            Corps de texte 0.88rem — police du système
+          </p>
           <p className="text-[0.78rem] text-muted-foreground">Texte secondaire 0.78rem</p>
         </div>
       </Block>

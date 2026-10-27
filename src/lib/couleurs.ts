@@ -49,7 +49,7 @@ export function assombrir(hex: string, fraction: number) {
   return versHex(canaux(hex).map((x) => x * (1 - fraction)) as [number, number, number]);
 }
 
-const FOND = "#f8fafc";
+const FOND = "#eaeff5"; // fond de page (charte 2.0)
 const BLANC = "#ffffff";
 const ENCRE = "#0f172a";
 

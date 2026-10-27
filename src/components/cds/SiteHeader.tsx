@@ -297,7 +297,7 @@ function buildFooterColumns(): Array<{ title: string; links: NavItem[] }> {
 }
 
 const linkClass =
-  "inline-flex min-h-11 items-center rounded px-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:min-h-9";
+  "inline-flex min-h-11 items-center whitespace-nowrap rounded px-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:min-h-9";
 
 function AccountLinks({ onNavigate }: { onNavigate?: () => void }) {
   const { user, loading } = useAuth();
@@ -326,7 +326,7 @@ function AccountLinks({ onNavigate }: { onNavigate?: () => void }) {
           to="/signup"
           title="Créer un compte gratuitement"
           onClick={onNavigate}
-          className="inline-flex min-h-11 items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:min-h-9"
+          className="inline-flex min-h-11 items-center whitespace-nowrap rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:min-h-9"
         >
           Créer un compte
         </Link>
@@ -387,11 +387,13 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-4 px-6">
+      {/* La navigation passe à la ligne plutôt que de déborder : sa largeur dépend du nombre de
+          modules allumés et de la police du système (bien plus large sous Linux). */}
+      <div className="mx-auto flex min-h-16 max-w-[1200px] items-center gap-4 px-6 py-2">
         <Link
           to="/"
           title={`${settings.name} — accueil`}
-          className="flex items-center gap-2 font-semibold text-foreground"
+          className="flex shrink-0 items-center gap-2 font-semibold text-foreground"
         >
           {settings.apparence.logo ? (
             <img
@@ -409,7 +411,7 @@ export function SiteHeader() {
 
         <nav
           aria-label="Navigation principale"
-          className="hidden items-center gap-0.5 text-sm lg:flex"
+          className="hidden min-w-0 flex-1 flex-wrap items-center gap-0.5 text-sm lg:flex"
         >
           {nav.map((item) => (
             <Link
@@ -426,7 +428,7 @@ export function SiteHeader() {
         </nav>
 
         {isFeatureOn("search") || isFeatureOn("shop") ? (
-          <div className="ml-auto flex items-center">
+          <div className="ml-auto flex shrink-0 items-center">
             {isFeatureOn("search") ? (
               <Link
                 to="/recherche"
@@ -442,7 +444,7 @@ export function SiteHeader() {
           </div>
         ) : null}
 
-        <div className="ml-auto hidden items-center gap-2 text-sm lg:flex">
+        <div className="ml-auto hidden shrink-0 items-center gap-2 text-sm lg:flex">
           <AccountLinks />
         </div>
 

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Après un « git pull » : signale une couleur hors charte arrivée par Lovable ou un autre agent
+# (docs/CHARTE_STYLE_CDS.md). Ne bloque jamais le pull.
+# Activation, une fois par machine : git config core.hooksPath .githooks
+bash scripts/charte-apres-pull.sh || true

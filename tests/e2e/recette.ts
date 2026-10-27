@@ -19,8 +19,11 @@
  * que chaque écran tient debout, pas le contenu réel.
  *
  * Rapport : tests/e2e/rapport/recette.json (à importer dans /admin/recettage) et recette.md.
+ * Captures : une par page ouverte (rapport/captures/) ; recette.md liste les pages dont la capture
+ * diffère du passage précédent (rapport/captures-precedentes/). Une page changée doit correspondre
+ * à une demande de fusion (charte de style 2.0, docs/CHARTE_STYLE_CDS.md).
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   chromium,
@@ -68,6 +71,9 @@ function optional(name: string): string | null {
   }
 }
 const AXE = optional("axe-core/axe.min.js");
+/** Source d'axe-core, injectée par page.evaluate : une politique CSP du site ne la bloque pas
+ *  (addScriptTag échouait sans bruit sur un site à CSP, et le robot annonçait 0 défaut). */
+const AXE_SOURCE = AXE ? readFileSync(AXE, "utf8") : null;
 const HTML_VALIDATE = optional("html-validate");
 
 /** Charte de rédaction contrôlable (docs/redaction/text-rules.json). */
@@ -627,8 +633,8 @@ async function checkPage(
         if (res.score < 50) warnings.push(`[texte] score ${res.score}/100 (refusé sous 50)`);
       }
       // Accessibilité (axe-core, WCAG 2.1 A et AA) : une fois par page et par rôle, sur ordinateur.
-      if (AXE && viewport === "ordinateur") {
-        await page.addScriptTag({ path: AXE }).catch(() => null);
+      if (AXE_SOURCE && viewport === "ordinateur") {
+        await page.evaluate(AXE_SOURCE).catch(() => null);
         const found = await page
           .evaluate(async () => {
             const axe = (window as unknown as { axe?: { run: (o: unknown) => Promise<unknown> } })
@@ -636,21 +642,39 @@ async function checkPage(
             if (!axe) return null;
             const res = (await axe.run({
               runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] },
-            })) as { violations: Array<{ id: string; impact: string | null; nodes: unknown[] }> };
+            })) as {
+              violations: Array<{
+                id: string;
+                impact: string | null;
+                nodes: Array<{
+                  target: string[];
+                  any: Array<{ data?: { contrastRatio?: number } }>;
+                }>;
+              }>;
+            };
             return res.violations.map((v) => ({
               id: v.id,
               impact: v.impact ?? "minor",
               n: v.nodes.length,
+              // Contraste : les premiers éléments en cause et leur rapport, pour corriger sans chercher.
+              detail: v.nodes
+                .slice(0, 5)
+                .map((n) => `${n.target.join(" ")} ${n.any[0]?.data?.contrastRatio ?? "?"}:1`)
+                .join(" ; "),
             }));
           })
           .catch(() => null);
+        if (!found) warnings.push("[a11y] axe-core n'a pas pu tourner : accessibilité non évaluée");
         for (const v of found ?? []) {
           const code = v.id === "color-contrast" ? "l2" : "a11y";
-          const line = `[${code}] ${v.id} (${v.impact}) : ${v.n} élément(s)`;
+          const line =
+            `[${code}] ${v.id} (${v.impact}) : ${v.n} élément(s)` +
+            (v.id === "color-contrast" ? ` : ${v.detail}` : "");
           // Critique ou sérieux : bloquant (le site n'en a plus aucun depuis le lot 8).
           if (v.impact === "critical" || v.impact === "serious") problems.push(line);
         }
       }
+      await capturer(page, url, role, viewport);
       // HTML valide (html-validate, règles de la norme) : pages publiques, rendu serveur, une fois.
       if (
         HTML_VALIDATE &&
@@ -733,10 +757,36 @@ async function warmUp(browser: Browser, pages: typeof QA_PAGES) {
   await context.close();
 }
 
+const CAPTURES = join(ROOT, "tests", "e2e", "rapport", "captures");
+const CAPTURES_PRECEDENTES = join(ROOT, "tests", "e2e", "rapport", "captures-precedentes");
+/** Pages dont la capture diffère du passage précédent (« rôle · écran · adresse »). */
+const PAGES_CHANGEES: string[] = [];
+/** Vrai si un passage précédent a laissé ses captures (poste) ; en CI, dépôt neuf : rien à comparer. */
+let REFERENCE = false;
+
+/** Capture pleine page, comparée octet par octet à celle du passage précédent. */
+async function capturer(page: Page, url: string, role: QaRole, viewport: string) {
+  const slug = url.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "") || "accueil";
+  const nom = `${role}-${viewport}-${slug}.png`;
+  const image = await page.screenshot({ fullPage: true, animations: "disabled" }).catch(() => null);
+  if (!image) return;
+  writeFileSync(join(CAPTURES, nom), image);
+  const avant = join(CAPTURES_PRECEDENTES, nom);
+  if (existsSync(avant) && !readFileSync(avant).equals(image))
+    PAGES_CHANGEES.push(`${role} · ${viewport} · ${url}`);
+}
+
 async function main() {
   if (!SUPABASE_URL || !SUPABASE_KEY)
     throw new Error("Adresse ou clé publique Supabase absente (.env)");
   const states = await modulesState();
+  // Les captures du passage précédent servent de référence à celui-ci.
+  REFERENCE = existsSync(CAPTURES);
+  if (REFERENCE) {
+    rmSync(CAPTURES_PRECEDENTES, { recursive: true, force: true });
+    renameSync(CAPTURES, CAPTURES_PRECEDENTES);
+  }
+  mkdirSync(CAPTURES, { recursive: true });
   BRAND_NAMES = await brandNames();
   // Options Chromium facultatives, ex. derrière un proxy d'entreprise :
   // CDS_RECETTE_CHROMIUM_ARGS="--ignore-certificate-errors-spki-list=<empreinte du certificat du proxy>"
@@ -1014,6 +1064,18 @@ async function main() {
     ...report.results
       .filter((r) => r.warnings.length && r.status !== "ignore")
       .map((r) => `- ${r.viewport} · ${r.role} · \`${r.url}\` : ${r.warnings.join(" ; ")}`),
+    "",
+    "## Pages changées depuis le passage précédent",
+    "",
+    "Captures : tests/e2e/rapport/captures/. Chaque page changée doit correspondre à une demande de fusion.",
+    "",
+    ...(!REFERENCE
+      ? [
+          "Premier passage (ou CI, dépôt neuf) : aucune capture précédente, rien à comparer. La comparaison se fait sur le poste, d'un passage au suivant.",
+        ]
+      : PAGES_CHANGEES.length
+        ? PAGES_CHANGEES.map((p) => `- ${p}`)
+        : ["Aucune."]),
   ].join("\n");
   writeFileSync(join(dir, "recette.md"), md + "\n");
   console.log(

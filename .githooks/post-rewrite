@@ -1,0 +1,5 @@
+#!/bin/sh
+# Même rôle que post-merge, pour « git pull --rebase » : git lance alors post-rewrite.
+# Ne fait rien après un « commit --amend ».
+[ "$1" = "rebase" ] || exit 0
+bash scripts/charte-apres-pull.sh || true

@@ -9,6 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "verifier": "npm run verifier:couleurs && npm run verifier:contrastes && npm run lint && npm run typecheck",
+    "verifier:couleurs": "node scripts/verifier-couleurs.mjs",
+    "verifier:contrastes": "node scripts/verifier-contrastes.mjs",
     "typecheck": "tsc --noEmit -p .",
     "test": "node --test tests/unit/*.test.ts",
     "format": "prettier --write ."
