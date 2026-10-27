@@ -1,6 +1,6 @@
 # CDS — Consensus Design System · Source de vérité des tokens
 
-**Version** : 1.3.0 — **Date** : 2 octobre 2026
+**Version** : 2.0.0 — **Date** : 27 octobre 2026
 
 Ce fichier est la **référence unique**. Deux fichiers seulement l'appliquent :
 
@@ -11,57 +11,67 @@ Ce fichier est la **référence unique**. Deux fichiers seulement l'appliquent :
 
 Il n'existe **aucun** `tailwind.config.ts` ni `src/index.css` : en Tailwind v4 la configuration vit dans `src/styles.css`.
 
+La version 2.0.0 reprend les remontées de terrain d'une installation en production (charte de
+style, `docs/CHARTE_STYLE_CDS.md`) : fond de page plus soutenu, couleurs d'état en quatre usages,
+police du système, champs blancs. Mise à niveau d'un clone : `docs/MISE_A_NIVEAU.md`.
+
 ## Règles non négociables
 
 - Thème **clair uniquement**. Interdit : `.dark`, `dark:`, `prefers-color-scheme: dark`, `[data-theme="dark"]`.
-- Police unique : **Inter**, hébergée par le site (`public/fonts/inter-latin-wght-normal.woff2`, variable, licence OFL dans `public/fonts/LICENCE-Inter-OFL.txt`), déclarée par `@font-face` dans `src/styles.css` et préchargée dans `src/routes/__root.tsx`. Aucun appel à Google Fonts. Aucune autre famille.
+- Aucune couleur de la palette Tailwind en dur (`emerald-600`, `amber-100`…) : une couleur se nomme par son rôle.
+- Police **du système** (`system-ui`) : aucune police téléchargée, ni Google Fonts, ni fichier hébergé.
 - Taille de base : **16 px**, interlignage 1,5.
 - Contraste minimum **WCAG AA** (4,5:1 pour le texte, 3:1 pour les éléments graphiques).
 - Aucun texte en anglais sur les pages publiques.
+- Contrôle : `npm run verifier` (couleurs, contrastes, lint, types), hook `pre-commit`, test unitaire `tests/unit/charte.test.ts`.
 
 ## Couleur principale
 
-Valeurs **neutres** du socle. Chaque projet règle sa couleur dans Administration → Paramètres → Apparence : le site recalcule alors `--primary`, `--primary-hover`, `--primary-text`, `--primary-foreground` et `--ring` au contraste AA (`src/lib/couleurs.ts`). Aucune couleur de marque n'est écrite dans le code.
+Valeurs **neutres** du socle. Chaque projet règle sa couleur dans Administration → Paramètres → Apparence : le site recalcule alors `--primary`, `--primary-hover`, `--primary-text`, `--primary-foreground` et `--ring` au contraste AA sur le fond de page (`src/lib/couleurs.ts`). Aucune couleur de marque n'est écrite dans le code.
 
-| Token                  | Valeur    | Usage                                                             |
-| ---------------------- | --------- | ----------------------------------------------------------------- |
-| `--primary`            | `#334155` | Fonds de boutons et surfaces primaires (blanc dessus : 10,35:1)   |
-| `--primary-hover`      | `#1e293b` | Survol des surfaces primaires                                     |
-| `--primary-text`       | `#334155` | **Couleur principale en texte et en liens** (9,9:1 sur `#f8fafc`) |
-| `--primary-foreground` | `#ffffff` | Texte posé sur `--primary`                                        |
-| `--secondary`          | `#6c757d` | Surfaces secondaires (blanc dessus : 4,69:1)                      |
-| `--cds-purple`         | `#7c3aed` | Accent ponctuel                                                   |
+| Token                  | Valeur    | Usage                                                              |
+| ---------------------- | --------- | ------------------------------------------------------------------ |
+| `--primary`            | `#334155` | Fonds de boutons et surfaces primaires (blanc dessus : 10,35:1)    |
+| `--primary-hover`      | `#1e293b` | Survol des surfaces primaires                                      |
+| `--primary-text`       | `#334155` | **Couleur principale en texte et en liens** (8,96:1 sur `#eaeff5`) |
+| `--primary-foreground` | `#ffffff` | Texte posé sur `--primary`                                         |
+| `--secondary`          | `#e4eaf1` | Surface secondaire pâle (texte `#252e3d` dessus : 11,28:1)         |
 
-## Couleurs d'état
+## Couleurs d'état : quatre usages par couleur
 
-| Token                | Valeur    | Usage                       | Contraste sur `#f8fafc`                                             |
-| -------------------- | --------- | --------------------------- | ------------------------------------------------------------------- |
-| `--success`          | `#198754` | Fonds et bordures de succès | 4,33:1 (surface uniquement)                                         |
-| `--success-text`     | `#15803d` | Texte et icônes de succès   | 4,79:1                                                              |
-| `--warning`          | `#ffc107` | Fonds et bordures d'alerte  | 1,56:1 (surface uniquement)                                         |
-| `--warning-text`     | `#b45200` | Texte, icônes et étoiles    | 4,84:1                                                              |
-| `--destructive`      | `#dc3545` | Fonds et bordures d'erreur  | blanc dessus : 4,53:1 (texte : 4,33:1, non conforme)                |
-| `--destructive-text` | `#cf1919` | Texte et icônes d'erreur    | 5,27:1 (5,52:1 sur blanc, 5,01:1 sur `--accent`)                    |
-| `--info`             | `#0dcaf0` | Fonds d'information         | surface uniquement                                                  |
-| `--info-text`        | `#0e7490` | Texte d'information         | 5,12:1 (5,36:1 sur blanc ; ancien `#0891b2` : 3,52:1, non conforme) |
+| Rôle      | Fond plein | `-soft` (fond pâle) | `-text` (texte, icône) | `-border` |
+| --------- | ---------- | ------------------- | ---------------------- | --------- |
+| `success` | `#15803d`  | `#dcfce7`           | `#166534`              | `#86efac` |
+| `warning` | `#b45309`  | `#fef3c7`           | `#92400e`              | `#fcd34d` |
+| `danger`  | `#c81e1e`  | `#fee2e2`           | `#991b1b`              | `#fca5a5` |
+| `info`    | `#0e7490`  | `#cffafe`           | `#155e75`              | `#67e8f9` |
+| `violet`  | `#6d28d9`  | `#ede9fe`           | `#5b21b6`              | `#c4b5fd` |
+| `neutral` | `#475569`  | `#e2e8f0`           | `#334155`              | `#94a3b8` |
 
-> Règle : les tokens **sans** suffixe `-text` servent aux **fonds** ; les tokens `-text` servent au **texte et aux icônes**. Ne jamais poser `--warning` ou `--info` en couleur de texte sur fond clair.
+- **Fond plein** : texte blanc dessus (`-foreground`), 5,02:1 au moins.
+- **`-text`** : sur `-soft`, sur une carte blanche et sur le fond de page, 6,13:1 au moins.
+- **`-border`** : contour d'une pastille ou d'un encart pâle.
+- **Alias historiques**, mêmes valeurs : `destructive` = `danger` (`destructive-text`, `destructive-foreground`), `cds-purple` = `violet`.
+- Notifications (`.cds-toast`) : `-soft` en fond, `-border` en contour, `-text` en texte ; `neutral` pour le type par défaut.
+
+> Changement 2.0.0 : `--warning` et `--info` deviennent des fonds pleins sous texte blanc (anciens `#ffc107` et `#0dcaf0` : texte blanc illisible). Le fond pâle passe en `-soft`.
 
 ## Neutres
 
-| Token                  | Valeur    | Usage                                                                     | Contraste sur `#f8fafc`        |
-| ---------------------- | --------- | ------------------------------------------------------------------------- | ------------------------------ |
-| `--background`         | `#f8fafc` | Fond de page                                                              | —                              |
-| `--foreground`         | `#1e293b` | Texte principal                                                           | 13,98:1                        |
-| `--card` / `--popover` | `#ffffff` | Surfaces surélevées                                                       | —                              |
-| `--muted` / `--accent` | `#f3f4f6` | Fonds discrets                                                            | —                              |
-| `--muted-foreground`   | `#5d6b80` | Texte secondaire (ancien `#64748b` : 4,32:1 sur `--accent`, non conforme) | 5,17:1 (4,92:1 sur `--accent`) |
-| `--text-light`         | `#5b6472` | Texte tertiaire (ancien `#8e95a1`, non conforme)                          | 5,72:1                         |
-| `--border` / `--input` | `#e5e7eb` | Bordures et champs                                                        | —                              |
-| `--border-strong`      | `#cbd5e1` | Bordure renforcée au survol ou sur une sélection                          | —                              |
-| `--surface-raised`     | `#ffffff` | Cartes détachées du fond                                                  | —                              |
-| `--surface-sunken`     | `#f1f5f9` | Champs et zones légèrement creusées                                       | —                              |
-| `--ring`               | `#334155` | Anneau de focus                                                           | —                              |
+| Token                  | Valeur    | Usage                                                          | Contraste sur `#eaeff5` |
+| ---------------------- | --------- | -------------------------------------------------------------- | ----------------------- |
+| `--background`         | `#eaeff5` | Fond de page, plus soutenu que les cartes                      | —                       |
+| `--foreground`         | `#131922` | Texte principal                                                | 15,27:1                 |
+| `--card` / `--popover` | `#ffffff` | Cartes, fenêtres, **champs de saisie**                         | —                       |
+| `--muted` / `--accent` | `#e4eaf1` | Fonds discrets, survol                                         | —                       |
+| `--muted-foreground`   | `#525b69` | Texte secondaire (métadonnées seulement)                       | 5,94:1                  |
+| `--text-light`         | `#525b69` | = `--muted-foreground`                                         | 5,94:1                  |
+| `--border`             | `#d4dae1` | Bordures                                                       | —                       |
+| `--input`              | `#cbd2da` | Contour des champs                                             | —                       |
+| `--border-strong`      | `#94a3b8` | Bordure renforcée au survol ou sur une sélection               | —                       |
+| `--surface-raised`     | `#ffffff` | Cartes détachées du fond                                       | —                       |
+| `--surface-sunken`     | `#f1f5f9` | Zones légèrement creusées dans une carte (onglets, squelettes) | —                       |
+| `--ring`               | `#334155` | Anneau de focus                                                | —                       |
 
 ## Rayons
 
@@ -96,23 +106,11 @@ Images et vignettes : `rounded-md` (12 px arrondirait trop une vignette de 44 px
 
 Largeur de contenu 1200 px · hauteur d'en-tête 56 px · largeur de colonne latérale 260 px
 
-## Surfaces subtiles (statuts)
-
-| Nom    | Fond      | Texte     |
-| ------ | --------- | --------- |
-| bleu   | `#dbeafe` | `#205ee6` |
-| vert   | `#dcfce7` | `#008229` |
-| ambre  | `#fef3c7` | `#b45200` |
-| rouge  | `#fee2e2` | `#cf1919` |
-| cyan   | `#cffafe` | `#007899` |
-| violet | `#ede9fe` | `#7c3aed` |
-| gris   | `#f3f4f6` | `#687179` |
-
 ## Modifier un token
 
 1. Mettre à jour ce fichier.
 2. Reporter la valeur dans `src/styles.css` (`:root`).
 3. Reporter la valeur dans `src/lib/cds-tokens.ts`.
-4. Vérifier le contraste (minimum 4,5:1 pour le texte).
+4. Ajouter la paire d'usage dans `scripts/verifier-contrastes.mjs`, puis lancer `npm run verifier`.
 
 Le nom du site, les coordonnées légales et l'hébergeur ne sont **pas** des tokens : ils se règlent dans l'espace d'administration (`/admin`).

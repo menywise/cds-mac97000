@@ -9,6 +9,11 @@ installation.
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
   migrations de la plateforme. Version courante : **1.8.0**, migration
   `20261018120000_v1_8_0_messagerie_direct`.
+- **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
+  d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
+  greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
+  `bg-info-soft` : ces deux jetons deviennent des fonds pleins sous texte blanc. Après la fusion :
+  `npm run verifier`, puis activer les hooks une fois par poste (`git config core.hooksPath .githooks`).
 - **Ordre code / base.** En général la base passe avant le code (le nouveau code lit ce que la base
   vient de recevoir). Exception 1.4.1 : le code d'abord, car la base supprime une colonne que
   l'ancien code lit. La 1.6.1 suit la règle générale, mais le code doit suivre aussitôt : entre les

@@ -3,26 +3,12 @@
 @import "tw-animate-css";
 
 /*
- * CDS — Consensus Design System
+ * CDS — Consensus Design System, charte 2.0 (27/10/2026)
  * Thème clair uniquement. Aucun mode sombre.
+ * Remontées de terrain d'une installation (docs/CHARTE_STYLE_CDS.md) : fond de page plus soutenu
+ * que les cartes blanches, couleurs d'état en quatre usages (fond plein, -soft, -text, -border),
+ * police du système, champs blancs. Contrastes : scripts/verifier-contrastes.mjs.
  */
-
-/*
- * Police Inter, hébergée par le site : fichier variable (graisses 100 à 900, sous-ensemble latin)
- * dans public/fonts/, tiré du paquet @fontsource-variable/inter 5.3.0 sous licence SIL OFL 1.1
- * (public/fonts/LICENCE-Inter-OFL.txt). Aucun appel à Google Fonts : rien ne part vers un tiers.
- * Le fichier est préchargé dans l'en-tête de src/routes/__root.tsx.
- */
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 
 @theme inline {
   --radius-sm: 0.25rem;
@@ -31,7 +17,8 @@
   --radius-xl: var(--radius-lg); /* rounded-xl = cartes : 12 px (le relief cible .rounded-xl) */
   --radius-2xl: calc(var(--radius) + 8px);
 
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Police du système : aucune police téléchargée (charte 2.0, remontée de terrain). */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -52,14 +39,39 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
   --color-success-text: var(--success-text);
+  --color-success-border: var(--success-border);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
   --color-warning-text: var(--warning-text);
+  --color-warning-border: var(--warning-border);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+  --color-danger-border: var(--danger-border);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info-text: var(--info-text);
+  --color-info-border: var(--info-border);
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
+  --color-violet-soft: var(--violet-soft);
+  --color-violet-text: var(--violet-text);
+  --color-violet-border: var(--violet-border);
+  --color-neutral: var(--neutral);
+  --color-neutral-foreground: var(--neutral-foreground);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-text: var(--neutral-text);
+  --color-neutral-border: var(--neutral-border);
+  /* Alias historiques : destructive = danger, cds-purple = violet. */
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-destructive-text: var(--destructive-text);
-  --color-info: var(--info);
-  --color-info-text: var(--info-text);
   --color-cds-purple: var(--cds-purple);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
@@ -71,41 +83,69 @@
   /* CDS layout */
   --radius: 0.375rem; /* boutons : 6px */
 
-  /* CDS couleurs */
-  --background: #f8fafc;
-  --foreground: #1e293b;
+  /* CDS couleurs. Fond de page plus soutenu que les cartes blanches : elles se détachent partout. */
+  --background: #eaeff5;
+  --foreground: #131922;
   --card: #ffffff;
-  --card-foreground: #1e293b;
+  --card-foreground: #131922;
   --surface-raised: #ffffff;
   --surface-sunken: #f1f5f9;
   --popover: #ffffff;
-  --popover-foreground: #1e293b;
+  --popover-foreground: #131922;
   /* Couleur principale neutre : chaque projet règle la sienne (Paramètres → Apparence). */
   --primary: #334155;
   --primary-hover: #1e293b;
   --primary-foreground: #ffffff;
-  --secondary: #6c757d;
-  --secondary-foreground: #ffffff;
-  --muted: #f3f4f6;
-  --muted-foreground: #5d6b80;
-  --accent: #f3f4f6;
-  --accent-foreground: #1e293b;
-  --success: #198754;
-  --success-text: #15803d; /* texte / icônes : contraste AA sur fond clair */
-  --warning: #ffc107;
-  --warning-text: #b45200; /* texte / icônes : contraste AA sur fond clair */
-  --destructive: #dc3545;
-  --destructive-foreground: #ffffff;
-  --destructive-text: #cf1919; /* texte / icônes d'erreur : contraste AA sur fond clair */
-  --info: #0dcaf0;
-  --info-text: #0e7490; /* texte d'information : contraste AA sur fond clair */
-  --cds-purple: #7c3aed;
-  --primary-text: #334155; /* couleur principale en texte : contraste AA sur fond clair */
-  --text-light: #5b6472;
-  --border: #e5e7eb;
-  --border-strong: #cbd5e1;
-  --input: #e5e7eb;
+  --primary-text: #334155; /* couleur principale en texte : 8,96:1 sur le fond de page */
+  --secondary: #e4eaf1; /* surface secondaire pâle, texte foncé dessus */
+  --secondary-foreground: #252e3d;
+  --muted: #e4eaf1;
+  --muted-foreground: #525b69; /* texte secondaire : 5,94:1 sur le fond de page */
+  --accent: #e4eaf1;
+  --accent-foreground: #131922;
+  --text-light: #525b69;
+  --border: #d4dae1;
+  --border-strong: #94a3b8;
+  --input: #cbd2da;
   --ring: #334155;
+
+  /* Couleurs d'état : fond plein (texte blanc dessus), -soft (fond pâle), -text (texte et icônes,
+     sur -soft, sur carte et sur fond de page), -border. */
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --success-soft: #dcfce7;
+  --success-text: #166534;
+  --success-border: #86efac;
+  --warning: #b45309;
+  --warning-foreground: #ffffff;
+  --warning-soft: #fef3c7;
+  --warning-text: #92400e;
+  --warning-border: #fcd34d;
+  --danger: #c81e1e;
+  --danger-foreground: #ffffff;
+  --danger-soft: #fee2e2;
+  --danger-text: #991b1b;
+  --danger-border: #fca5a5;
+  --info: #0e7490;
+  --info-foreground: #ffffff;
+  --info-soft: #cffafe;
+  --info-text: #155e75;
+  --info-border: #67e8f9;
+  --violet: #6d28d9;
+  --violet-foreground: #ffffff;
+  --violet-soft: #ede9fe;
+  --violet-text: #5b21b6;
+  --violet-border: #c4b5fd;
+  --neutral: #475569;
+  --neutral-foreground: #ffffff;
+  --neutral-soft: #e2e8f0;
+  --neutral-text: #334155;
+  --neutral-border: #94a3b8;
+  /* Alias historiques, mêmes valeurs : le code existant garde ses classes. */
+  --destructive: var(--danger);
+  --destructive-foreground: var(--danger-foreground);
+  --destructive-text: var(--danger-text);
+  --cds-purple: var(--violet);
 
   /* CDS relief tactile */
   --shadow-field-inset: inset 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -176,33 +216,33 @@
 }
 
 [data-sonner-toast].cds-toast[data-type="success"] {
-  background: #dcfce7;
-  border-color: #86efac;
-  color: #008229;
+  background: var(--success-soft);
+  border-color: var(--success-border);
+  color: var(--success-text);
 }
 
 [data-sonner-toast].cds-toast[data-type="error"] {
-  background: #fee2e2;
-  border-color: #fca5a5;
-  color: #cf1919;
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
 [data-sonner-toast].cds-toast[data-type="warning"] {
-  background: #fef3c7;
-  border-color: #fcd34d;
-  color: #b45200;
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+  color: var(--warning-text);
 }
 
 [data-sonner-toast].cds-toast[data-type="info"] {
-  background: #cffafe;
-  border-color: #67e8f9;
-  color: #007899;
+  background: var(--info-soft);
+  border-color: var(--info-border);
+  color: var(--info-text);
 }
 
 [data-sonner-toast].cds-toast[data-type="default"] {
-  background: #dbeafe;
-  border-color: #93c5fd;
-  color: #205ee6;
+  background: var(--neutral-soft);
+  border-color: var(--neutral-border);
+  color: var(--neutral-text);
 }
 
 [data-sonner-toast].cds-toast [data-title] {

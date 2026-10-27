@@ -39,7 +39,7 @@ const steps = [
   },
   {
     title: "6. Garder les règles du socle",
-    body: "Thème clair uniquement, police Inter, fond #f8fafc, texte #1e293b, couleur principale réglée dans les paramètres, rayon 6 px pour les boutons et 12 px pour les cartes. Un ton orienté bénéfices, jamais générique.",
+    body: "Thème clair uniquement, police du système, fond #eaeff5 sous des cartes blanches, texte #131922, couleur principale réglée dans les paramètres, rayon 6 px pour les boutons et 12 px pour les cartes. Un ton orienté bénéfices, jamais générique.",
   },
 ];
 

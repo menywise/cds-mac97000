@@ -14,7 +14,7 @@ import {
 } from "@react-email/components";
 
 // Identité visuelle CDS pour les e-mails : thème clair uniquement,
-// Inter (repli système), couleur principale neutre du socle, cartes 12 px, boutons 6 px.
+// Police du système, couleur principale neutre du socle, cartes 12 px, boutons 6 px.
 
 export const CDS_COLORS = {
   background: "#f8fafc",
@@ -87,7 +87,7 @@ export const CdsNote = ({ children }: { children: React.ReactNode }) => (
 
 const main = {
   backgroundColor: CDS_COLORS.background,
-  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   margin: "0",
   padding: "24px 0",
 };

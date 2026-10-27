@@ -35,6 +35,6 @@ test("les teintes dérivées restent lisibles (AA 4,5:1)", () => {
     const t = teintesPrincipales(couleur);
     assert.ok(t, couleur);
     assert.ok(contraste(t.surCouleur, t.principale) >= 4.5, `${couleur} : texte sur la couleur`);
-    assert.ok(contraste(t.texte, "#f8fafc") >= 4.5, `${couleur} : couleur en texte`);
+    assert.ok(contraste(t.texte, "#eaeff5") >= 4.5, `${couleur} : couleur en texte`);
   }
 });

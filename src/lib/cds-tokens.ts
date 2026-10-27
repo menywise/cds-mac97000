@@ -1,12 +1,12 @@
 /**
  * CDS — Consensus Design System — Tokens TypeScript
- * VERSION  : 1.3.0
- * DATE     : 2026-10-02
+ * VERSION  : 2.0.0
+ * DATE     : 2026-10-27
  * SOURCE   : CDS_TOKENS.md (source de vérité unique)
  * USAGE    : import { cds } from '@/lib/cds-tokens'
  *
- * Les couleurs suffixées « Text » sont les seules autorisées pour du texte
- * ou des icônes sur fond clair (contraste WCAG AA vérifié).
+ * Pour du texte ou des icônes : `colors.text`, `colors.textMuted`, `colors.primaryText` et les
+ * `state.*.text` (contraste WCAG AA vérifié par scripts/verifier-contrastes.mjs).
  */
 
 export const cds = {
@@ -14,37 +14,31 @@ export const cds = {
     primary: "#334155",
     primaryHover: "#1e293b",
     primaryText: "#334155",
-    success: "#198754",
-    successText: "#15803d",
-    warning: "#ffc107",
-    warningText: "#b45200",
-    danger: "#dc3545",
-    dangerText: "#cf1919",
-    info: "#0dcaf0",
-    infoText: "#0e7490",
-    secondary: "#6c757d",
-    purple: "#7c3aed",
-    purpleLight: "#ede9fe",
-    text: "#1e293b",
-    textMuted: "#5d6b80",
-    textLight: "#5b6472",
-    bg: "#f8fafc",
-    bgAlt: "#f3f4f6",
+    secondary: "#e4eaf1",
+    text: "#131922",
+    textMuted: "#525b69",
+    textLight: "#525b69",
+    bg: "#eaeff5",
+    bgAlt: "#e4eaf1",
     surfaceRaised: "#ffffff",
     surfaceSunken: "#f1f5f9",
-    border: "#e5e7eb",
-    borderStrong: "#cbd5e1",
+    border: "#d4dae1",
+    borderStrong: "#94a3b8",
+    input: "#cbd2da",
     white: "#ffffff",
   },
 
-  subtle: {
-    blue: { bg: "#dbeafe", text: "#205ee6" },
-    green: { bg: "#dcfce7", text: "#008229" },
-    amber: { bg: "#fef3c7", text: "#b45200" },
-    red: { bg: "#fee2e2", text: "#cf1919" },
-    cyan: { bg: "#cffafe", text: "#007899" },
-    purple: { bg: "#ede9fe", text: "#7c3aed" },
-    gray: { bg: "#f3f4f6", text: "#687179" },
+  /**
+   * Couleurs d'état en quatre usages : `solid` (fond plein, texte blanc dessus), `soft` (fond
+   * pâle), `text` (texte et icônes, sur `soft`, sur carte et sur fond de page), `border`.
+   */
+  state: {
+    success: { solid: "#15803d", soft: "#dcfce7", text: "#166534", border: "#86efac" },
+    warning: { solid: "#b45309", soft: "#fef3c7", text: "#92400e", border: "#fcd34d" },
+    danger: { solid: "#c81e1e", soft: "#fee2e2", text: "#991b1b", border: "#fca5a5" },
+    info: { solid: "#0e7490", soft: "#cffafe", text: "#155e75", border: "#67e8f9" },
+    violet: { solid: "#6d28d9", soft: "#ede9fe", text: "#5b21b6", border: "#c4b5fd" },
+    neutral: { solid: "#475569", soft: "#e2e8f0", text: "#334155", border: "#94a3b8" },
   },
   radius: {
     sm: "0.25rem",

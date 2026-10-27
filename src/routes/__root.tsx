@@ -172,14 +172,6 @@ export const Route = createRootRoute({
           rel: "stylesheet",
           href: appCss,
         },
-        // Police Inter servie par le site (déclarée dans src/styles.css) : préchargée, sans tiers.
-        {
-          rel: "preload",
-          href: "/fonts/inter-latin-wght-normal.woff2",
-          as: "font",
-          type: "font/woff2",
-          crossOrigin: "anonymous",
-        },
         // Icônes réglées en admin (Paramètres → Apparence), sinon icônes neutres de public/.
         { rel: "icon", href: brand.apparence.favicon || "/favicon.png" },
         { rel: "apple-touch-icon", href: brand.apparence.icone || "/apple-touch-icon.png" },
