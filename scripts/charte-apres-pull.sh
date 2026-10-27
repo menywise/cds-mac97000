@@ -10,9 +10,15 @@ git rev-parse -q --verify "$avant" >/dev/null || exit 0
 git diff --quiet "$avant" HEAD -- src/ && exit 0
 
 echo "Charte de style : contrôle de ce que le pull a ramené."
-rapport=$(node scripts/verifier-couleurs.mjs 2>&1; node scripts/verifier-contrastes.mjs 2>&1 | grep -v '^ok ')
-if echo "$rapport" | grep -q 'ÉCHEC'; then
-  echo "$rapport"
+# Le code de sortie de chaque contrôle fait foi : un contrôle qui plante (couleur illisible) échoue
+# sans écrire « ÉCHEC », et ne doit pas passer pour conforme.
+couleurs=$(node scripts/verifier-couleurs.mjs 2>&1)
+code_couleurs=$?
+contrastes=$(node scripts/verifier-contrastes.mjs 2>&1)
+code_contrastes=$?
+if [ "$code_couleurs" -ne 0 ] || [ "$code_contrastes" -ne 0 ]; then
+  [ "$code_couleurs" -ne 0 ] && echo "$couleurs"
+  [ "$code_contrastes" -ne 0 ] && echo "$contrastes" | grep -v '^ok '
   echo ""
   echo "Commits ramenés qui touchent src/ (auteur, commit, titre) :"
   git log --no-merges --format='  %an · %h · %s' "$avant"..HEAD -- src/

@@ -761,6 +761,8 @@ const CAPTURES = join(ROOT, "tests", "e2e", "rapport", "captures");
 const CAPTURES_PRECEDENTES = join(ROOT, "tests", "e2e", "rapport", "captures-precedentes");
 /** Pages dont la capture diffère du passage précédent (« rôle · écran · adresse »). */
 const PAGES_CHANGEES: string[] = [];
+/** Vrai si un passage précédent a laissé ses captures (poste) ; en CI, dépôt neuf : rien à comparer. */
+let REFERENCE = false;
 
 /** Capture pleine page, comparée octet par octet à celle du passage précédent. */
 async function capturer(page: Page, url: string, role: QaRole, viewport: string) {
@@ -779,7 +781,8 @@ async function main() {
     throw new Error("Adresse ou clé publique Supabase absente (.env)");
   const states = await modulesState();
   // Les captures du passage précédent servent de référence à celui-ci.
-  if (existsSync(CAPTURES)) {
+  REFERENCE = existsSync(CAPTURES);
+  if (REFERENCE) {
     rmSync(CAPTURES_PRECEDENTES, { recursive: true, force: true });
     renameSync(CAPTURES, CAPTURES_PRECEDENTES);
   }
@@ -1066,9 +1069,13 @@ async function main() {
     "",
     "Captures : tests/e2e/rapport/captures/. Chaque page changée doit correspondre à une demande de fusion.",
     "",
-    ...(PAGES_CHANGEES.length
-      ? PAGES_CHANGEES.map((p) => `- ${p}`)
-      : ["Aucune (ou premier passage)."]),
+    ...(!REFERENCE
+      ? [
+          "Premier passage (ou CI, dépôt neuf) : aucune capture précédente, rien à comparer. La comparaison se fait sur le poste, d'un passage au suivant.",
+        ]
+      : PAGES_CHANGEES.length
+        ? PAGES_CHANGEES.map((p) => `- ${p}`)
+        : ["Aucune."]),
   ].join("\n");
   writeFileSync(join(dir, "recette.md"), md + "\n");
   console.log(
