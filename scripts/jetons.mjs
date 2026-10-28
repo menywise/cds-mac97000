@@ -99,12 +99,22 @@ function commentaire(texte, retrait = "  ") {
 
 function blocRacine(groupes) {
   const lignes = [":root {"];
-  groupes.forEach((g, i) => {
-    if (i) lignes.push("");
-    if (g.description) lignes.push(commentaire(g.description));
-    for (const j of g.jetons)
-      lignes.push(`  --${j.nom}: ${css(j)};${j.description ? ` /* ${j.description} */` : ""}`);
-  });
+  // Un groupe de surcharges pures n'ajoute aucun jeton : ses valeurs ont pris la place de celles
+  // du socle, son commentaire ne décrirait rien.
+  groupes
+    .filter((g) => g.jetons.length)
+    .forEach((g, i) => {
+      if (i) lignes.push("");
+      if (g.description) lignes.push(commentaire(g.description));
+      for (const j of g.jetons) {
+        const ligne = `  --${j.nom}: ${css(j)};`;
+        // Commentaire en bout de ligne s'il tient en 100 colonnes, sinon sur sa propre ligne.
+        if (!j.description) lignes.push(ligne);
+        else if (`${ligne} /* ${j.description} */`.length <= 100)
+          lignes.push(`${ligne} /* ${j.description} */`);
+        else lignes.push(commentaire(j.description), ligne);
+      }
+    });
   lignes.push("}");
   return lignes.join("\n");
 }

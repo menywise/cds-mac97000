@@ -6,7 +6,8 @@
 # (faite seule au démarrage d'une session Claude Code : .claude/settings.json).
 
 node scripts/jetons.mjs --verifier || {
-  echo "Commit refusé : src/styles.css a été modifié à la main. Les couleurs vivent dans tokens/."
+  echo "Commit refusé : src/styles.css ne correspond plus aux jetons du dossier tokens/."
+  echo "Soit styles.css a été retouché à la main, soit un jeton a changé sans « npm run jetons »."
   exit 1
 }
 node scripts/verifier-couleurs.mjs || {
