@@ -1,7 +1,8 @@
 /**
- * Couleur principale réglée en administration : validation et teintes dérivées.
- * Fichier sans dépendance (testé seul). Une couleur invalide est ignorée : le site garde alors les
- * jetons par défaut de `src/styles.css`.
+ * Couleurs libres (couleur principale réglée en administration, couleurs de données saisies en
+ * base) : validation et teintes au contraste AA. Fichier sans dépendance (testé seul). Une couleur
+ * invalide est ignorée : le site garde alors les jetons par défaut de `src/styles.css`.
+ * Copié tel quel dans les clones (DB&M : socle.json).
  */
 
 const HEX = /^#[0-9a-f]{6}$/;
@@ -49,9 +50,32 @@ export function assombrir(hex: string, fraction: number) {
   return versHex(canaux(hex).map((x) => x * (1 - fraction)) as [number, number, number]);
 }
 
-const FOND = "#eaeff5"; // fond de page (charte 2.0)
-const BLANC = "#ffffff";
+export const FOND = "#eaeff5"; // fond de page (charte 2.0)
+export const BLANC = "#ffffff";
 const ENCRE = "#0f172a";
+
+/** Couleur posée sur un fond avec une opacité de 0 à 1 : `${couleur}1a` = 10 %. */
+export function melanger(couleur: string, fond: string, opacite: number) {
+  const c = canaux(couleur);
+  const f = canaux(fond);
+  return versHex(c.map((x, i) => x * opacite + f[i]! * (1 - opacite)) as [number, number, number]);
+}
+
+/**
+ * Couleur de données (famille, catégorie saisie en base…) employée en texte ou en fond plein sous
+ * un texte blanc : assombrie jusqu'au seuil (4,5:1) sur chacun des fonds. Par défaut : carte
+ * blanche, fond de page et fond pâle de la couleur elle-même (10 %). Couleur invalide → encre.
+ */
+export function couleurLisible(couleur: string, fonds?: string[], seuil = 4.5) {
+  const depart = normaliserCouleur(couleur);
+  if (!depart) return ENCRE;
+  const liste = fonds ?? [BLANC, FOND, melanger(depart, FOND, 0.1)];
+  let texte = depart;
+  for (let i = 0; i < 30 && liste.some((f) => contraste(texte, f) < seuil); i++) {
+    texte = assombrir(texte, 0.06);
+  }
+  return texte;
+}
 
 /**
  * Teintes dérivées d'une couleur principale, toutes au contraste AA (4,5:1) :
