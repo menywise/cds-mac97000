@@ -67,19 +67,31 @@ export function lireJetons() {
   return groupes;
 }
 
-/** Valeur CSS : alias {nom} → var(--nom) ; ombre en tableau d'objets → liste CSS. */
+/** Dimension W3C : chaîne (« 0.375rem ») ou objet { value, unit }. */
+const dimension = (d) => (d && typeof d === "object" ? `${d.value}${d.unit}` : String(d));
+
+/** Valeur CSS : alias {nom} → var(--nom) ; dimension et ombre W3C (objet ou liste) → CSS. */
 function css(j) {
   const ref = /^\{([\w-]+)\}$/.exec(String(j.valeur));
   if (ref) return `var(--${ref[1]})`;
-  if (j.type === "shadow" && Array.isArray(j.valeur))
-    return j.valeur
+  const v = j.valeur;
+  if (j.type === "shadow" && v && typeof v === "object")
+    return (Array.isArray(v) ? v : [v])
       .map((o) =>
-        [o.inset ? "inset" : "", o.offsetX, o.offsetY, o.blur, o.spread ?? "", o.color]
+        [
+          o.inset ? "inset" : "",
+          dimension(o.offsetX),
+          dimension(o.offsetY),
+          dimension(o.blur),
+          o.spread === undefined ? "" : dimension(o.spread),
+          o.color,
+        ]
           .filter(Boolean)
           .join(" "),
       )
       .join(", ");
-  return String(j.valeur);
+  if (j.type === "dimension") return dimension(v);
+  return String(v);
 }
 
 /** Commentaire CSS replié à 100 colonnes, suite alignée sous le texte (comme le reste du fichier). */
