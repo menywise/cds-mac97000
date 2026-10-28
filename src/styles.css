@@ -110,7 +110,7 @@
   --text-light: #525b69;
   --border: #d4dae1;
   --border-strong: #94a3b8;
-  --input: #cbd2da;
+  --input: #7a8697;
   --ring: #334155;
 
   /* Couleurs d'état : fond plein (texte blanc dessus), -soft (fond pâle), -text (texte et
@@ -164,6 +164,13 @@
   * {
     box-sizing: border-box;
     border-color: var(--color-border);
+  }
+
+  /* Focus au clavier jamais caché sous l'en-tête collant ni sous le bandeau cookies fixé en bas
+     (WCAG 2.4.11) : hauteurs tenues à jour par useHauteurReservee, plus la place de l'anneau. */
+  html {
+    scroll-padding-top: calc(var(--hauteur-entete, 4rem) + 0.5rem);
+    scroll-padding-bottom: calc(var(--hauteur-bandeau, 0px) + 0.5rem);
   }
 
   /* Lien dans un paragraphe : souligné, jamais repérable par la seule couleur (WCAG 1.4.1). */

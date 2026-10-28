@@ -69,7 +69,7 @@ Valeurs **neutres** du socle. Chaque projet règle sa couleur dans Administratio
 | `--muted-foreground`   | `#525b69` | Texte secondaire (métadonnées seulement)                       | 5,94:1                  |
 | `--text-light`         | `#525b69` | = `--muted-foreground`                                         | 5,94:1                  |
 | `--border`             | `#d4dae1` | Bordures                                                       | —                       |
-| `--input`              | `#cbd2da` | Contour des champs                                             | —                       |
+| `--input`              | `#7a8697` | Contour des champs (seul repère du champ sur une carte)        | 3,69:1 (carte)          |
 | `--border-strong`      | `#94a3b8` | Bordure renforcée au survol ou sur une sélection               | —                       |
 | `--surface-raised`     | `#ffffff` | Cartes détachées du fond                                       | —                       |
 | `--surface-sunken`     | `#f1f5f9` | Zones légèrement creusées dans une carte (onglets, squelettes) | —                       |

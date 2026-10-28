@@ -64,6 +64,9 @@ const PAIRES = [
   ["secondary-foreground", "secondary", 4.5],
   ["destructive-foreground", "destructive", 4.5],
   ["destructive-text", "background", 4.5],
+  // Contour des champs : seul repère d'un champ blanc posé sur une carte (WCAG 1.4.11).
+  ["input", "card", 3],
+  ["input", "background", 3],
   ...["success", "warning", "danger", "info", "violet", "neutral"].flatMap((t) => [
     [`${t}-text`, `${t}-soft`, 4.5],
     [`${t}-text`, "card", 4.5],

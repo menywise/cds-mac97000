@@ -232,7 +232,7 @@
   },
   "src/components/ui/input.tsx": {
     "gris": 1,
-    "opacite": 1,
+    "opacite": 0,
     "listes": 0,
     "couleurs": 0,
     "styles": 0
@@ -295,7 +295,7 @@
   },
   "src/components/ui/textarea.tsx": {
     "gris": 1,
-    "opacite": 1,
+    "opacite": 0,
     "listes": 0,
     "couleurs": 0,
     "styles": 0
@@ -343,6 +343,13 @@
     "styles": 0
   },
   "src/hooks/useCart.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/hooks/useHauteurReservee.ts": {
     "gris": 0,
     "opacite": 0,
     "listes": 0,
