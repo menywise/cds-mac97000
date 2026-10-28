@@ -5,6 +5,10 @@
 # Activation, une fois par machine : git config core.hooksPath .githooks
 # (faite seule au démarrage d'une session Claude Code : .claude/settings.json).
 
+node scripts/jetons.mjs --verifier || {
+  echo "Commit refusé : src/styles.css a été modifié à la main. Les couleurs vivent dans tokens/."
+  exit 1
+}
 node scripts/verifier-couleurs.mjs || {
   echo "Commit refusé : couleur hors charte (voir ci-dessus)."
   exit 1
@@ -14,6 +18,16 @@ node scripts/verifier-contrastes.mjs >/dev/null || {
   echo "Détail : node scripts/verifier-contrastes.mjs"
   exit 1
 }
+
+# Cliquet : texte gris, opacité et listes sans carte ne montent dans aucun fichier ; une baisse
+# abaisse le plafond, ajouté au commit.
+node scripts/cliquet-charte.mjs --verifier >/dev/null || {
+  node scripts/cliquet-charte.mjs --verifier
+  echo "Commit refusé : la charte recule dans un fichier (voir ci-dessus)."
+  exit 1
+}
+node scripts/cliquet-charte.mjs --mettre-a-jour && npx prettier --write charte-plafonds.json >/dev/null
+git add charte-plafonds.json
 
 # Fichiers TypeScript ajoutés, copiés, modifiés ou renommés dans ce commit (pas les supprimés).
 if ! git diff --cached --quiet --diff-filter=ACMR -- '*.ts' '*.tsx'; then

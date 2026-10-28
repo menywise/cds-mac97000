@@ -237,14 +237,12 @@ function CartPage() {
 
             <dl className="mt-4 space-y-1 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Sous-total</dt>
+                <dt className="font-medium">Sous-total</dt>
                 <dd className="text-foreground">{formatPrice(totals.subtotal, "EUR")}</dd>
               </div>
               {totals.physical ? (
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">
-                    Livraison ({settings.countries.join(", ")})
-                  </dt>
+                  <dt className="font-medium">Livraison ({settings.countries.join(", ")})</dt>
                   <dd className="text-foreground">
                     {totals.shipping === 0 ? "Offerte" : formatPrice(totals.shipping, "EUR")}
                   </dd>

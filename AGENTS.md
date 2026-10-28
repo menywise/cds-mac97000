@@ -34,5 +34,11 @@ Référence : `docs/CHARTE_STYLE_CDS.md` et `CDS_TOKENS.md` (version 2.0.0).
   `-text` et `-border`.
 - Contraste AA partout : 4,5:1 pour le texte, 3:1 pour un trait. Une couleur ajoutée à
   `src/styles.css` entre dans les paires de `scripts/verifier-contrastes.mjs`.
+- Couleurs, rayons, ombres : dans `tokens/cds.tokens.json` (surcharges d'un projet :
+  `tokens/<projet>.tokens.json`), puis `npm run jetons`. Ne jamais modifier à la main le bloc
+  `:root` ni les couleurs `--color-*` de `src/styles.css` : ils sont fabriqués.
+- Pas de gris sur un intitulé (`h1`-`h6`, `label`, `legend`, `dt`, `th`) : règle ESLint.
+- Cliquet (`charte-plafonds.json`) : texte gris, opacité et listes sans carte ne montent dans aucun
+  fichier.
 - Contrôles : hook `pre-commit` (actif au démarrage de chaque session Claude Code par
   `.claude/settings.json`), `npm run verifier`, test `tests/unit/charte.test.ts`.

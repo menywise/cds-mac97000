@@ -2,12 +2,13 @@
 
 **Version** : 2.0.0 — **Date** : 27 octobre 2026
 
-Ce fichier est la **référence unique**. Deux fichiers seulement l'appliquent :
+Les valeurs vivent dans **`tokens/cds.tokens.json`**, source unique au format W3C Design Tokens (`$value`, `$type`, `$description`, alias `{nom}`). Ce fichier-ci explique leur usage et leurs contrastes.
 
-| Fichier                 | Rôle                                                                                 |
-| ----------------------- | ------------------------------------------------------------------------------------ |
-| `src/styles.css`        | Déclaration réelle des tokens (Tailwind v4, `@theme inline` + `:root`)               |
-| `src/lib/cds-tokens.ts` | Mêmes valeurs exposées au code TypeScript (`import { cds } from "@/lib/cds-tokens"`) |
+| Fichier                  | Rôle                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| `tokens/cds.tokens.json` | Valeurs des jetons (un projet ajoute ses surcharges dans `tokens/<projet>.tokens.json`) |
+| `src/styles.css`         | Bloc `:root` et couleurs Tailwind **fabriqués** par `npm run jetons` : jamais à la main |
+| `src/lib/cds-tokens.ts`  | Mêmes valeurs exposées au code TypeScript (`import { cds } from "@/lib/cds-tokens"`)    |
 
 Il n'existe **aucun** `tailwind.config.ts` ni `src/index.css` : en Tailwind v4 la configuration vit dans `src/styles.css`.
 
@@ -108,9 +109,11 @@ Largeur de contenu 1200 px · hauteur d'en-tête 56 px · largeur de colonne lat
 
 ## Modifier un token
 
-1. Mettre à jour ce fichier.
-2. Reporter la valeur dans `src/styles.css` (`:root`).
-3. Reporter la valeur dans `src/lib/cds-tokens.ts`.
-4. Ajouter la paire d'usage dans `scripts/verifier-contrastes.mjs`, puis lancer `npm run verifier`.
+1. Changer la valeur dans `tokens/cds.tokens.json` (ou ajouter le jeton dans son groupe).
+2. `npm run jetons` : le bloc `:root` et les couleurs Tailwind de `src/styles.css` se refont seuls.
+3. Reporter la valeur dans ce fichier et dans `src/lib/cds-tokens.ts` : `tests/unit/charte.test.ts` refuse un écart.
+4. Une couleur nouvelle entre dans les paires de `scripts/verifier-contrastes.mjs`, puis `npm run verifier`.
+
+`src/styles.css` modifié à la main est refusé au commit, au `git pull` et en CI (`node scripts/jetons.mjs --verifier`).
 
 Le nom du site, les coordonnées légales et l'hébergeur ne sont **pas** des tokens : ils se règlent dans l'espace d'administration (`/admin`).

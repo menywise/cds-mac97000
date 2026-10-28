@@ -73,14 +73,30 @@ module, s'il en faut une, se déclare dans le clone en quatre variantes (`--modu
 
 ## Où la charte est contrôlée
 
-| Où                           | Quoi                                                                |
-| ---------------------------- | ------------------------------------------------------------------- |
-| Chaque commit (poste, cloud) | `.githooks/pre-commit` : couleurs, `dark:`, contrastes, lint, types |
-| Session Claude Code          | `.claude/settings.json` active les hooks au démarrage               |
-| Chaque `git pull`            | `scripts/charte-apres-pull.sh` signale ce qu'un agent a poussé      |
-| Chaque demande de fusion     | `tests/unit/charte.test.ts`, dans l'étape « Tests unitaires »       |
-| À la main                    | `npm run verifier`                                                  |
-| Site publié                  | robot de recette : axe-core (WCAG AA), une capture par page         |
-| Agent Lovable                | Knowledge du projet : résumé de cette charte                        |
+| Où                           | Quoi                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| Chaque commit (poste, cloud) | `.githooks/pre-commit` : jetons, couleurs, `dark:`, contrastes, cliquet, lint, types |
+| Session Claude Code          | `.claude/settings.json` active les hooks au démarrage                                |
+| Chaque `git pull`            | `scripts/charte-apres-pull.sh` signale ce qu'un agent a poussé                       |
+| Chaque demande de fusion     | `tests/unit/charte.test.ts`, dans l'étape « Tests unitaires »                        |
+| À la main                    | `npm run verifier`                                                                   |
+| Site publié                  | robot de recette : axe-core (WCAG AA), une capture par page                          |
+| Agent Lovable                | Knowledge du projet : résumé de cette charte                                         |
+
+## Source unique des couleurs (verrou A)
+
+Les valeurs vivent dans `tokens/cds.tokens.json`, au format W3C Design Tokens. `npm run jetons`
+fabrique le bloc `:root` et les couleurs Tailwind de `src/styles.css`. Un `styles.css` retouché à
+la main est refusé. Un projet garde ses couleurs propres dans `tokens/<projet>.tokens.json` : même
+nom, la valeur remplace celle du socle ; nom nouveau, le jeton s'ajoute.
+
+## Règles du lint et cliquet (verrou B)
+
+- `charte/couleurs-nommees` (ESLint) : aucune couleur Tailwind en dur, aucun `dark:`.
+- `charte/intitule-lisible` (ESLint) : pas de gris sur `h1`-`h6`, `label`, `legend`, `dt`, `th`.
+- Cliquet `scripts/cliquet-charte.mjs`, plafonds dans `charte-plafonds.json` : par fichier, le
+  texte gris, l'opacité sans variante et les listes sans carte ne font que baisser. Une baisse
+  abaisse le plafond au commit. Un nouveau fichier a un budget : 5 gris, 0 opacité, 2 listes.
+  Relever un plafond (`--relever <fichier>`) se justifie dans la demande de fusion.
 
 Activation des hooks sur un poste, une fois : `git config core.hooksPath .githooks`.

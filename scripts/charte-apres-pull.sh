@@ -7,18 +7,27 @@
 cd "$(dirname "$0")/.." || exit 0
 avant="${1:-ORIG_HEAD}"
 git rev-parse -q --verify "$avant" >/dev/null || exit 0
-git diff --quiet "$avant" HEAD -- src/ && exit 0
+git diff --quiet "$avant" HEAD -- src/ tokens/ && exit 0
 
 echo "Charte de style : contrôle de ce que le pull a ramené."
 # Le code de sortie de chaque contrôle fait foi : un contrôle qui plante (couleur illisible) échoue
 # sans écrire « ÉCHEC », et ne doit pas passer pour conforme.
-couleurs=$(node scripts/verifier-couleurs.mjs 2>&1)
-code_couleurs=$?
-contrastes=$(node scripts/verifier-contrastes.mjs 2>&1)
-code_contrastes=$?
-if [ "$code_couleurs" -ne 0 ] || [ "$code_contrastes" -ne 0 ]; then
-  [ "$code_couleurs" -ne 0 ] && echo "$couleurs"
-  [ "$code_contrastes" -ne 0 ] && echo "$contrastes" | grep -v '^ok '
+rapport=""
+echec=0
+controler() {
+  sortie=$("$@" 2>&1)
+  if [ $? -ne 0 ]; then
+    echec=1
+    rapport="$rapport$(printf '%s\n' "$sortie" | grep -v '^ok ')
+"
+  fi
+}
+controler node scripts/jetons.mjs --verifier
+controler node scripts/verifier-couleurs.mjs
+controler node scripts/verifier-contrastes.mjs
+controler node scripts/cliquet-charte.mjs --verifier
+if [ "$echec" -ne 0 ]; then
+  printf '%s' "$rapport"
   echo ""
   echo "Commits ramenés qui touchent src/ (auteur, commit, titre) :"
   git log --no-merges --format='  %an · %h · %s' "$avant"..HEAD -- src/

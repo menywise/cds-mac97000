@@ -1,0 +1,1127 @@
+{
+  "src/components/cds/AdminShell.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/AdSlot.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/AuthLayout.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/CategoryManager.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/components/cds/ConfirmButton.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/ConformityBoard.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/CookieBanner.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/CrmShell.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/ErreurChargement.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/EspaceConnecte.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/ForumParts.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/components/cds/GoogleSignInButton.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/LegalPage.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/MediaPicker.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/components/cds/ModerationEditor.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/ModerationNote.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/NewsletterForm.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/PageSections.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/components/cds/PasswordInput.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/RecordEditor.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/ReportButton.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/RetractionWaiver.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/ShareButtons.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/cds/SiteHeader.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/components/ui/accordion.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/alert-dialog.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/alert.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/badge.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/breadcrumb.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/components/ui/button.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/card.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/checkbox.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/dialog.tsx": {
+    "gris": 2,
+    "opacite": 1,
+    "listes": 0
+  },
+  "src/components/ui/input.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/label.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/pagination.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/components/ui/progress.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/skeleton.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/sonner.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/switch.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/table.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/tabs.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/components/ui/textarea.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/config/brand.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/config/features.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/config/greffe.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/config/modules.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/greffe/index.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/hooks/useAuth.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/hooks/useCart.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/hooks/useSiteSettings.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/hooks/useUnreadMessages.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/auth-messages.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/blog.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/cds-tokens.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/check.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/community.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/content.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/couleurs.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/csv.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/directory.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-identity.server.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/cds-layout.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/email-change.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/invite.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/magic-link.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/reauthentication.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/recovery.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/registry.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/send-email.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/email-templates/signup.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/en-tetes-securite.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/error-capture.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/error-page.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/format.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/geo-import.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/geo.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/geo.server.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/lms.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/lovable-error-reporting.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/marketplace.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/guard.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/index.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/supabase.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/audit-page.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/list-audits.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/list-public-pages.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/list-roadmap.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/list-template-checks.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/record-audit.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/site-overview.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/update-template-check.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/mcp/tools/upsert-roadmap-item.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/media.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/pages.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/paiement-rattachement.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/payments.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/prix.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/qa-plan.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/reading.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/redirection-oauth.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/redirection.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/reorder.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/reports.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/reports.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/richtext.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/lib/search.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/search.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/seo.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/shop.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/shop.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/site-config.cache.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/site-config.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/site-config.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/sitemap.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/starter.functions.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/stripe.server.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/supabase-public.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/lib/utils.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/router.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/__root.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.abonnes.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.annuaire.tsx": {
+    "gris": 12,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/_authenticated/admin.boutique.tsx": {
+    "gris": 17,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/_authenticated/admin.conformite.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/_authenticated/admin.contenus.tsx": {
+    "gris": 8,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.crm.tsx": {
+    "gris": 9,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/_authenticated/admin.demarrage.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.formations.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/_authenticated/admin.forum.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/admin.geographie.tsx": {
+    "gris": 10,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/admin.index.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.marketplace.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/admin.mediatheque.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.messages.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.moderation.tsx": {
+    "gris": 10,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.modules.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/admin.pages.tsx": {
+    "gris": 9,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/_authenticated/admin.paiements.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/admin.pilotage.tsx": {
+    "gris": 10,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/_authenticated/admin.recettage.tsx": {
+    "gris": 12,
+    "opacite": 0,
+    "listes": 7
+  },
+  "src/routes/_authenticated/admin.regie.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/_authenticated/admin.signalements.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/admin.temoignages.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/admin.utilisateurs.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/compte.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/crm.actions.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/crm.index.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/_authenticated/crm.prospect.$prospectId.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/_authenticated/crm.prospects.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/decouvrir.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/mes-achats.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/_authenticated/mes-annonces.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/mes-fiches.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/mes-formations.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/messagerie.$conversationId.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/messagerie.index.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/_authenticated/profil.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/route.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/_authenticated/tableau-de-bord.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/[.]lovable.oauth.consent.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/[.well-known]/oauth-protected-resource.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/a-propos.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/ameliorations.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/annuaire.$slug.tsx": {
+    "gris": 13,
+    "opacite": 0,
+    "listes": 4
+  },
+  "src/routes/annuaire.categorie.$slug.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/annuaire.commune.$code.tsx": {
+    "gris": 8,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/annuaire.departement.$slug.tsx": {
+    "gris": 9,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/annuaire.departements.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/annuaire.index.tsx": {
+    "gris": 9,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/annuaire.soumettre.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/api.cron.purge-contact.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/api.stripe-webhook.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/avis.tsx": {
+    "gris": 8,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/blog.$slug.tsx": {
+    "gris": 9,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/blog.index.tsx": {
+    "gris": 11,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/boutique.$slug.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/boutique.index.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/boutique.panier.tsx": {
+    "gris": 9,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/composants.tsx": {
+    "gris": 8,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/contact.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/demarrer.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/faq.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/forgot-password.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/formation.$slug.index.tsx": {
+    "gris": 12,
+    "opacite": 0,
+    "listes": 3
+  },
+  "src/routes/formation.$slug.lecon.$lessonId.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/formations.index.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/forum.$topicId.tsx": {
+    "gris": 11,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/forum.categorie.$slug.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/forum.index.tsx": {
+    "gris": 12,
+    "opacite": 0,
+    "listes": 4
+  },
+  "src/routes/guide.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/index.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/legal.cgu.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/legal.cgv.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 4
+  },
+  "src/routes/legal.confidentialite.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/legal.cookies.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/legal.mentions-legales.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/login.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/lovable/email/auth/preview.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/lovable/email/auth/webhook.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/lovable/email/transactional/preview.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/maintenance.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/manifest[.]webmanifest.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/marketplace.$slug.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/marketplace.index.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/marketplace.publier.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/mcp.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/membres.$memberId.tsx": {
+    "gris": 8,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/membres.index.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/merci.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/pages.$slug.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/plan-du-site.tsx": {
+    "gris": 1,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/publicite.tsx": {
+    "gris": 5,
+    "opacite": 0,
+    "listes": 2
+  },
+  "src/routes/recherche.tsx": {
+    "gris": 4,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/reset-password.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/robots[.]txt.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/rss[.]xml.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/signalement.tsx": {
+    "gris": 3,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/signup.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/sitemap[.]xml.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/routes/tarifs.tsx": {
+    "gris": 6,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/temoignages.tsx": {
+    "gris": 7,
+    "opacite": 0,
+    "listes": 1
+  },
+  "src/routes/verification-email.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/server.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  },
+  "src/start.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0
+  }
+}

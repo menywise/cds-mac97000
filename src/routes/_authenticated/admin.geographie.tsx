@@ -211,14 +211,14 @@ function ReferentielPanel() {
           <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {KINDS.map((k) => (
               <div key={k.key} className="rounded-lg border border-border p-3">
-                <dt className="text-xs text-muted-foreground">{k.label}</dt>
+                <dt className="text-xs">{k.label}</dt>
                 <dd className="text-xl font-semibold text-foreground">
                   {new Intl.NumberFormat("fr-FR").format(status.lieux[k.key] ?? 0)}
                 </dd>
               </div>
             ))}
             <div className="rounded-lg border border-border p-3">
-              <dt className="text-xs text-muted-foreground">Voisinages</dt>
+              <dt className="text-xs">Voisinages</dt>
               <dd className="text-xl font-semibold text-foreground">
                 {new Intl.NumberFormat("fr-FR").format(status.voisinages)}
               </dd>

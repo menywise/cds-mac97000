@@ -395,7 +395,7 @@ function ListingPage() {
                 <dl className="mt-3 space-y-1 text-sm">
                   {DAYS.filter(([key]) => hours[key]).map(([key, label]) => (
                     <div key={key} className="flex justify-between gap-3">
-                      <dt className="text-muted-foreground">{label}</dt>
+                      <dt className="font-medium">{label}</dt>
                       <dd className="text-foreground">{hours[key]}</dd>
                     </div>
                   ))}

@@ -683,7 +683,7 @@ function LessonEditor({
           placeholder="https://…"
         />
       </div>
-      <label className="flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+      <label className="flex min-h-11 items-center gap-2 text-xs">
         <Switch checked={preview} onCheckedChange={setPreview} aria-label="Aperçu libre" />
         Aperçu libre (lisible sans inscription)
       </label>
@@ -744,7 +744,7 @@ function EnrollmentsPanel({
               <span className="min-w-0 flex-1 break-all text-foreground">
                 {people[row.user_id] ?? row.user_id}
               </span>
-              <label className="flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+              <label className="flex min-h-11 items-center gap-2 text-xs">
                 <Switch
                   checked={Boolean(row.paid_at)}
                   onCheckedChange={(v) => void setPaid(row, v)}

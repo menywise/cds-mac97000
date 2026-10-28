@@ -341,7 +341,7 @@ function FaqRow({ item, reload }: { item: Faq; reload: Reload }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+          <label className="flex min-h-11 items-center gap-2 text-xs">
             <Switch
               checked={item.published}
               onCheckedChange={() => void toggle()}
@@ -821,7 +821,7 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
           <p className="mt-1 break-all text-xs text-muted-foreground">/blog/{post.slug}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+          <label className="flex min-h-11 items-center gap-2 text-xs">
             <Switch
               checked={post.published}
               onCheckedChange={() => void toggle()}

@@ -4,6 +4,7 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import charte from "./eslint-rules/charte.js";
 
 export default tseslint.config(
   {
@@ -26,6 +27,7 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      charte,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -43,6 +45,9 @@ export default tseslint.config(
       ],
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      // Charte de style (docs/CHARTE_STYLE_CDS.md) : refusées au lint, donc au pre-commit et en CI.
+      "charte/couleurs-nommees": "error",
+      "charte/intitule-lisible": "error",
     },
   },
   eslintPluginPrettier,

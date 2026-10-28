@@ -175,7 +175,7 @@ function AdminModulesPage() {
                   {draft[m.key] !== saved?.[m.key] ? (
                     <Badge variant="secondary">Modifié</Badge>
                   ) : null}
-                  <label className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground">
+                  <label className="inline-flex min-h-11 items-center gap-2 text-sm">
                     <Switch
                       checked={draft[m.key] === true}
                       onCheckedChange={(on) => toggle(m.key, on)}
