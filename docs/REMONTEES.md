@@ -35,7 +35,9 @@ l'identique :
 - `tokens/cds.tokens.json` ;
 - `scripts/jetons.mjs` ;
 - `scripts/cliquet-charte.mjs` ;
-- `eslint-rules/charte.js`.
+- `eslint-rules/charte.js` ;
+- `scripts/verifier-couleurs.mjs` (lit les motifs de `eslint-rules/charte.js`) ;
+- `src/lib/couleurs.ts` (couleurs de données lisibles).
 
 Ces fichiers restent génériques : aucun nom de projet, aucun chemin propre à une installation. Les
 couleurs d'une installation vont dans `tokens/<projet>.tokens.json`, jamais dans ces fichiers. Un
@@ -58,3 +60,6 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 | 28/10/2026 | Titres et étiquettes en gris, listes posées à nu sur le fond               | Verrou B : règles du lint, cliquet par fichier                          |
 | 28/10/2026 | Ombre W3C en objet seul écrite `[object Object]` (relecture automatique)   | Générateur des jetons corrigé                                           |
 | 28/10/2026 | Copies des outils de charte modifiées d'un côté seulement                  | Liste des fichiers copiés tels quels, correction toujours dans le socle |
+| 28/10/2026 | Couleurs de données (base, table de familles) posées en texte sous l'AA    | `couleurLisible()` dans `src/lib/couleurs.ts`                           |
+| 28/10/2026 | Anneau de focus à 30 % sur les boutons ; ombre de carte qui l'efface       | Anneau plein décalé de 2 px                                             |
+| 28/10/2026 | Test par mutation : 6 fautes sur 14 passent le hook, `border-l-amber-500`  | Lint et cliquet élargis, test `tests/unit/garde-fous.test.ts`           |

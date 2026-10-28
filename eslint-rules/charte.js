@@ -1,11 +1,16 @@
 // Règles ESLint locales de la charte de style (verrou B, 28/10/2026, docs/CHARTE_STYLE_CDS.md).
 // Elles lisent les chaînes du code (className, cn(), clsx(), constantes de classes) :
-// - couleurs-nommees : aucune couleur de la palette Tailwind en dur, aucune variante « dark: » ;
+// - couleurs-nommees : aucune couleur de la palette Tailwind en dur (préfixe simple ou composé),
+//   aucune valeur arbitraire de couleur (text-[#…]), aucune variante « dark: » ;
 // - intitule-lisible : un titre, une étiquette, un intitulé (h1-h6, label, legend, dt, th) ne
 //   s'écrit pas en gris : le gris reste aux métadonnées.
 const PALETTE =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
-const COULEUR = new RegExp(`(^|[^a-zA-Z0-9_-])[a-z]+-(${PALETTE})-[0-9]{2,3}(?![0-9])`);
+// Préfixe simple ou composé (text-, border-l-, ring-offset-…), puis teinte et nuance de la palette.
+const COULEUR = new RegExp(`(^|[^a-zA-Z0-9_-])(?:[a-z]+-)+(${PALETTE})-[0-9]{2,3}(?![0-9])`);
+// Valeur arbitraire de couleur : text-[#ea580c], bg-[rgb(…)], border-l-[oklch(…)]…
+const ARBITRAIRE =
+  /(^|[^a-zA-Z0-9_-])(?:bg|text|border(?:-[trblxyse])?|ring(?:-offset)?|outline|fill|stroke|from|via|to|decoration|divide|placeholder|caret|accent|shadow)-\[(?:#|rgba?\(|hsla?\(|oklch\(|color:)/;
 const SOMBRE = /(^|[^a-zA-Z0-9_-])dark:[a-z]/;
 const INTITULES = new Set(["h1", "h2", "h3", "h4", "h5", "h6", "label", "legend", "dt", "th"]);
 const GRIS = /(^|\s)text-muted-foreground(\s|$)/;
@@ -33,9 +38,14 @@ const couleursNommees = {
     const verifier = (node) => {
       const t = texte(node);
       if (!t) return;
-      const c = COULEUR.exec(t);
-      if (c) context.report({ node, messageId: "couleur", data: { classe: c[0].trim() } });
-      else if (SOMBRE.test(t)) context.report({ node, messageId: "sombre" });
+      const c = COULEUR.exec(t) ?? ARBITRAIRE.exec(t);
+      if (c) {
+        // Classe entière, variante comprise : « hover:bg-emerald-50 », « text-[#ea580c] ».
+        const debut = t.lastIndexOf(" ", c.index + c[1].length) + 1;
+        const fin = t.indexOf(" ", c.index + c[0].length);
+        const classe = t.slice(debut, fin < 0 ? undefined : fin).replace(/^["'`]|["'`]$/g, "");
+        context.report({ node, messageId: "couleur", data: { classe } });
+      } else if (SOMBRE.test(t)) context.report({ node, messageId: "sombre" });
     };
     return { Literal: verifier, TemplateElement: verifier };
   },
@@ -74,6 +84,8 @@ const intituleLisible = {
     };
   },
 };
+
+export { ARBITRAIRE, COULEUR, SOMBRE };
 
 export default {
   meta: { name: "charte" },
