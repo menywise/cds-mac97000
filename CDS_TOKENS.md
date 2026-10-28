@@ -14,7 +14,8 @@ Il n'existe **aucun** `tailwind.config.ts` ni `src/index.css` : en Tailwind v4 l
 
 La version 2.0.0 reprend les remontées de terrain d'une installation en production (charte de
 style, `docs/CHARTE_STYLE_CDS.md`) : fond de page plus soutenu, couleurs d'état en quatre usages,
-police du système, champs blancs. Mise à niveau d'un clone : `docs/MISE_A_NIVEAU.md`.
+police du système, champs blancs. Mise à niveau d'un clone : `docs/MISE_A_NIVEAU.md`. Journal des
+remontées : `docs/REMONTEES.md`.
 
 ## Règles non négociables
 
