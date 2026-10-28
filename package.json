@@ -36,7 +36,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@react-email/components": "^1.0.12",
-    "@react-email/render": "^2.0.10",
+    "@react-email/render": "~2.1.0",
     "@supabase/supabase-js": "^2.116.0",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-router": "1.170.41",

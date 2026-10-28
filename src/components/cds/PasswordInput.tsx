@@ -28,7 +28,7 @@ const PasswordInput = React.forwardRef<
         aria-label={label}
         aria-pressed={visible}
         title={label}
-        className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/30"
+        className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
       >
         {visible ? (
           <EyeOff className="size-4" aria-hidden />
