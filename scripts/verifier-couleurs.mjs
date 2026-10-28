@@ -1,20 +1,19 @@
 #!/usr/bin/env node
 // Charte de style 2.0 (27/10/2026, docs/CHARTE_STYLE_CDS.md) : thème clair seul, couleurs nommées
-// seulement (CDS_TOKENS.md). Refuse dans src/ toute variante sombre « dark: » et toute couleur de la
-// palette Tailwind écrite en dur (emerald-600, amber-100…). À la place : success, warning, danger,
-// info, violet, neutral, en -soft / -text / -border, déclarées dans src/styles.css.
+// seulement (CDS_TOKENS.md). Refuse dans src/ toute variante sombre « dark: », toute couleur de la
+// palette Tailwind écrite en dur (emerald-600, border-l-amber-500…) et toute valeur arbitraire de
+// couleur (text-[#ea580c]). À la place : success, warning, danger, info, violet, neutral, en
+// -soft / -text / -border, déclarées dans src/styles.css.
 // Fichiers générés exclus (src/integrations/, src/routeTree.gen.ts). Node seul : tourne pareil sous
 // Windows, Linux et en CI. Usage : node scripts/verifier-couleurs.mjs
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+// Mêmes motifs que la règle ESLint charte/couleurs-nommees : une seule source.
+import { ARBITRAIRE, COULEUR, SOMBRE } from "../eslint-rules/charte.js";
 
 const RACINE = join(import.meta.dirname, "..");
-const PALETTE =
-  "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
-const INTERDIT = new RegExp(
-  `(^|[^a-zA-Z0-9_-])dark:[a-z]|(^|[^a-zA-Z0-9_-])[a-z]+-(${PALETTE})-[0-9]{2,3}([^0-9]|$)`,
-);
+const INTERDIT = { test: (l) => COULEUR.test(l) || ARBITRAIRE.test(l) || SOMBRE.test(l) };
 const EXCLUS = /^src\/(integrations\/|routeTree\.gen\.ts$)/;
 
 /** Lignes hors charte, au format « fichier:ligne:texte ». */
