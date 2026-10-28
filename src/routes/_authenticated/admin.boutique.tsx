@@ -418,7 +418,7 @@ function ProductsTab() {
                         ? ` · ${product.stock === null ? "stock sans limite" : `${product.stock} en stock`}`
                         : ""}
                     </span>
-                    <label className="ml-auto flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+                    <label className="ml-auto flex min-h-11 items-center gap-2 text-xs">
                       <Switch
                         checked={product.published}
                         disabled={missingFile && !product.published}

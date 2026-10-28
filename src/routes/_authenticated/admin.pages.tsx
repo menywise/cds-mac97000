@@ -185,7 +185,7 @@ function PageList({
           <Input id="page-title" name="title" required maxLength={160} placeholder="Nos services" />
         </div>
         {!hasHome ? (
-          <label className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground">
+          <label className="flex min-h-11 items-center gap-2 text-sm">
             <input type="checkbox" name="home" className="h-4 w-4" />
             C'est la page d'accueil
           </label>
@@ -220,7 +220,7 @@ function PageList({
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <label className="flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+                  <label className="flex min-h-11 items-center gap-2 text-xs">
                     <Switch
                       checked={page.published}
                       onCheckedChange={() => void togglePublished(page)}

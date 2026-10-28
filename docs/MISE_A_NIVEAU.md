@@ -14,6 +14,11 @@ installation.
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
   `bg-info-soft` : ces deux jetons deviennent des fonds pleins sous texte blanc. Après la fusion :
   `npm run verifier`, puis activer les hooks une fois par poste (`git config core.hooksPath .githooks`).
+- **Verrous A et B de la charte (28/10/2026, code seul).** Les couleurs viennent de
+  `tokens/cds.tokens.json` ; les couleurs propres à l'installation vont dans
+  `tokens/<projet>.tokens.json`, puis `npm run jetons`. `charte-plafonds.json` est propre à chaque
+  installation : en cas de conflit à la fusion, prendre l'une ou l'autre version, puis
+  `node scripts/cliquet-charte.mjs --mettre-a-jour` (les fichiers de greffe reçoivent leur budget).
 - **Ordre code / base.** En général la base passe avant le code (le nouveau code lit ce que la base
   vient de recevoir). Exception 1.4.1 : le code d'abord, car la base supprime une colonne que
   l'ancien code lit. La 1.6.1 suit la règle générale, mais le code doit suivre aussitôt : entre les

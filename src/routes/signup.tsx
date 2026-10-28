@@ -132,10 +132,7 @@ function SignupPage() {
               checked={accepted}
               onCheckedChange={(v) => setAccepted(v === true)}
             />
-            <Label
-              htmlFor="cgu"
-              className="block min-h-11 text-xs font-normal leading-relaxed text-muted-foreground"
-            >
+            <Label htmlFor="cgu" className="block min-h-11 text-xs font-normal leading-relaxed">
               J'accepte les{" "}
               <Link
                 to="/legal/cgu"

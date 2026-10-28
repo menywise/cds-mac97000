@@ -15,7 +15,7 @@ export function RetractionWaiver({
   subject?: string;
 }) {
   return (
-    <label className="mt-4 flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-border bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
+    <label className="mt-4 flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-border bg-muted/40 p-3 text-xs leading-relaxed">
       <input
         type="checkbox"
         checked={checked}

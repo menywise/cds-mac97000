@@ -368,7 +368,7 @@ function PublicProfileCard() {
               placeholder="https://votre-site.fr"
             />
           </div>
-          <label className="flex min-h-11 items-center gap-3 text-sm text-muted-foreground">
+          <label className="flex min-h-11 items-center gap-3 text-sm">
             <input
               type="checkbox"
               checked={profile.listed}
@@ -377,7 +377,7 @@ function PublicProfileCard() {
             />
             Figurer dans l'annuaire public des membres
           </label>
-          <label className="flex min-h-11 items-center gap-3 text-sm text-muted-foreground">
+          <label className="flex min-h-11 items-center gap-3 text-sm">
             <input
               type="checkbox"
               checked={profile.accepts_messages}

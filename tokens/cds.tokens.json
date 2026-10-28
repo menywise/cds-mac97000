@@ -1,0 +1,269 @@
+{
+  "$description": "Jetons du socle CDS, source unique (format W3C Design Tokens : $value, $type, $description, alias {nom}). Le nom d'un jeton est celui de la variable CSS ; le groupe sert au classement et à son commentaire. scripts/jetons.mjs en fabrique le bloc :root et les couleurs Tailwind de src/styles.css : ne jamais les modifier à la main.",
+  "mise-en-page": {
+    "$description": "CDS layout",
+    "radius": {
+      "$type": "dimension",
+      "$value": "0.375rem",
+      "$description": "boutons : 6px"
+    }
+  },
+  "neutres": {
+    "$description": "CDS couleurs. Fond de page plus soutenu que les cartes blanches : elles se détachent partout.",
+    "background": {
+      "$type": "color",
+      "$value": "#eaeff5"
+    },
+    "foreground": {
+      "$type": "color",
+      "$value": "#131922"
+    },
+    "card": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "card-foreground": {
+      "$type": "color",
+      "$value": "#131922"
+    },
+    "surface-raised": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "surface-sunken": {
+      "$type": "color",
+      "$value": "#f1f5f9"
+    },
+    "popover": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "popover-foreground": {
+      "$type": "color",
+      "$value": "#131922"
+    }
+  },
+  "principale": {
+    "$description": "Couleur principale neutre : chaque projet règle la sienne (Paramètres → Apparence).",
+    "primary": {
+      "$type": "color",
+      "$value": "#334155"
+    },
+    "primary-hover": {
+      "$type": "color",
+      "$value": "#1e293b"
+    },
+    "primary-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "primary-text": {
+      "$type": "color",
+      "$value": "#334155",
+      "$description": "couleur principale en texte : 8,96:1 sur le fond de page"
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "#e4eaf1",
+      "$description": "surface secondaire pâle, texte foncé dessus"
+    },
+    "secondary-foreground": {
+      "$type": "color",
+      "$value": "#252e3d"
+    },
+    "muted": {
+      "$type": "color",
+      "$value": "#e4eaf1"
+    },
+    "muted-foreground": {
+      "$type": "color",
+      "$value": "#525b69",
+      "$description": "texte secondaire : 5,94:1 sur le fond de page"
+    },
+    "accent": {
+      "$type": "color",
+      "$value": "#e4eaf1"
+    },
+    "accent-foreground": {
+      "$type": "color",
+      "$value": "#131922"
+    },
+    "text-light": {
+      "$type": "color",
+      "$value": "#525b69"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "#d4dae1"
+    },
+    "border-strong": {
+      "$type": "color",
+      "$value": "#94a3b8"
+    },
+    "input": {
+      "$type": "color",
+      "$value": "#cbd2da"
+    },
+    "ring": {
+      "$type": "color",
+      "$value": "#334155"
+    }
+  },
+  "etats": {
+    "$description": "Couleurs d'état : fond plein (texte blanc dessus), -soft (fond pâle), -text (texte et icônes, sur -soft, sur carte et sur fond de page), -border.",
+    "success": {
+      "$type": "color",
+      "$value": "#15803d"
+    },
+    "success-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "success-soft": {
+      "$type": "color",
+      "$value": "#dcfce7"
+    },
+    "success-text": {
+      "$type": "color",
+      "$value": "#166534"
+    },
+    "success-border": {
+      "$type": "color",
+      "$value": "#86efac"
+    },
+    "warning": {
+      "$type": "color",
+      "$value": "#b45309"
+    },
+    "warning-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "warning-soft": {
+      "$type": "color",
+      "$value": "#fef3c7"
+    },
+    "warning-text": {
+      "$type": "color",
+      "$value": "#92400e"
+    },
+    "warning-border": {
+      "$type": "color",
+      "$value": "#fcd34d"
+    },
+    "danger": {
+      "$type": "color",
+      "$value": "#c81e1e"
+    },
+    "danger-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "danger-soft": {
+      "$type": "color",
+      "$value": "#fee2e2"
+    },
+    "danger-text": {
+      "$type": "color",
+      "$value": "#991b1b"
+    },
+    "danger-border": {
+      "$type": "color",
+      "$value": "#fca5a5"
+    },
+    "info": {
+      "$type": "color",
+      "$value": "#0e7490"
+    },
+    "info-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "info-soft": {
+      "$type": "color",
+      "$value": "#cffafe"
+    },
+    "info-text": {
+      "$type": "color",
+      "$value": "#155e75"
+    },
+    "info-border": {
+      "$type": "color",
+      "$value": "#67e8f9"
+    },
+    "violet": {
+      "$type": "color",
+      "$value": "#6d28d9"
+    },
+    "violet-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "violet-soft": {
+      "$type": "color",
+      "$value": "#ede9fe"
+    },
+    "violet-text": {
+      "$type": "color",
+      "$value": "#5b21b6"
+    },
+    "violet-border": {
+      "$type": "color",
+      "$value": "#c4b5fd"
+    },
+    "neutral": {
+      "$type": "color",
+      "$value": "#475569"
+    },
+    "neutral-foreground": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "neutral-soft": {
+      "$type": "color",
+      "$value": "#e2e8f0"
+    },
+    "neutral-text": {
+      "$type": "color",
+      "$value": "#334155"
+    },
+    "neutral-border": {
+      "$type": "color",
+      "$value": "#94a3b8"
+    }
+  },
+  "alias": {
+    "$description": "Alias historiques, mêmes valeurs : le code existant garde ses classes.",
+    "destructive": {
+      "$type": "color",
+      "$value": "{danger}"
+    },
+    "destructive-foreground": {
+      "$type": "color",
+      "$value": "{danger-foreground}"
+    },
+    "destructive-text": {
+      "$type": "color",
+      "$value": "{danger-text}"
+    },
+    "cds-purple": {
+      "$type": "color",
+      "$value": "{violet}"
+    }
+  },
+  "relief": {
+    "$description": "CDS relief tactile",
+    "shadow-field-inset": {
+      "$type": "shadow",
+      "$value": "inset 0 1px 2px rgba(15, 23, 42, 0.06)"
+    },
+    "shadow-card-tactile": {
+      "$type": "shadow",
+      "$value": "0 1px 2px rgba(15, 23, 42, 0.05), 0 6px 18px rgba(15, 23, 42, 0.06)"
+    },
+    "shadow-card-hover": {
+      "$type": "shadow",
+      "$value": "0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 28px rgba(15, 23, 42, 0.09)"
+    }
+  }
+}
