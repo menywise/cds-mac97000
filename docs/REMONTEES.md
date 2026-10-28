@@ -40,8 +40,11 @@ l'identique :
 Ces fichiers restent génériques : aucun nom de projet, aucun chemin propre à une installation. Les
 couleurs d'une installation vont dans `tokens/<projet>.tokens.json`, jamais dans ces fichiers. Un
 changement de l'un d'eux se signale dans la demande de fusion du socle, pour que chaque installation
-le reprenne. L'installation note le commit du socle copié et refuse au commit toute copie modifiée
-chez elle.
+le reprenne.
+
+Le socle ne contrôle pas ces copies : c'est à l'installation de le faire, dans ses propres hooks.
+Elle note le commit du socle copié et l'empreinte de chaque fichier, puis refuse au commit toute
+copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écrite, sans garde-fou.
 
 ## Journal
 
