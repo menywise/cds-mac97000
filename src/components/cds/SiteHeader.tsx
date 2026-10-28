@@ -1,9 +1,10 @@
 import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
 import { useAuth } from "@/hooks/useAuth";
+import { useHauteurReservee } from "@/hooks/useHauteurReservee";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { CookieBanner, openCookieBanner } from "@/components/cds/CookieBanner";
@@ -377,6 +378,8 @@ export function SiteHeader() {
   const { user } = useAuth();
   const nav = user ? buildMemberNav() : buildPublicNav();
   const unread = useUnreadMessages();
+  const entete = useRef<HTMLElement>(null);
+  useHauteurReservee(entete, "--hauteur-entete");
 
   useEffect(() => {
     if (!open) return;
@@ -386,7 +389,10 @@ export function SiteHeader() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
+    <header
+      ref={entete}
+      className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur"
+    >
       {/* La navigation passe à la ligne plutôt que de déborder : sa largeur dépend du nombre de
           modules allumés et de la police du système (bien plus large sous Linux). */}
       <div className="mx-auto flex min-h-16 max-w-[1200px] items-center gap-4 px-6 py-2">

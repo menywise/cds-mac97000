@@ -63,3 +63,7 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 | 28/10/2026 | Couleurs de données (base, table de familles) posées en texte sous l'AA    | `couleurLisible()` dans `src/lib/couleurs.ts`                           |
 | 28/10/2026 | Anneau de focus à 30 % sur les boutons ; ombre de carte qui l'efface       | Anneau plein décalé de 2 px                                             |
 | 28/10/2026 | Test par mutation : 6 fautes sur 14 passent le hook, `border-l-amber-500`  | Lint et cliquet élargis, test `tests/unit/garde-fous.test.ts`           |
+| 28/10/2026 | Contour des champs à 1,53:1 sur carte (WCAG 1.4.11)                        | `--input` `#7a8697` (3,69:1), paires du contrôle des contrastes         |
+| 28/10/2026 | Focus caché sous l'en-tête collant et sous le bandeau cookies (2.4.11)     | `scroll-padding` de `html` tenu par `useHauteurReservee`                |
+| 28/10/2026 | Halo de focus des champs à 20 % ; anneau de l'onglet actif sur le focus    | Anneau plein d'1 px sur les champs, onglet actif sans anneau au focus   |
+| 28/10/2026 | Survol `bg-*/80` sous 4,5:1 (badge `destructive`)                          | Survol à 90 %, mesuré par l'audit du rendu de DB&M                      |

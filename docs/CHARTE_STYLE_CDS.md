@@ -41,7 +41,10 @@ Valeurs et contrastes : `CDS_TOKENS.md`. `destructive` reste un alias de `danger
 ## Surfaces et texte
 
 - Fond de page `#eaeff5`, cartes blanches : une carte se détache toujours du fond.
-- Champs de saisie blancs, contour `--input`.
+- Champs de saisie blancs, contour `--input` (3:1 au moins sur carte et sur fond : seul repère
+  du champ sur une carte). Au focus, contour plein de 2 px, jamais un halo translucide.
+- En-tête collant, bandeau fixé : leur hauteur est réservée au défilement (`useHauteurReservee`),
+  l'élément qui a le focus ne finit jamais dessous.
 - Une liste de fiches se range dans des cartes, jamais à nu sur le fond de page.
 - Le texte secondaire (`text-muted-foreground`) sert aux métadonnées. Un titre, un intitulé ou une
   consigne s'écrit en texte principal.

@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useHauteurReservee } from "@/hooks/useHauteurReservee";
 
 const STORAGE_KEY = "cds.cookie-consent";
 const OPEN_EVENT = "cds:cookie-banner-open";
@@ -32,6 +33,9 @@ export function CookieBanner() {
   const [visible, setVisible] = useState(false);
   const firstButton = useRef<HTMLButtonElement>(null);
   const reopened = useRef(false);
+  const bandeau = useRef<HTMLDivElement>(null);
+  // Fixé en bas : il ne recouvre jamais l'élément qui a le focus (WCAG 2.4.11).
+  useHauteurReservee(bandeau, "--hauteur-bandeau", visible);
 
   useEffect(() => {
     setVisible(getCookieConsent() === null);
@@ -65,6 +69,7 @@ export function CookieBanner() {
 
   return (
     <div
+      ref={bandeau}
       role="dialog"
       aria-live="polite"
       aria-label="Consentement aux cookies"

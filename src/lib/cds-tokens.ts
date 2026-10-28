@@ -24,7 +24,7 @@ export const cds = {
     surfaceSunken: "#f1f5f9",
     border: "#d4dae1",
     borderStrong: "#94a3b8",
-    input: "#cbd2da",
+    input: "#7a8697",
     white: "#ffffff",
   },
 
