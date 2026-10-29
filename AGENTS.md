@@ -29,6 +29,8 @@ Dans un projet cloné (prise remplie, ou dossier `src/routes/(greffe)/` présent
 Référence : `docs/CHARTE_STYLE_CDS.md` et `CDS_TOKENS.md` (version 2.0.0).
 Remontées de terrain des installations : `docs/REMONTEES.md` (quand un constat devient une règle,
 journal, fichiers copiés tels quels par une installation).
+Audits de la charte : `docs/audits/` (méthode, mesures, suites). Garde-fous éprouvés par
+`bash scripts/mutations-charte.sh` : une faute plantée à la fois, chacune doit être refusée.
 
 - Thème clair seul : aucune variante `dark:`. Police du système : aucune police téléchargée.
 - Aucune couleur de la palette Tailwind en dur (`emerald-600`, `amber-100`…). Couleurs d'état
