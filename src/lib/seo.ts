@@ -29,6 +29,8 @@ export function seo({ title, description, path, type = "website", noindex, image
   const fullTitle =
     !brand.shortName || title.includes(brand.shortName) ? title : `${title} — ${brand.shortName}`;
   const url = absoluteUrl(path);
+  // Site fermé aux moteurs en admin : toutes les pages passent en « noindex ».
+  noindex ||= brand.horsIndex;
 
   const meta: Array<Record<string, string>> = [
     { title: fullTitle },

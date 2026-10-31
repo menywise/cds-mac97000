@@ -16,6 +16,11 @@ export const brandFallback = {
   tagline: "",
   /** URL publique du site (sans slash final) — vide tant qu'elle n'est pas saisie en admin. */
   url: "",
+  /**
+   * Site fermé aux moteurs de recherche (« noindex » partout, sitemap non annoncé). Faux par défaut :
+   * un projet est indexable tant que son administrateur ne coche rien. Réglé en admin, jamais ici.
+   */
+  horsIndex: false,
   legal: {
     company: "",
     form: "",
