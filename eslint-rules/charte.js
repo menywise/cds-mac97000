@@ -65,7 +65,7 @@ const couleursNommees = {
   },
 };
 
-/** Classes d'une expression : chaîne, gabarit, appel cn() / clsx(), ternaire, « a && b ». */
+/** Classes d'une expression : chaîne, gabarit, appel cn() / clsx(), ternaire, « a && b », objet. */
 const classes = (e) => {
   if (!e) return "";
   if (e.type === "Literal") return typeof e.value === "string" ? e.value : "";
@@ -75,6 +75,16 @@ const classes = (e) => {
   if (e.type === "ConditionalExpression") return `${classes(e.consequent)} ${classes(e.alternate)}`;
   if (e.type === "LogicalExpression") return `${classes(e.left)} ${classes(e.right)}`;
   if (e.type === "ArrayExpression") return e.elements.map(classes).join(" ");
+  if (e.type === "ObjectExpression")
+    return e.properties
+      .map((p) =>
+        p.type !== "Property"
+          ? ""
+          : p.key.type === "Identifier" && !p.computed
+            ? p.key.name
+            : classes(p.key),
+      )
+      .join(" ");
   return "";
 };
 
