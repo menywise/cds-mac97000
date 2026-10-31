@@ -46,8 +46,11 @@ Valeurs et contrastes : `CDS_TOKENS.md`. `destructive` reste un alias de `danger
 - En-tête collant, bandeau fixé : leur hauteur est réservée au défilement (`useHauteurReservee`),
   l'élément qui a le focus ne finit jamais dessous.
 - Une liste de fiches se range dans des cartes, jamais à nu sur le fond de page.
-- Le texte secondaire (`text-muted-foreground`) sert aux métadonnées. Un titre, un intitulé ou une
-  consigne s'écrit en texte principal.
+- Le texte secondaire (`text-muted-foreground`) sert aux métadonnées : auteur, date, code, compte,
+  source, durée, nombre. S'écrivent en texte principal : titres et intitulés, consignes, aides de
+  champ, messages d'absence ou d'erreur, libellés sous un chiffre, onglets et boutons inactifs, et
+  tout contenu lu pour décider. Un badge sur `bg-muted` prend une couleur d'état (`neutral-soft` et
+  `neutral-text` par défaut).
 
 ## Composants attendus
 

@@ -35,7 +35,7 @@ export const Route = createFileRoute("/forum/")({
   errorComponent: erreurChargement("Les discussions n'ont pas pu être chargées."),
   notFoundComponent: () => (
     <PageShell>
-      <p className="text-sm text-muted-foreground">Cette page n'existe pas.</p>
+      <p className="text-sm text-foreground">Cette page n'existe pas.</p>
     </PageShell>
   ),
   component: ForumIndex,
@@ -80,7 +80,7 @@ function ForumIndex() {
         <h1 className="mt-2 text-3xl font-bold text-foreground">
           Posez votre question, repartez avec une réponse utilisable
         </h1>
-        <p className="mt-2 max-w-[70ch] text-sm text-muted-foreground">
+        <p className="mt-2 max-w-[70ch] text-sm text-foreground">
           Vous bloquez sur un point précis ? Décrivez-le simplement. Quelqu'un est probablement
           passé par là avant vous, et la réponse servira aussi aux suivants.
         </p>
@@ -94,7 +94,7 @@ function ForumIndex() {
           <div>
             <h2 className="sr-only">Discussions</h2>
             {overview.topics.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
                 Aucune discussion pour le moment. Ouvrez la première.
               </p>
             ) : (
@@ -119,7 +119,7 @@ function ForumIndex() {
                         {topic.title}
                       </Link>
                     </h3>
-                    <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
+                    <p className="mt-1.5 line-clamp-2 text-sm text-foreground">
                       {richTextToPlain(topic.content)}
                     </p>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -176,7 +176,7 @@ function ForumIndex() {
                   </Button>
                 </form>
               ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
+                <p className="mt-3 text-sm text-foreground">
                   Pour garder un espace sain, seuls les membres connectés publient.{" "}
                   <Link
                     to="/login"
@@ -209,7 +209,7 @@ function ForumIndex() {
                       to="/forum/categorie/$slug"
                       params={{ slug: category.slug }}
                       title={`Voir les discussions de la thématique ${category.name}`}
-                      className="flex min-h-11 items-center justify-between gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      className="flex min-h-11 items-center justify-between gap-2 rounded-md px-2 text-sm text-foreground transition-colors hover:bg-accent"
                     >
                       <span className="flex items-center gap-2">
                         <span
@@ -235,7 +235,7 @@ function ForumIndex() {
                       to="/forum/$topicId"
                       params={{ topicId: topic.id }}
                       title={`Ouvrir la discussion : ${topic.title}`}
-                      className="text-muted-foreground hover:text-primary-text"
+                      className="text-foreground hover:text-primary-text"
                     >
                       {topic.title}
                     </Link>
@@ -252,7 +252,7 @@ function ForumIndex() {
                           to="/forum/$topicId"
                           params={{ topicId: reply.topicId }}
                           title={`Lire la réponse de ${reply.authorName}`}
-                          className="text-muted-foreground hover:text-primary-text"
+                          className="text-foreground hover:text-primary-text"
                         >
                           {reply.authorName} — {reply.topicTitle}
                         </Link>
@@ -268,7 +268,7 @@ function ForumIndex() {
             {isFeatureOn("members") ? (
               <section className="rounded-xl border border-border bg-card p-5">
                 <h2 className="text-sm font-semibold text-foreground">Annuaire</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-sm text-foreground">
                   Découvrez qui compose la communauté et échangez en privé.
                 </p>
                 <Link
