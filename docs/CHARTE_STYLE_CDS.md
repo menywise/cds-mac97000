@@ -101,7 +101,8 @@ nom, la valeur remplace celle du socle ; nom nouveau, le jeton s'ajoute.
 - `charte/couleurs-nommees` (ESLint) : aucune couleur Tailwind en dur, préfixe composé compris
   (`border-l-amber-500`), aucune valeur arbitraire de couleur (`text-[#ea580c]`), aucun `dark:`.
   `scripts/verifier-couleurs.mjs` lit les mêmes motifs.
-- `charte/intitule-lisible` (ESLint) : pas de gris sur `h1`-`h6`, `label`, `legend`, `dt`, `th`.
+- `charte/intitule-lisible` (ESLint) : pas de gris sur `h1`-`h6`, `label`, `legend`, `dt`, `th`,
+  `thead`, `caption`, classes écrites en chaîne, en gabarit, dans `cn()`, un ternaire ou `a && b`.
 - Cliquet `scripts/cliquet-charte.mjs`, plafonds dans `charte-plafonds.json` : par fichier, le
   texte gris, l'opacité (`opacity-NN` sans variante, ou modificateur `text-…/50`, `ring-…/30` hors
   `disabled:`), les listes sans carte, les couleurs écrites en dur (`"#ea580c"`, `rgb(…)`,

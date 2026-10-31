@@ -280,7 +280,7 @@
     "styles": 0
   },
   "src/components/ui/table.tsx": {
-    "gris": 2,
+    "gris": 0,
     "opacite": 0,
     "listes": 0,
     "couleurs": 0,
@@ -1029,7 +1029,7 @@
     "styles": 0
   },
   "src/routes/_authenticated/crm.actions.tsx": {
-    "gris": 3,
+    "gris": 2,
     "opacite": 0,
     "listes": 1,
     "couleurs": 0,

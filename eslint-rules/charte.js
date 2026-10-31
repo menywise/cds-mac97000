@@ -2,8 +2,9 @@
 // Elles lisent les chaînes du code (className, cn(), clsx(), constantes de classes) :
 // - couleurs-nommees : aucune couleur de la palette Tailwind en dur (préfixe simple ou composé),
 //   aucune valeur arbitraire de couleur (text-[#…]), aucune variante « dark: » ;
-// - intitule-lisible : un titre, une étiquette, un intitulé (h1-h6, label, legend, dt, th) ne
-//   s'écrit pas en gris : le gris reste aux métadonnées.
+// - intitule-lisible : un titre, une étiquette, un intitulé (h1-h6, label, legend, dt, th, thead,
+//   caption) ne s'écrit pas en gris : le gris reste aux métadonnées. Classes lues en chaîne, en
+//   gabarit et dans cn() / clsx() (en-tête shadcn TableHead, 31/10/2026).
 const PALETTE =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
 // Préfixe simple ou composé (text-, border-l-, ring-offset-…), puis teinte et nuance de la palette.
@@ -12,7 +13,20 @@ const COULEUR = new RegExp(`(^|[^a-zA-Z0-9_-])(?:[a-z]+-)+(${PALETTE})-[0-9]{2,3
 const ARBITRAIRE =
   /(^|[^a-zA-Z0-9_-])(?:bg|text|border(?:-[trblxyse])?|ring(?:-offset)?|outline|fill|stroke|from|via|to|decoration|divide|placeholder|caret|accent|shadow)-\[(?:#|rgba?\(|hsla?\(|oklch\(|color:)/;
 const SOMBRE = /(^|[^a-zA-Z0-9_-])dark:[a-z]/;
-const INTITULES = new Set(["h1", "h2", "h3", "h4", "h5", "h6", "label", "legend", "dt", "th"]);
+const INTITULES = new Set([
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "label",
+  "legend",
+  "dt",
+  "th",
+  "thead",
+  "caption",
+]);
 const GRIS = /(^|\s)text-muted-foreground(\s|$)/;
 
 /** Texte brut d'une chaîne ou d'un morceau de gabarit. */
@@ -51,6 +65,29 @@ const couleursNommees = {
   },
 };
 
+/** Classes d'une expression : chaîne, gabarit, appel cn() / clsx(), ternaire, « a && b », objet. */
+const classes = (e) => {
+  if (!e) return "";
+  if (e.type === "Literal") return typeof e.value === "string" ? e.value : "";
+  if (e.type === "TemplateLiteral")
+    return [...e.quasis.map((q) => q.value.cooked), ...e.expressions.map(classes)].join(" ");
+  if (e.type === "CallExpression") return e.arguments.map(classes).join(" ");
+  if (e.type === "ConditionalExpression") return `${classes(e.consequent)} ${classes(e.alternate)}`;
+  if (e.type === "LogicalExpression") return `${classes(e.left)} ${classes(e.right)}`;
+  if (e.type === "ArrayExpression") return e.elements.map(classes).join(" ");
+  if (e.type === "ObjectExpression")
+    return e.properties
+      .map((p) =>
+        p.type !== "Property"
+          ? ""
+          : p.key.type === "Identifier" && !p.computed
+            ? p.key.name
+            : classes(p.key),
+      )
+      .join(" ");
+  return "";
+};
+
 const intituleLisible = {
   meta: {
     type: "problem",
@@ -72,11 +109,9 @@ const intituleLisible = {
           const chaine =
             v.type === "Literal"
               ? v.value
-              : v.type === "JSXExpressionContainer" && v.expression.type === "TemplateLiteral"
-                ? v.expression.quasis.map((q) => q.value.cooked).join(" ")
-                : v.type === "JSXExpressionContainer" && v.expression.type === "Literal"
-                  ? v.expression.value
-                  : "";
+              : v.type === "JSXExpressionContainer"
+                ? classes(v.expression)
+                : "";
           if (typeof chaine === "string" && GRIS.test(chaine))
             context.report({ node: attr, messageId: "gris", data: { balise } });
         }

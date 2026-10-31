@@ -35,6 +35,9 @@ CAS=(
   "svg|SVG fill=\"#f59e0b\""
   "rgb|style avec rgb(245,158,11)"
   "titre_gris|Gris sur un intitulé <h2 className=\"text-muted-foreground\">"
+  "thead_gris|Gris sur un en-tête de tableau <thead className=\"text-muted-foreground\">"
+  "ternaire_gris|Gris d'un intitulé dans un ternaire <th className={a ? \"text-muted-foreground\" : …}>"
+  "objet_gris|Gris d'un intitulé en objet <h2 className={cn({ \"text-muted-foreground\": a })}>"
   "gris6|6 textes gris dans un nouveau fichier"
   "opacite|opacity-60 sur un texte"
   "modificateur|Opacité par modificateur text-foreground/50"
@@ -55,6 +58,9 @@ planter() {
     svg) composant '<svg aria-hidden="true"><circle r="4" fill="#f59e0b" /></svg>' ;;
     rgb) composant '<p style={{ color: "rgb(245,158,11)" }}>x</p>' ;;
     titre_gris) composant '<h2 className="text-muted-foreground">Titre</h2>' ;;
+    thead_gris) composant '<table><thead className="text-muted-foreground"><tr><td>x</td></tr></thead></table>' ;;
+    ternaire_gris) composant '<table><thead><tr><th className={props.couleur ? "text-muted-foreground" : "text-foreground"}>x</th></tr></thead></table>' ;;
+    objet_gris) composant '<h2 className={cn({ "text-muted-foreground": !!props.couleur })}>x</h2>' && sed -i '1i import { cn } from "@/lib/utils";' src/components/Mutant.tsx ;;
     gris6) composant "$(for _ in 1 2 3 4 5 6; do printf '<p className="text-muted-foreground">x</p>'; done)" ;;
     opacite) composant '<p className="opacity-60">x</p>' ;;
     modificateur) composant '<p className="text-foreground/50">x</p>' ;;

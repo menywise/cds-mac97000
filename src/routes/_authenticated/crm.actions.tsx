@@ -166,7 +166,7 @@ function ActionsPage() {
                 />
                 <Label
                   htmlFor={`act-${action.id}`}
-                  className={`font-normal ${action.done ? "text-muted-foreground line-through" : "text-foreground"}`}
+                  className={`font-normal text-foreground ${action.done ? "line-through" : ""}`}
                 >
                   {action.title}
                 </Label>
