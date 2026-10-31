@@ -119,7 +119,7 @@ function AdminRecettePage() {
     >
       <section className="rounded-xl border border-border bg-card p-5">
         <h2 className="text-base font-semibold text-foreground">1. Recette automatisée</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-foreground">
           Le robot vérifie {QA_PAGES.length} pages : pas de page blanche, pas d'erreur console, pas
           de débordement sur mobile, un titre par page, modules éteints invisibles, pages protégées
           fermées aux visiteurs. Il se lance depuis le poste du studio (commande dans{" "}
@@ -184,7 +184,7 @@ function AdminRecettePage() {
                 <h3 className="text-sm font-semibold text-foreground">
                   Qualité des textes (charte de rédaction, score sur 100)
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-foreground">
                   85 et plus : publiable · 70 à 84 : corrections mineures · 50 à 69 : à retravailler
                   · sous 50 : refusé.
                 </p>
@@ -212,13 +212,13 @@ function AdminRecettePage() {
                               <span className="font-medium text-foreground">
                                 {a.regle} ({a.gravite})
                               </span>{" "}
-                              <span className="text-muted-foreground">« {a.texte} »</span>
+                              <span className="text-foreground">« {a.texte} »</span>
                               <br />
                               <span className="text-success-text">→ {a.proposition}</span>
                             </li>
                           ))}
                           {r.texte!.anomalies.length === 0 ? (
-                            <li className="text-muted-foreground">Aucune anomalie.</li>
+                            <li className="text-foreground">Aucune anomalie.</li>
                           ) : null}
                         </ul>
                       </details>
@@ -244,7 +244,7 @@ function AdminRecettePage() {
                             ({QA_AUDIT_CODES[code]?.agent ?? "—"}) — {lines.length}
                           </span>
                         </summary>
-                        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-foreground">
                           {lines.slice(0, 50).map((line) => (
                             <li key={line}>{line}</li>
                           ))}
@@ -257,9 +257,7 @@ function AdminRecettePage() {
             ) : null}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Aucun rapport importé pour l'instant.
-          </p>
+          <p className="mt-4 text-sm text-foreground">Aucun rapport importé pour l'instant.</p>
         )}
       </section>
 
@@ -286,7 +284,7 @@ function AdminRecettePage() {
                   ({section.items.filter((i) => done[i.id]).length}/{section.items.length})
                 </span>
               </h3>
-              <p className="text-xs text-muted-foreground">{section.objectif}</p>
+              <p className="text-xs text-foreground">{section.objectif}</p>
               <ul className="mt-2 space-y-2">
                 {section.items.map((item) => (
                   <li

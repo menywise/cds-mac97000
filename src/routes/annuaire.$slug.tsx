@@ -99,12 +99,12 @@ export const Route = createFileRoute("/annuaire/$slug")({
   },
   errorComponent: () => (
     <PageShell>
-      <p className="text-sm text-muted-foreground">Cette fiche n'a pas pu être chargée.</p>
+      <p className="text-sm text-foreground">Cette fiche n'a pas pu être chargée.</p>
     </PageShell>
   ),
   notFoundComponent: () => (
     <PageShell>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-foreground">
         Cette fiche n'existe pas ou n'est plus publiée.{" "}
         <Link to="/annuaire" title="Revenir à l'annuaire" className="underline">
           Revenir à l'annuaire
@@ -229,7 +229,7 @@ function ListingPage() {
             </span>
           ) : null}
           {listing.plan === "premium" ? (
-            <span className="rounded bg-muted px-1.5 py-0.5 font-medium text-primary-text">
+            <span className="rounded bg-neutral-soft px-1.5 py-0.5 font-medium text-neutral-text">
               Premium
             </span>
           ) : null}
@@ -240,7 +240,7 @@ function ListingPage() {
             {listing.description ? (
               <RichText value={listing.description} className="text-sm text-foreground" />
             ) : (
-              <p className="text-sm text-muted-foreground">Description à compléter.</p>
+              <p className="text-sm text-foreground">Description à compléter.</p>
             )}
 
             {(listing.photos ?? []).length > 0 ? (
@@ -261,9 +261,7 @@ function ListingPage() {
             <section className="mt-10">
               <h2 className="text-base font-semibold text-foreground">Avis</h2>
               {reviews.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Aucun avis publié pour le moment.
-                </p>
+                <p className="mt-2 text-sm text-foreground">Aucun avis publié pour le moment.</p>
               ) : (
                 <ul className="mt-3 space-y-3">
                   {reviews.map((review) => (
@@ -322,12 +320,10 @@ function ListingPage() {
                   <Button type="submit" disabled={busy} title="Envoyer votre avis">
                     {busy ? "Envoi…" : "Publier mon avis"}
                   </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Chaque avis est relu avant publication.
-                  </p>
+                  <p className="text-xs text-foreground">Chaque avis est relu avant publication.</p>
                 </form>
               ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
+                <p className="mt-3 text-sm text-foreground">
                   <Link
                     to="/login"
                     title="Se connecter pour laisser un avis"
@@ -384,7 +380,7 @@ function ListingPage() {
                   </li>
                 ) : null}
                 {!listing.phone && !listing.email && !listing.website ? (
-                  <li className="text-muted-foreground">Coordonnées non renseignées.</li>
+                  <li className="text-foreground">Coordonnées non renseignées.</li>
                 ) : null}
               </ul>
             </div>
@@ -420,7 +416,7 @@ function ListingPage() {
 
             <div className="rounded-xl border border-border bg-card p-4">
               <h2 className="text-sm font-semibold text-foreground">C'est votre établissement ?</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-foreground">
                 Reprenez la main sur cette fiche : vous la mettez à jour quand vous voulez.
               </p>
               {listing.claimed_by ? (

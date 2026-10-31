@@ -63,7 +63,7 @@ export const Route = createFileRoute("/formation/$slug/")({
   errorComponent: erreurChargement("Cette formation n'a pas pu être chargée."),
   notFoundComponent: () => (
     <PageShell>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-foreground">
         Cette formation n'existe pas ou n'est plus publiée.{" "}
         <Link to="/formations" title="Revenir au catalogue" className="underline">
           Revenir au catalogue
@@ -210,7 +210,7 @@ function CoursePage() {
 
         <div className="mt-6 rounded-xl border border-border bg-card p-5">
           {!user ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
               <Link
                 to="/login"
                 title="Se connecter pour suivre cette formation"
@@ -239,7 +239,7 @@ function CoursePage() {
             </>
           ) : onlinePayment ? (
             <>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground">
                 {paiement === "reussi"
                   ? "Paiement en cours de confirmation : cette page s'actualise toute seule."
                   : `Réglez ${formatPrice(course.price_cents, course.currency ?? "EUR")} par carte : l'accès aux leçons s'ouvre dès la confirmation du paiement.`}
@@ -255,13 +255,13 @@ function CoursePage() {
               </Button>
             </>
           ) : enrolled ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
               Votre place est réservée. L'accès aux leçons s'ouvre dès que l'équipe a enregistré
               votre règlement.
             </p>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground">
                 {isPaidCourse
                   ? "Inscrivez-vous pour réserver votre place : l'équipe vous contacte pour le règlement."
                   : "Cette formation est offerte : inscrivez-vous et commencez tout de suite."}
@@ -281,7 +281,7 @@ function CoursePage() {
         <section className="mt-10">
           <h2 className="text-base font-semibold text-foreground">Programme</h2>
           {modules.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">Programme en cours de rédaction.</p>
+            <p className="mt-2 text-sm text-foreground">Programme en cours de rédaction.</p>
           ) : (
             <ol className="mt-3 space-y-4">
               {modules.map((module, index) => {
@@ -318,10 +318,10 @@ function CoursePage() {
                                 {lesson.title}
                               </Link>
                             ) : (
-                              <span className="text-muted-foreground">{lesson.title}</span>
+                              <span className="text-foreground">{lesson.title}</span>
                             )}
                             {lesson.free_preview && !hasAccess ? (
-                              <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-success-text">
+                              <span className="rounded bg-success-soft px-1.5 py-0.5 text-xs text-success-text">
                                 Aperçu libre
                               </span>
                             ) : null}
@@ -332,7 +332,7 @@ function CoursePage() {
                         );
                       })}
                       {items.length === 0 ? (
-                        <li className="text-muted-foreground">Leçons à venir.</li>
+                        <li className="text-foreground">Leçons à venir.</li>
                       ) : null}
                     </ul>
                   </li>

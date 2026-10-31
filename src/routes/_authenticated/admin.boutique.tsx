@@ -144,7 +144,7 @@ function AdminShopPage() {
             className={`min-h-11 rounded-md border px-3 text-sm ${
               tab === item.key
                 ? "border-primary bg-accent text-foreground"
-                : "border-border text-muted-foreground"
+                : "border-border text-foreground"
             }`}
           >
             {item.label}
@@ -381,9 +381,9 @@ function ProductsTab() {
       ) : null}
 
       {products === null ? (
-        <p className="mt-6 text-sm text-muted-foreground">Chargement…</p>
+        <p className="mt-6 text-sm text-foreground">Chargement…</p>
       ) : products.length === 0 ? (
-        <p className="mt-6 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+        <p className="mt-6 rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
           Aucun produit pour l'instant.
         </p>
       ) : (
@@ -648,7 +648,7 @@ function OrdersTab() {
             className={`min-h-11 rounded-md border px-3 text-sm ${
               filter === item.key
                 ? "border-primary bg-accent text-foreground"
-                : "border-border text-muted-foreground"
+                : "border-border text-foreground"
             }`}
           >
             {item.label}
@@ -679,9 +679,9 @@ function OrdersTab() {
       ) : null}
 
       {orders === null ? (
-        <p className="mt-6 text-sm text-muted-foreground">Chargement…</p>
+        <p className="mt-6 text-sm text-foreground">Chargement…</p>
       ) : visible.length === 0 ? (
-        <p className="mt-6 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+        <p className="mt-6 rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
           {filter === "a_expedier" ? "Rien à expédier pour le moment." : "Aucune commande."}
         </p>
       ) : (
@@ -708,7 +708,7 @@ function OrdersTab() {
                     {formatPrice(order.total_cents, "EUR")}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-foreground">
                   {order.shop_order_items.map((i) => `${i.quantity} × ${i.title}`).join(" · ")}
                 </p>
                 <Button
@@ -750,7 +750,7 @@ function OrderDetail({
     <div className="mt-4 grid gap-4 border-t border-border pt-4 text-sm sm:grid-cols-2">
       <div>
         <p className="font-medium text-foreground">Articles</p>
-        <ul className="mt-1 space-y-1 text-muted-foreground">
+        <ul className="mt-1 space-y-1 text-foreground">
           {order.shop_order_items.map((i) => (
             <li key={i.id}>
               {i.quantity} × {i.title} ({shopKindLabel(i.kind)}) —{" "}
@@ -771,7 +771,7 @@ function OrderDetail({
         <div>
           <p className="font-medium text-foreground">Adresse de livraison</p>
           {address.length ? (
-            <address className="not-italic text-muted-foreground">
+            <address className="not-italic text-foreground">
               {order.shipping_name ? <span className="block">{order.shipping_name}</span> : null}
               {address.map((line) => (
                 <span key={line} className="block">
@@ -780,7 +780,7 @@ function OrderDetail({
               ))}
             </address>
           ) : (
-            <p className="text-muted-foreground">Pas encore transmise par Stripe.</p>
+            <p className="text-foreground">Pas encore transmise par Stripe.</p>
           )}
         </div>
       ) : null}
@@ -918,7 +918,7 @@ function SettingsTab() {
     toast.success("Réglages enregistrés.");
   }
 
-  if (!settings) return <p className="text-sm text-muted-foreground">Chargement…</p>;
+  if (!settings) return <p className="text-sm text-foreground">Chargement…</p>;
 
   return (
     <form
@@ -960,7 +960,7 @@ function SettingsTab() {
           className="mt-1"
           placeholder="FR, BE, CH, LU"
         />
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-foreground">
           Stripe ne propose que ces pays dans l'adresse de livraison. Les fichiers numériques se
           vendent partout.
         </p>
