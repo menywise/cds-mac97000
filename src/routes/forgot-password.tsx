@@ -17,6 +17,8 @@ export const Route = createFileRoute("/forgot-password")({
         "Recevez un lien par e-mail pour choisir un nouveau mot de passe en toute sécurité.",
       path: "/forgot-password",
       type: "website",
+      // Page utilitaire : rien à y chercher depuis un moteur.
+      noindex: true,
     }),
   component: ForgotPasswordPage,
 });

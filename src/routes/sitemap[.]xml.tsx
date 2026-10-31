@@ -36,8 +36,6 @@ const pages: SitemapPage[] = [
   { path: "/contact", priority: "0.7", changefreq: "yearly", module: "contact" },
   { path: "/login", priority: "0.5", changefreq: "yearly" },
   { path: "/signup", priority: "0.5", changefreq: "yearly" },
-  { path: "/verification-email", priority: "0.3", changefreq: "yearly" },
-  { path: "/forgot-password", priority: "0.3", changefreq: "yearly" },
   { path: "/legal/mentions-legales", priority: "0.4", changefreq: "yearly" },
   { path: "/legal/confidentialite", priority: "0.4", changefreq: "yearly" },
   { path: "/legal/cgu", priority: "0.4", changefreq: "yearly" },

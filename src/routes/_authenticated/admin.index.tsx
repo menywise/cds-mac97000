@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageField } from "@/components/cds/MediaPicker";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   type BrandSettings,
   saveBrandSettings,
@@ -164,6 +165,22 @@ function AdminPage() {
                     : "À remplir : tant qu'elle est vide, le canonical, le sitemap et les partages restent relatifs."
                 }
               />
+              <div className="sm:col-span-2">
+                <label className="flex min-h-11 items-center gap-3 text-sm font-medium text-foreground">
+                  <Switch
+                    checked={!settings.horsIndex}
+                    onCheckedChange={(ouvert) => patch({ horsIndex: !ouvert })}
+                  />
+                  {settings.horsIndex
+                    ? "Fermé aux moteurs de recherche"
+                    : "Ouvert aux moteurs de recherche"}
+                </label>
+                <p className="mt-1 text-xs text-foreground">
+                  {settings.horsIndex
+                    ? "Chaque page porte « noindex » et le sitemap n'est plus annoncé : le site sort des résultats en quelques semaines."
+                    : "Réglage normal d'un site public. Fermer seulement un site de démonstration ou de recette."}
+                </p>
+              </div>
             </div>
           </section>
 

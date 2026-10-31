@@ -748,6 +748,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/lib/robots.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/lib/search.functions.ts": {
     "gris": 0,
     "opacite": 0,

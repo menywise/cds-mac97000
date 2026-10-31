@@ -26,6 +26,8 @@ export type BrandSettings = {
   name: string;
   tagline: string;
   url: string;
+  /** Site fermé aux moteurs de recherche : « noindex » sur chaque page, sitemap non annoncé. */
+  horsIndex: boolean;
   legal: {
     company: string;
     form: string;
@@ -134,6 +136,8 @@ export function normalizeBrand(value: unknown): BrandSettings {
   return {
     ...top,
     url: top.url.trim().replace(/\/+$/, ""),
+    // Seul un « true » explicite ferme le site : valeur absente ou mal typée = indexable.
+    horsIndex: v["horsIndex"] === true,
     legal: pick(defaultBrandSettings.legal, v["legal"]),
     host: pick(defaultBrandSettings.host, v["host"]),
     email: cleanEmailDomains(pick(defaultBrandSettings.email, v["email"])),
