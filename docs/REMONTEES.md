@@ -67,4 +67,4 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 | 28/10/2026 | Focus caché sous l'en-tête collant et sous le bandeau cookies (2.4.11)     | `scroll-padding` de `html` tenu par `useHauteurReservee`                |
 | 28/10/2026 | Halo de focus des champs à 20 % ; anneau de l'onglet actif sur le focus    | Anneau plein d'1 px sur les champs, onglet actif sans anneau au focus   |
 | 28/10/2026 | Survol `bg-*/80` sous 4,5:1 (badge `destructive`)                          | Survol à 90 %, mesuré par l'audit du rendu de DB&M                      |
-| 31/10/2026 | Consignes, absences, aides et onglets inactifs en gris (4 lots, 565 → 475) | Gris réservé aux métadonnées (charte), premier lot du socle : 546 → 502 |
+| 31/10/2026 | Consignes, absences, aides et onglets inactifs en gris (4 lots, 565 → 475) | Gris réservé aux métadonnées (charte), deux lots du socle : 546 → 454   |

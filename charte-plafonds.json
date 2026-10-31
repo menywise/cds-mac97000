@@ -861,7 +861,7 @@
     "styles": 0
   },
   "src/routes/_authenticated/admin.annuaire.tsx": {
-    "gris": 12,
+    "gris": 1,
     "opacite": 0,
     "listes": 3,
     "couleurs": 0,
@@ -917,7 +917,7 @@
     "styles": 1
   },
   "src/routes/_authenticated/admin.geographie.tsx": {
-    "gris": 10,
+    "gris": 4,
     "opacite": 0,
     "listes": 1,
     "couleurs": 0,
@@ -952,7 +952,7 @@
     "styles": 0
   },
   "src/routes/_authenticated/admin.moderation.tsx": {
-    "gris": 10,
+    "gris": 3,
     "opacite": 0,
     "listes": 0,
     "couleurs": 0,
@@ -980,7 +980,7 @@
     "styles": 0
   },
   "src/routes/_authenticated/admin.pilotage.tsx": {
-    "gris": 10,
+    "gris": 1,
     "opacite": 0,
     "listes": 3,
     "couleurs": 0,
@@ -1232,7 +1232,7 @@
     "styles": 0
   },
   "src/routes/blog.index.tsx": {
-    "gris": 11,
+    "gris": 3,
     "opacite": 0,
     "listes": 1,
     "couleurs": 0,
@@ -1316,7 +1316,7 @@
     "styles": 0
   },
   "src/routes/forum.$topicId.tsx": {
-    "gris": 11,
+    "gris": 4,
     "opacite": 0,
     "listes": 1,
     "couleurs": 0,

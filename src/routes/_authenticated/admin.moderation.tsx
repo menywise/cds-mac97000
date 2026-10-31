@@ -209,7 +209,7 @@ function AdminModerationPage() {
 
           <TabsContent value="avis" className="space-y-3 pt-6">
             {reviews.length === 0 && (
-              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-foreground">
                 Aucun avis reçu pour l'instant.
               </p>
             )}
@@ -225,7 +225,7 @@ function AdminModerationPage() {
                       {review.approved ? "Publié" : "En attente"}
                     </Badge>
                   </div>
-                  <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                  <p className="mt-2 whitespace-pre-line text-sm text-foreground">
                     {review.content}
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -269,7 +269,7 @@ function AdminModerationPage() {
 
           <TabsContent value="commentaires" className="space-y-3 pt-6">
             {comments.length === 0 && (
-              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-foreground">
                 Aucun commentaire reçu pour l'instant.
               </p>
             )}
@@ -283,7 +283,7 @@ function AdminModerationPage() {
                       {comment.approved ? "Publié" : "En attente"}
                     </Badge>
                   </div>
-                  <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                  <p className="mt-2 whitespace-pre-line text-sm text-foreground">
                     {comment.content}
                   </p>
                   <div className="mt-3 flex gap-2">
@@ -325,7 +325,7 @@ function AdminModerationPage() {
 
           <TabsContent value="forum" className="space-y-3 pt-6">
             {topics.length === 0 && (
-              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-foreground">
                 Aucune discussion ouverte.
               </p>
             )}
@@ -342,7 +342,7 @@ function AdminModerationPage() {
                   <p className="mt-2 text-xs text-muted-foreground">
                     {topic.author_name} — {new Date(topic.created_at).toLocaleString("fr-FR")}
                   </p>
-                  <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                  <p className="mt-2 line-clamp-3 text-sm text-foreground">
                     {plainText(topic.content)}
                   </p>
                   <div className="mt-3 flex gap-2">
@@ -384,7 +384,7 @@ function AdminModerationPage() {
 
           <TabsContent value="reponses" className="space-y-3 pt-6">
             {replies.length === 0 && (
-              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-foreground">
                 Aucune réponse publiée.
               </p>
             )}
