@@ -205,7 +205,7 @@ function AdminPilotagePage() {
           <section>
             <h2 className="text-base font-semibold text-foreground">Feuille de route</h2>
             {items.length === 0 ? (
-              <p className="mt-4 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+              <p className="mt-4 rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
                 Aucune étape pour l'instant. Ajoutez la première ci-dessous.
               </p>
             ) : (
@@ -264,7 +264,7 @@ function AdminPilotagePage() {
           <section className="mt-10">
             <h2 className="text-base font-semibold text-foreground">Plan directeur</h2>
             {sections.length === 0 ? (
-              <p className="mt-4 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+              <p className="mt-4 rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
                 Le plan directeur est vide. Ajoutez une première section ci-dessous.
               </p>
             ) : (
@@ -318,11 +318,11 @@ function AdminPilotagePage() {
 
           <section className="mt-10">
             <h2 className="text-base font-semibold text-foreground">Audits</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-foreground">
               Chaque audit reste en mémoire : vous comparez d'un coup d'œil ce qui progresse.
             </p>
             {audits.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">Aucun audit enregistré.</p>
+              <p className="mt-3 text-sm text-foreground">Aucun audit enregistré.</p>
             ) : (
               <ul className="mt-4 space-y-3">
                 {audits.map((audit) => (
@@ -483,7 +483,7 @@ function RoadmapRow({ item, onChanged }: { item: Item; onChanged: () => Promise<
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-semibold text-foreground">{item.title}</p>
         {item.lot ? (
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
+          <span className="rounded-full bg-neutral-soft px-2.5 py-0.5 text-xs text-neutral-text">
             {item.lot}
           </span>
         ) : null}
@@ -498,7 +498,7 @@ function RoadmapRow({ item, onChanged }: { item: Item; onChanged: () => Promise<
         ) : null}
       </div>
       {item.description ? (
-        <p className="mt-1.5 text-sm text-muted-foreground">{item.description}</p>
+        <p className="mt-1.5 text-sm text-foreground">{item.description}</p>
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {(["a_faire", "en_cours", "fait"] as const).map((status) => (
@@ -511,7 +511,7 @@ function RoadmapRow({ item, onChanged }: { item: Item; onChanged: () => Promise<
             className={`min-h-11 rounded-md border px-3 text-xs font-medium transition-colors sm:min-h-9 ${
               item.status === status
                 ? "border-primary bg-accent text-foreground"
-                : "border-border text-muted-foreground hover:bg-accent"
+                : "border-border text-foreground hover:bg-accent"
             }`}
           >
             {statusLabel[status]}
@@ -710,9 +710,7 @@ function AuditRow({
               {audit.score}/{audit.max_score}
             </span>
           </div>
-          {audit.summary ? (
-            <p className="mt-2 text-sm text-muted-foreground">{audit.summary}</p>
-          ) : null}
+          {audit.summary ? <p className="mt-2 text-sm text-foreground">{audit.summary}</p> : null}
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
               type="button"
@@ -738,7 +736,7 @@ function AuditRow({
       )}
 
       {findings.length > 0 ? (
-        <ul className="mt-4 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
+        <ul className="mt-4 space-y-2 border-t border-border pt-3 text-xs text-foreground">
           {findings.map((finding) => (
             <li key={finding.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="min-w-0 flex-1">

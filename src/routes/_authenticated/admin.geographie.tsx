@@ -79,7 +79,7 @@ function AdminGeoPage() {
           Les départements n'ont pas pu être chargés. Rechargez la page.
         </p>
       ) : rows === null ? (
-        <p className="text-sm text-muted-foreground">Chargement…</p>
+        <p className="text-sm text-foreground">Chargement…</p>
       ) : (
         <>
           <h2 className="mt-10 text-lg font-semibold text-foreground">Départements</h2>
@@ -99,7 +99,7 @@ function AdminGeoPage() {
           </div>
           <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-card">
             <table className="w-full text-sm">
-              <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+              <thead className="border-b border-border text-left text-xs uppercase text-foreground">
                 <tr>
                   <th className="px-4 py-3">Code</th>
                   <th className="px-4 py-3">Département</th>
@@ -205,7 +205,7 @@ function ReferentielPanel() {
           L'état du référentiel n'a pas pu être lu. Vérifiez que le SQL du lot 11 est exécuté.
         </p>
       ) : !status ? (
-        <p className="mt-3 text-sm text-muted-foreground">Chargement…</p>
+        <p className="mt-3 text-sm text-foreground">Chargement…</p>
       ) : (
         <>
           <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -348,7 +348,7 @@ function StudioPanel() {
       <h2 id="studio" className="text-lg font-semibold text-foreground">
         Référentiel du Studio
       </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <p className="mt-1 text-sm text-foreground">
         Importer un pays depuis le référentiel géographique commun aux projets du Studio : pays,
         régions, subdivisions, intercommunalités et communes.
       </p>
@@ -360,7 +360,7 @@ function StudioPanel() {
           {erreur}
         </p>
       ) : !pays ? (
-        <p className="mt-3 text-sm text-muted-foreground">Chargement…</p>
+        <p className="mt-3 text-sm text-foreground">Chargement…</p>
       ) : (
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <label htmlFor="studio-pays" className="text-sm text-foreground">
@@ -390,7 +390,7 @@ function StudioPanel() {
           </Button>
           {busy ? (
             <>
-              <span className="text-sm text-muted-foreground">{busy}</span>
+              <span className="text-sm text-foreground">{busy}</span>
               <Button
                 size="sm"
                 variant="ghost"

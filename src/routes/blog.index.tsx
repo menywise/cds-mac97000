@@ -67,7 +67,7 @@ export const Route = createFileRoute("/blog/")({
   errorComponent: erreurChargement("Les articles n'ont pas pu être chargés."),
   notFoundComponent: () => (
     <PageShell>
-      <p className="text-sm text-muted-foreground">Cette page n'existe pas.</p>
+      <p className="text-sm text-foreground">Cette page n'existe pas.</p>
     </PageShell>
   ),
   component: BlogIndex,
@@ -123,7 +123,7 @@ function BlogIndex() {
         <h1 className="mt-2 text-3xl font-bold text-foreground">
           Ce qui fait vraiment avancer un projet web
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-foreground">
           Vous cherchez des repères fiables plutôt que des avis tranchés. Chaque article part d'une
           situation réelle et se termine par ce que vous pouvez appliquer aujourd'hui.
         </p>
@@ -154,7 +154,7 @@ function BlogIndex() {
                 className={`min-h-11 rounded-md border px-3 text-xs font-medium transition-colors ${
                   tag === null
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    : "border-border bg-card text-foreground"
                 }`}
               >
                 Tous les sujets
@@ -168,7 +168,7 @@ function BlogIndex() {
                   className={`min-h-11 rounded-md border px-3 text-xs font-medium transition-colors ${
                     tag === item
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-muted-foreground hover:text-foreground"
+                      : "border-border bg-card text-foreground"
                   }`}
                 >
                   {item}
@@ -179,7 +179,7 @@ function BlogIndex() {
         </div>
 
         {posts.length === 0 ? (
-          <p className="mt-10 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+          <p className="mt-10 rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
             Aucun article ne correspond à votre recherche. Essayez un mot plus large.
           </p>
         ) : (
@@ -206,13 +206,13 @@ function BlogIndex() {
                     : "À paraître"}{" "}
                   — {post.reading_minutes} min de lecture
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground">{post.excerpt}</p>
+                <p className="mt-2 text-sm text-foreground">{post.excerpt}</p>
                 {(post.tags ?? []).length > 0 ? (
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {(post.tags ?? []).map((item) => (
                       <li
                         key={item}
-                        className="rounded border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+                        className="rounded border border-neutral-border bg-neutral-soft px-2 py-0.5 text-[11px] text-neutral-text"
                       >
                         {item}
                       </li>
@@ -262,7 +262,7 @@ function BlogIndex() {
           </nav>
         ) : null}
 
-        <p className="mt-6 text-xs text-muted-foreground">
+        <p className="mt-6 text-xs text-foreground">
           Vous préférez suivre les nouveautés depuis votre lecteur ?{" "}
           <a
             href="/rss.xml"

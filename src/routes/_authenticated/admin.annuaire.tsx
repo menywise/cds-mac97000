@@ -189,7 +189,7 @@ function AdminDirectoryPage() {
             className={`min-h-11 rounded-md border px-3 text-sm ${
               tab === item.key
                 ? "border-primary bg-accent text-foreground"
-                : "border-border text-muted-foreground"
+                : "border-border text-foreground"
             }`}
           >
             {item.label}
@@ -228,12 +228,12 @@ function AdminDirectoryPage() {
       ) : listings === null ? (
         // Échec du chargement : le bandeau d'erreur suffit, pas de « Chargement… » sans fin.
         failed ? null : (
-          <p className="mt-6 text-sm text-muted-foreground">Chargement…</p>
+          <p className="mt-6 text-sm text-foreground">Chargement…</p>
         )
       ) : tab === "fiches" ? (
         <>
           {listings.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">Aucune fiche pour l'instant.</p>
+            <p className="mt-6 text-sm text-foreground">Aucune fiche pour l'instant.</p>
           ) : null}
           <ul className="mt-6 space-y-3">
             {listings.map((item) => (
@@ -241,7 +241,7 @@ function AdminDirectoryPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-semibold text-foreground">{item.name}</p>
                   <p className="text-xs text-muted-foreground">{item.city}</p>
-                  <span className="ml-auto rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
+                  <span className="ml-auto rounded-full bg-neutral-soft px-2.5 py-0.5 text-xs text-neutral-text">
                     {item.status === "published"
                       ? "En ligne"
                       : item.status === "draft"
@@ -406,7 +406,7 @@ function AdminDirectoryPage() {
       ) : tab === "avis" ? (
         <>
           {reviews.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">Aucun avis reçu.</p>
+            <p className="mt-6 text-sm text-foreground">Aucun avis reçu.</p>
           ) : null}
           <ul className="mt-6 space-y-3">
             {reviews.map((item) => (
@@ -414,7 +414,7 @@ function AdminDirectoryPage() {
                 <p className="text-sm font-semibold text-foreground">
                   {item.author_name} — {item.rating}/5
                 </p>
-                <p className="mt-2 text-sm text-muted-foreground">{item.content}</p>
+                <p className="mt-2 text-sm text-foreground">{item.content}</p>
                 <ModerationNote note={item.moderation_note} />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button
@@ -459,7 +459,7 @@ function AdminDirectoryPage() {
       ) : (
         <>
           {pendingClaims.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">
+            <p className="mt-6 text-sm text-foreground">
               Aucune demande de revendication en attente.
             </p>
           ) : null}
@@ -467,7 +467,7 @@ function AdminDirectoryPage() {
             {pendingClaims.map((item) => (
               <li key={item.id} className="rounded-xl border border-border bg-card p-5">
                 <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-foreground">
                   Un membre demande à gérer cette fiche.
                 </p>
                 <div className="mt-3 flex gap-2">
@@ -586,7 +586,7 @@ function AnnuaireSettingsTab() {
       </p>
     );
   }
-  if (!settings) return <p className="mt-6 text-sm text-muted-foreground">Chargement…</p>;
+  if (!settings) return <p className="mt-6 text-sm text-foreground">Chargement…</p>;
 
   return (
     <form
@@ -613,7 +613,7 @@ function AnnuaireSettingsTab() {
           onChange={(e) => setSettings({ ...settings, description: e.target.value })}
           className="mt-1"
         />
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-foreground">
           Affichée sous le titre et reprise par les moteurs de recherche. Vide : texte par défaut.
         </p>
       </div>
@@ -636,7 +636,7 @@ function AnnuaireSettingsTab() {
             </option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-foreground">
           Sert aux données structurées de chaque fiche. L'adresse n'y figure que pour un
           établissement.
         </p>

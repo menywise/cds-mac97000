@@ -47,7 +47,7 @@ export const Route = createFileRoute("/forum/$topicId")({
   notFoundComponent: () => (
     <PageShell>
       <h1 className="text-2xl font-bold text-foreground">Discussion introuvable</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="mt-2 text-sm text-foreground">
         <Link
           to="/forum"
           title="Revenir à la liste des discussions"
@@ -151,7 +151,7 @@ function TopicPage() {
           — {new Date(topic.created_at).toLocaleDateString("fr-FR")}
         </p>
 
-        <RichText value={topic.content} className="mt-4 text-sm text-muted-foreground" />
+        <RichText value={topic.content} className="mt-4 text-sm text-foreground" />
         <ModerationNote note={topic.moderation_note} at={topic.moderated_at} />
         <ReportButton contentType="sujet" contentId={topic.id} authorId={topic.author_id} />
 
@@ -165,7 +165,7 @@ function TopicPage() {
 
         <h2 className="mt-10 text-lg font-semibold text-foreground">Réponses ({replies.length})</h2>
         {replies.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-foreground">
             Aucune réponse pour l'instant. La vôtre sera la bienvenue.
           </p>
         ) : (
@@ -193,7 +193,7 @@ function TopicPage() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   {new Date(item.created_at).toLocaleDateString("fr-FR")}
                 </p>
-                <RichText value={item.content} className="mt-2 text-sm text-muted-foreground" />
+                <RichText value={item.content} className="mt-2 text-sm text-foreground" />
                 <ModerationNote note={item.moderation_note} at={item.moderated_at} />
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <ReportButton
@@ -211,7 +211,7 @@ function TopicPage() {
                           ? "Retirer cette réponse des solutions"
                           : "Marquer cette réponse comme solution"
                       }
-                      className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                     >
                       <CheckCircle2 className="size-4" aria-hidden="true" />
                       {item.accepted ? "Retirer la solution" : "C'est la solution"}
@@ -224,7 +224,7 @@ function TopicPage() {
         )}
 
         {topic.locked ? (
-          <p className="mt-6 rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
+          <p className="mt-6 rounded-lg border border-border bg-muted p-4 text-sm text-foreground">
             Cette discussion est close : elle reste consultable, mais n'accepte plus de réponse.
           </p>
         ) : user ? (
@@ -244,7 +244,7 @@ function TopicPage() {
             </Button>
           </form>
         ) : (
-          <p className="mt-6 rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground">
+          <p className="mt-6 rounded-lg border border-dashed border-border p-5 text-sm text-foreground">
             <Link
               to="/login"
               title="Se connecter pour répondre"
