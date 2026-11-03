@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/cds/SiteHeader";
@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { getPost } from "@/lib/content.functions";
+import { getPost, trouverRedirection } from "@/lib/content.functions";
 import { RichText } from "@/lib/richtext";
 import { readingMinutes } from "@/lib/reading";
 import { auteurAffiche, dateSimple, lireSources } from "@/lib/editorial-regles";
@@ -24,7 +24,12 @@ export const Route = createFileRoute("/blog/$slug")({
   beforeLoad: () => requireFeature("blog"),
   loader: async ({ params }) => {
     const data = await getPost({ data: { slug: params.slug } });
-    if (!data) throw notFound();
+    if (!data) {
+      // Ancienne adresse d'un article renommé : redirection permanente (socle 1.11.0).
+      const vers = await trouverRedirection({ data: { chemin: `/blog/${params.slug}` } });
+      if (vers) throw redirect({ href: vers, statusCode: 301 });
+      throw notFound();
+    }
     return data;
   },
   head: ({ loaderData, params }) => {
@@ -41,6 +46,10 @@ export const Route = createFileRoute("/blog/$slug")({
         breadcrumbJsonLd([
           { name: "Accueil", path: "/" },
           { name: "Blog", path: "/blog" },
+          ...(loaderData?.fil ?? []).map((r) => ({
+            name: r.libelle,
+            path: `/blog/rubrique/${r.slug}`,
+          })),
           { name: post?.title ?? "Article", path: `/blog/${params.slug}` },
         ]),
         jsonLdScript({
@@ -74,7 +83,7 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { post, comments, related, editorial } = Route.useLoaderData();
+  const { post, comments, related, editorial, etiquettes, fil, serie } = Route.useLoaderData();
   const auteur = auteurAffiche(post, editorial.auteur_mode);
   const sources = lireSources(post.sources);
   const { user } = useAuth();
@@ -109,13 +118,24 @@ function BlogPostPage() {
   return (
     <PageShell>
       <article className="mx-auto max-w-[760px]">
-        <Link
-          to="/blog"
-          title="Revenir à la liste des articles"
-          className="text-xs font-medium text-primary-text hover:underline"
-        >
-          ← Blog
-        </Link>
+        <nav aria-label="Fil d'Ariane" className="text-xs font-medium text-primary-text">
+          <Link to="/blog" title="Revenir à la liste des articles" className="hover:underline">
+            Blog
+          </Link>
+          {fil.map((r) => (
+            <span key={r.slug}>
+              {" › "}
+              <Link
+                to="/blog/rubrique/$slug"
+                params={{ slug: r.slug }}
+                title={`Tous les articles de la rubrique « ${r.libelle} »`}
+                className="hover:underline"
+              >
+                {r.libelle}
+              </Link>
+            </span>
+          ))}
+        </nav>
         <h1 className="mt-3 text-3xl font-bold text-foreground">{post.title}</h1>
         {post.published_at ? (
           <p className="mt-2 text-xs text-muted-foreground">
@@ -134,20 +154,74 @@ function BlogPostPage() {
         </p>
         <p className="mt-4 text-sm font-medium text-foreground">{post.excerpt}</p>
 
-        {(post.tags ?? []).length > 0 ? (
+        {etiquettes.length > 0 ? (
           <ul className="mt-3 flex flex-wrap gap-2">
-            {(post.tags ?? []).map((item) => (
-              <li
-                key={item}
-                className="rounded border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
-              >
-                {item}
+            {etiquettes.map((item) => (
+              <li key={item.slug}>
+                <Link
+                  to="/blog/etiquette/$slug"
+                  params={{ slug: item.slug }}
+                  title={`Tous les articles sur : ${item.libelle}`}
+                  className="inline-flex min-h-9 items-center rounded border border-border bg-muted px-2 text-[11px] text-foreground hover:border-primary"
+                >
+                  {item.libelle}
+                </Link>
               </li>
             ))}
           </ul>
         ) : null}
 
+        {serie ? (
+          <aside
+            aria-label="Série"
+            className="mt-6 rounded-xl border border-border bg-card p-4 text-sm text-foreground"
+          >
+            <p>
+              Partie {serie.rang} sur {serie.total} de la série{" "}
+              <Link
+                to="/blog/serie/$slug"
+                params={{ slug: serie.slug }}
+                title={`Voir toute la série « ${serie.titre} »`}
+                className="font-medium text-primary-text hover:underline"
+              >
+                {serie.titre}
+              </Link>
+              .
+            </p>
+          </aside>
+        ) : null}
+
         <RichText value={post.content} className="mt-6" />
+
+        {serie && (serie.precedent || serie.suivant) ? (
+          <nav
+            aria-label="Articles de la série"
+            className="mt-8 flex flex-wrap justify-between gap-3 text-sm"
+          >
+            {serie.precedent ? (
+              <Link
+                to="/blog/$slug"
+                params={{ slug: serie.precedent.slug }}
+                title={`Partie précédente : ${serie.precedent.titre}`}
+                className="font-medium text-primary-text hover:underline"
+              >
+                ← {serie.precedent.titre}
+              </Link>
+            ) : (
+              <span />
+            )}
+            {serie.suivant ? (
+              <Link
+                to="/blog/$slug"
+                params={{ slug: serie.suivant.slug }}
+                title={`Partie suivante : ${serie.suivant.titre}`}
+                className="font-medium text-primary-text hover:underline"
+              >
+                {serie.suivant.titre} →
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
 
         {sources.length > 0 ? (
           <section aria-labelledby="sources-titre" className="mt-8">

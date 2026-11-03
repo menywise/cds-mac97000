@@ -98,11 +98,15 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Termes interdits | C1 | portée | aligné | C1→S | Socle 1.10.0 ; noms d'une installation par `greffe_termes_nominatifs`. C1 garde sa version à expressions régulières (personnes, chirurgiens) | 03/11/2026 |
 | Sources, relecture, auteur | C1 | portée | aligné | C1→S | Socle 1.10.0 ; le socle ajoute `auteur_nom` et l'affichage par réglage (D3) | 03/11/2026 |
 | Liens de sources morts | C1 | portée | écart | C1→S | `liens_sources_etat` | 03/11/2026 |
-| Pilier et satellites | C1 | portée | écart | C1→S | `est_pilier`, `pilier_id`, `renvoieVersPilier()` | 03/11/2026 |
+| Pilier et satellites | C1 | portée | aligné | C1→S | Socle 1.11.0 : contrôle en base (manque « pilier ») et satellites absents du pilier | 03/11/2026 |
+| Taxonomie | S | portée | écart | S→C1 | Socle 1.11.0 : rubriques, étiquettes contrôlées, séries, pages publiques | 03/11/2026 |
+| Contrôles de maillage | S | portée | écart | S→C1 | Socle 1.11.0 : liens cassés ou redirigés, orphelins, ancres pauvres, requête en double (`maillage_etat`) | 03/11/2026 |
+| Règles d'écran du maillage | S | copie | écart | S→C1 | `src/lib/maillage.ts`, sans dépendance : à copier tel quel dans C1 | 03/11/2026 |
+| Redirections | S | portée | écart | S→C1 | Socle 1.11.0 : redirection 301 automatique au changement d'adresse | 03/11/2026 |
 | Liste du blog | S | portée | écart | S→C1 | Recherche, étiquettes, pagination, durée de lecture (`src/lib/blog.ts` → copie) | 03/11/2026 |
 | Image de couverture | S | portée | écart | S→C1 | `cover_url` absent de C1 | 03/11/2026 |
 | RSS | S | portée | écart | S→C1 | `src/routes/rss[.]xml.tsx` absent de C1 | 03/11/2026 |
-| « À lire ensuite » | S | portée | écart | S→C1 | Absent de C1 | 03/11/2026 |
+| « À lire ensuite » | S | portée | écart | S→C1 | Socle 1.11.0 : `lire_ensuite` (pilier et frères, étiquettes, rubrique, série) ; absent de C1 | 03/11/2026 |
 | Partage, signalement | S | portée | écart | S→C1 | `ShareButtons`, `ReportButton` | 03/11/2026 |
 | Commentaires d'articles | S | portée | propre | — | C1 ne les reprend pas (site anonymisé) | 03/11/2026 |
 | Publicité dans le blog | S | portée | propre | — | `AdSlot` : C1 ne le reprend pas | 03/11/2026 |
@@ -132,3 +136,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Création | Mesure des deux dépôts, première version du registre, décision « modèle `contenus_publics` » |
 | 03/11/2026 | Socle 1.9.0 | Lot 1 : articles du socle dans `contenus_publics`. Nouveaux écarts S→C1 : longueur du corps, colonnes du socle |
 | 03/11/2026 | Socle 1.10.0 | Lot 2 : circuit de rédaction. Nouveaux écarts S→C1 : règles d'écran en copie exacte, circuit simple, exigences réglables, `auteur_nom` |
+| 03/11/2026 | Socle 1.11.0 | Lot 3 : taxonomie et maillage. Nouveaux écarts S→C1 : taxonomie, contrôles de maillage, `maillage.ts`, redirections, « À lire ensuite » |

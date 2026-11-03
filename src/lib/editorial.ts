@@ -33,6 +33,11 @@ export type ContenuEditorial = {
   date_prevue: string | null;
   public_vise: string;
   requete_visee: string;
+  rubrique_id: string | null;
+  serie_id: string | null;
+  serie_ordre: number | null;
+  est_pilier: boolean;
+  pilier_id: string | null;
   /** Calculés par editorial_etat(). */
   statut_lu: Statut;
   manques: string[];
@@ -40,7 +45,7 @@ export type ContenuEditorial = {
 };
 
 const COLONNES =
-  "id, type, slug, titre, description, chapo, corps, sources, auteur_fonction, auteur_nom, etiquettes, image_url, image_alt, relu_le, publie_le, updated_at, date_prevue, public_vise, requete_visee";
+  "id, type, slug, titre, description, chapo, corps, sources, auteur_fonction, auteur_nom, etiquettes, image_url, image_alt, relu_le, publie_le, updated_at, date_prevue, public_vise, requete_visee, rubrique_id, serie_id, serie_ordre, est_pilier, pilier_id";
 
 /** Message lisible d'une erreur de la base : les refus de la base sont déjà en français. */
 export function messageErreur(error: { code?: string; message?: string } | null): string {
@@ -105,6 +110,11 @@ export type Champs = Pick<
   | "date_prevue"
   | "public_vise"
   | "requete_visee"
+  | "rubrique_id"
+  | "serie_id"
+  | "serie_ordre"
+  | "est_pilier"
+  | "pilier_id"
 >;
 
 export async function creerArticle(titre: string, slug: string): Promise<string> {
@@ -226,4 +236,97 @@ export function useDroitsEditorial(): { ecrit: boolean; admin: boolean } | null 
     };
   }, [user]);
   return droits;
+}
+
+/* --------------------------- Taxonomie (socle 1.11.0) --------------------------- */
+
+export type Rubrique = {
+  id: string;
+  slug: string;
+  libelle: string;
+  intro: string;
+  parent_id: string | null;
+  ordre: number;
+};
+export type Etiquette = { id: string; slug: string; libelle: string; definition: string };
+export type Serie = { id: string; slug: string; titre: string; description: string };
+export type Taxonomie = { rubriques: Rubrique[]; etiquettes: Etiquette[]; series: Serie[] };
+
+export async function fetchTaxonomie(): Promise<Taxonomie> {
+  const [r, e, s] = await Promise.all([
+    supabase
+      .from("rubriques")
+      .select("id, slug, libelle, intro, parent_id, ordre")
+      .order("ordre")
+      .order("libelle"),
+    supabase.from("etiquettes").select("id, slug, libelle, definition").order("libelle"),
+    supabase.from("series").select("id, slug, titre, description").order("titre"),
+  ]);
+  if (r.error || e.error || s.error) throw new Error(messageErreur(r.error ?? e.error ?? s.error));
+  return { rubriques: r.data ?? [], etiquettes: e.data ?? [], series: s.data ?? [] };
+}
+
+export async function enregistrerRubrique(
+  id: string | null,
+  v: { libelle: string; slug: string; intro: string; parent_id: string | null; ordre: number },
+): Promise<string> {
+  const { error } = id
+    ? await supabase.from("rubriques").update(v).eq("id", id)
+    : await supabase.from("rubriques").insert(v);
+  return messageErreur(error);
+}
+
+export async function supprimerRubrique(id: string): Promise<string> {
+  const { error } = await supabase.from("rubriques").delete().eq("id", id);
+  if (error?.code === "23503") return "Cette rubrique a des sous-rubriques : les déplacer d'abord.";
+  return messageErreur(error);
+}
+
+export async function enregistrerEtiquette(
+  id: string | null,
+  v: { libelle: string; definition: string },
+): Promise<string> {
+  const { error } = id
+    ? await supabase.from("etiquettes").update(v).eq("id", id)
+    : await supabase.from("etiquettes").insert(v);
+  if (error?.code === "23505") return "Cette étiquette existe déjà.";
+  return messageErreur(error);
+}
+
+export async function supprimerEtiquette(id: string): Promise<string> {
+  const { error } = await supabase.from("etiquettes").delete().eq("id", id);
+  return messageErreur(error);
+}
+
+export async function enregistrerSerie(
+  id: string | null,
+  v: { titre: string; slug: string; description: string },
+): Promise<string> {
+  const { error } = id
+    ? await supabase.from("series").update(v).eq("id", id)
+    : await supabase.from("series").insert(v);
+  return messageErreur(error);
+}
+
+export async function supprimerSerie(id: string): Promise<string> {
+  const { error } = await supabase.from("series").delete().eq("id", id);
+  return messageErreur(error);
+}
+
+export type EtatMaillage = {
+  id: string;
+  sortants: number;
+  entrants: number;
+  orphelin: boolean;
+  liens_casses: string[];
+  liens_rediriges: string[];
+  ancres_pauvres: string[];
+  satellites_absents: string[];
+  requete_en_double: string[];
+};
+
+export async function fetchMaillage(): Promise<Map<string, EtatMaillage>> {
+  const { data, error } = await supabase.rpc("maillage_etat");
+  if (error) throw new Error(messageErreur(error));
+  return new Map((data ?? []).map((e) => [e.id, e]));
 }

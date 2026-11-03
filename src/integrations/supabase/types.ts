@@ -361,7 +361,10 @@ export type Database = {
           relu_le: string | null
           relu_par: string | null
           requete_visee: string
+          rubrique_id: string | null
           search_doc: unknown
+          serie_id: string | null
+          serie_ordre: number | null
           slug: string
           sources: string
           statut: string
@@ -393,7 +396,10 @@ export type Database = {
           relu_le?: string | null
           relu_par?: string | null
           requete_visee?: string
+          rubrique_id?: string | null
           search_doc?: unknown
+          serie_id?: string | null
+          serie_ordre?: number | null
           slug: string
           sources?: string
           statut?: string
@@ -425,7 +431,10 @@ export type Database = {
           relu_le?: string | null
           relu_par?: string | null
           requete_visee?: string
+          rubrique_id?: string | null
           search_doc?: unknown
+          serie_id?: string | null
+          serie_ordre?: number | null
           slug?: string
           sources?: string
           statut?: string
@@ -877,6 +886,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      etiquettes: {
+        Row: {
+          created_at: string
+          definition: string
+          id: string
+          libelle: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          definition?: string
+          id?: string
+          libelle: string
+          slug?: string
+        }
+        Update: {
+          created_at?: string
+          definition?: string
+          id?: string
+          libelle?: string
+          slug?: string
+        }
+        Relationships: []
       }
       faq_items: {
         Row: {
@@ -1943,6 +1976,24 @@ export type Database = {
         }
         Relationships: []
       }
+      redirections: {
+        Row: {
+          created_at: string
+          de: string
+          vers: string
+        }
+        Insert: {
+          created_at?: string
+          de: string
+          vers: string
+        }
+        Update: {
+          created_at?: string
+          de?: string
+          vers?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           admin_note: string | null
@@ -2078,6 +2129,63 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      rubriques: {
+        Row: {
+          created_at: string
+          id: string
+          intro: string
+          libelle: string
+          ordre: number
+          parent_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intro?: string
+          libelle: string
+          ordre?: number
+          parent_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intro?: string
+          libelle?: string
+          ordre?: number
+          parent_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      series: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          slug: string
+          titre: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          slug: string
+          titre: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          slug?: string
+          titre?: string
         }
         Relationships: []
       }
@@ -2562,6 +2670,7 @@ export type Database = {
         Returns: undefined
       }
       admin_set_editor: { Args: { _editor: boolean; _user_id: string }; Returns: undefined }
+      ancre_pauvre: { Args: { _ancre: string }; Returns: boolean }
       bootstrap_current_user: {
         Args: { _full_name?: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -2609,6 +2718,14 @@ export type Database = {
       en_perimetre: {
         Args: { "": Database["public"]["Tables"]["template_checks"]["Row"] }
         Returns: boolean
+      }
+      extraire_liens: {
+        Args: { _corps: string }
+        Returns: {
+          ancre: string
+          chemin: string
+          rang: number
+        }[]
       }
       forum_author_name: { Args: { _user_id: string }; Returns: string }
       forum_category_counts: {
@@ -2706,6 +2823,16 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      lire_ensuite: {
+        Args: { _id: string; _n?: number }
+        Returns: {
+          chapo: string
+          id: string
+          publie_le: string
+          slug: string
+          titre: string
+        }[]
+      }
       lms_course_learners: {
         Args: never
         Returns: {
@@ -2718,6 +2845,20 @@ export type Database = {
         Returns: {
           content: string
           video_url: string
+        }[]
+      }
+      maillage_etat: {
+        Args: never
+        Returns: {
+          ancres_pauvres: string[]
+          entrants: number
+          id: string
+          liens_casses: string[]
+          liens_rediriges: string[]
+          orphelin: boolean
+          requete_en_double: string[]
+          satellites_absents: string[]
+          sortants: number
         }[]
       }
       manques_publication: {
@@ -2849,6 +2990,7 @@ export type Database = {
           total_cents: number
         }[]
       }
+      slug_depuis: { Args: { _t: string }; Returns: string }
       sources_valides: { Args: { _sources: string }; Returns: boolean }
       starter_reset_demo: { Args: { _scope: string }; Returns: Json }
       starter_status: { Args: never; Returns: Json }
