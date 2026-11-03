@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.15.1**, migration
-  `20261104120000_v1_15_1_correctifs_recette`.
+  migrations de la plateforme. Version courante : **1.15.2**, migration
+  `20261105120000_v1_15_2_search_path`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -46,7 +46,8 @@ installation.
   ses exigences sont facultatives ou éteintes par défaut, sauf une : un texte entre crochets d'un à
   trois chiffres (« [1] ») est un appel de référence, et sa référence est exigée avant publication.
   La 1.15.1 (correctif) : ordre indifférent ; la suggestion de mot proche devient plus tolérante
-  (seuil 0,3) et les pages introuvables du blog passent en `noindex`.
+  (seuil 0,3) et les pages introuvables du blog passent en `noindex`. La 1.15.2 (correctif) : ordre
+  indifférent ; trois fonctions fixent leur `search_path`, aucun changement de comportement.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
