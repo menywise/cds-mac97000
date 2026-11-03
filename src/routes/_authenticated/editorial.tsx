@@ -26,6 +26,7 @@ import {
   enregistrerSerie,
   fetchARevoir,
   fetchEditorial,
+  fetchEtatSources,
   fetchMaillage,
   fetchTaxonomie,
   fetchJournal,
@@ -40,6 +41,7 @@ import {
   type ContenuARevoir,
   type ContenuEditorial,
   type EtatMaillage,
+  type EtatSource,
   type Taxonomie,
   type LigneJournal,
   type TermeInterdit,
@@ -50,6 +52,7 @@ import {
   STATUTS,
   actionsPossibles,
   dateSimple,
+  lireSources,
   manquesSaisie,
   prochaineAction,
   statutInfo,
@@ -59,6 +62,9 @@ import {
 } from "@/lib/editorial-regles";
 import { slugify } from "@/lib/format";
 import { lienMarkdown, suggestionsDeLiens } from "@/lib/maillage";
+import { lienSearchConsole } from "@/lib/article-donnees";
+import { verifierLiensSources } from "@/lib/editorial.functions";
+import { absoluteUrl } from "@/lib/site-config";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/editorial")({
@@ -92,12 +98,14 @@ type PosteCtx = {
   contenus: ContenuEditorial[];
   taxo: Taxonomie;
   maillage: Map<string, EtatMaillage>;
+  sources: Map<string, EtatSource>;
   admin: boolean;
 };
 const Contexte = createContext<PosteCtx>({
   contenus: [],
   taxo: { rubriques: [], etiquettes: [], series: [] },
   maillage: new Map(),
+  sources: new Map(),
   admin: false,
 });
 
@@ -159,20 +167,23 @@ function Poste({ admin }: { admin: boolean }) {
   const [reglages, setReglages] = useState<ReglagesEditoriaux>(REGLAGES_PAR_DEFAUT);
   const [taxo, setTaxo] = useState<Taxonomie>({ rubriques: [], etiquettes: [], series: [] });
   const [maillage, setMaillage] = useState<Map<string, EtatMaillage>>(new Map());
+  const [sources, setSources] = useState<Map<string, EtatSource>>(new Map());
   const [echec, setEchec] = useState(false);
 
   const recharger = useCallback(async () => {
     try {
-      const [c, r, t, m] = await Promise.all([
+      const [c, r, t, m, so] = await Promise.all([
         fetchEditorial(),
         fetchReglages(),
         fetchTaxonomie(),
         fetchMaillage(),
+        fetchEtatSources(),
       ]);
       setContenus(c);
       setReglages(r);
       setTaxo(t);
       setMaillage(m);
+      setSources(so);
       setEchec(false);
     } catch {
       setEchec(true);
@@ -184,7 +195,7 @@ function Poste({ admin }: { admin: boolean }) {
   }, [recharger]);
 
   return (
-    <Contexte.Provider value={{ contenus: contenus ?? [], taxo, maillage, admin }}>
+    <Contexte.Provider value={{ contenus: contenus ?? [], taxo, maillage, sources, admin }}>
       <Tabs defaultValue="articles" className="mt-8">
         <TabsList>
           <TabsTrigger value="articles">Articles</TabsTrigger>
@@ -222,6 +233,7 @@ function Poste({ admin }: { admin: boolean }) {
           <TabsContent value="reglages" className="mt-6 space-y-4">
             <Reglages initial={reglages} recharger={recharger} />
             <Termes />
+            <SourcesPanneau recharger={recharger} />
           </TabsContent>
         ) : null}
       </Tabs>
@@ -365,6 +377,7 @@ function Fiche({
           ))}
         </ul>
       ) : null}
+      <SourcesArticle contenu={contenu} />
       <MaillagePanneau contenu={contenu} />
       <div className="mt-4 flex flex-wrap gap-2">
         {actions.map((a) => (
@@ -679,7 +692,9 @@ function Edition({
         <Label htmlFor={id("corps")}>Texte</Label>
         <Textarea {...champ("corps")} rows={14} maxLength={ARTICLE_LONGUEURS.corps} />
         <p className="text-xs text-foreground">
-          Mise en forme : **gras**, *italique*, &gt; citation, - liste, [texte](adresse).
+          Mise en forme : ## intertitre, ### sous-intertitre (sommaire dès trois intertitres), -
+          liste, 1. liste numérotée, &gt; citation, :::retenir … ::: encadré, :::faq … ::: questions
+          (lignes « Q : » puis « R : »), **gras**, *italique*, [texte](/adresse).
         </p>
       </div>
       <div className="space-y-1.5">
@@ -954,6 +969,23 @@ function Reglages({
         >
           <option value="fonction">Sa fonction (par exemple « Rédactrice spécialisée »)</option>
           <option value="nomme">Son nom</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="reglage-type-page">Nature des articles pour les moteurs de recherche</Label>
+        <select
+          id="reglage-type-page"
+          value={r.type_page}
+          onChange={(e) =>
+            setR({
+              ...r,
+              type_page: e.target.value === "MedicalWebPage" ? "MedicalWebPage" : "WebPage",
+            })
+          }
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="WebPage">Page d'information générale</option>
+          <option value="MedicalWebPage">Page d'information médicale ou de santé</option>
         </select>
       </div>
       <div className="space-y-1.5">
@@ -1436,5 +1468,96 @@ function TaxonomiePanneau({ recharger }: { recharger: () => Promise<void> }) {
         </form>
       </section>
     </>
+  );
+}
+
+/** Sources injoignables d'un article, et lien vers ses performances dans la Search Console. */
+function SourcesArticle({ contenu }: { contenu: ContenuEditorial }) {
+  const { sources } = useContext(Contexte);
+  const mortes = lireSources(contenu.sources).filter((s) => sources.get(s.url)?.ok === false);
+  const enLigne = contenu.statut_lu === "publie" || contenu.statut_lu === "a_actualiser";
+  if (mortes.length === 0 && !enLigne) return null;
+  return (
+    <div className="mt-4 space-y-2 text-sm text-foreground">
+      {mortes.length > 0 ? (
+        <ul className="list-disc space-y-1 rounded-md border border-warning-border bg-warning-soft py-2 pl-7 pr-3 text-warning-text">
+          {mortes.map((s) => (
+            <li key={s.url}>
+              Source injoignable : {s.libelle} ({sources.get(s.url)?.erreur || "erreur"}).
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {enLigne ? (
+        <a
+          href={lienSearchConsole(absoluteUrl("/").replace(/\/$/, ""), `/blog/${contenu.slug}`)}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Ouvrir les performances de cet article dans la Search Console"
+          className="font-medium text-primary-text underline underline-offset-2"
+        >
+          Performances dans la Search Console
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+function SourcesPanneau({ recharger }: { recharger: () => Promise<void> }) {
+  const { sources } = useContext(Contexte);
+  const [envoi, setEnvoi] = useState(false);
+  const injoignables = [...sources.values()].filter((e) => !e.ok);
+
+  async function verifier() {
+    setEnvoi(true);
+    try {
+      const r = await verifierLiensSources();
+      toast.success(
+        `${r.verifiees} adresse${r.verifiees > 1 ? "s" : ""} vérifiée${r.verifiees > 1 ? "s" : ""}.`,
+        {
+          description: `${r.injoignables} injoignable${r.injoignables > 1 ? "s" : ""} ; ${r.restantes} à vérifier au prochain passage.`,
+        },
+      );
+      await recharger();
+    } catch (e) {
+      toast.error("Vérification impossible.", {
+        description: e instanceof Error ? e.message : "Réessayez dans un instant.",
+      });
+    } finally {
+      setEnvoi(false);
+    }
+  }
+
+  return (
+    <section className={`space-y-4 ${cardClass}`} aria-labelledby="sources-titre-reglages">
+      <h2 id="sources-titre-reglages" className="text-base font-semibold text-foreground">
+        Liens de sources
+      </h2>
+      <p className="text-sm text-foreground">
+        Le site appelle les adresses citées en sources, 30 à la fois, les plus anciennes d'abord.
+        Seules les adresses https publiques sont appelées. Une source injoignable est signalée sous
+        l'article.
+      </p>
+      <Button
+        type="button"
+        disabled={envoi}
+        onClick={() => void verifier()}
+        title="Vérifier les liens de sources"
+      >
+        {envoi ? "Vérification…" : "Vérifier les liens de sources"}
+      </Button>
+      {injoignables.length > 0 ? (
+        <ul className="divide-y divide-border rounded-md border border-border text-sm">
+          {injoignables.map((e) => (
+            <li key={e.url} className="px-3 py-2 text-foreground">
+              <span className="break-all">{e.url}</span> · {e.erreur || `réponse ${e.code_http}`} ·
+              vérifiée le {new Date(e.verifie_le).toLocaleDateString("fr-FR")}
+            </li>
+          ))}
+        </ul>
+      ) : sources.size > 0 ? (
+        <p className="text-sm text-foreground">Toutes les sources vérifiées répondent.</p>
+      ) : null}
+    </section>
   );
 }

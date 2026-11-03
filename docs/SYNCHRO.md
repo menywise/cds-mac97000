@@ -97,7 +97,7 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Règles d'écran du circuit | S | copie | écart | S→C1 | `src/lib/editorial-regles.ts`, sans dépendance : à copier tel quel dans C1 (remplace une partie de son `editorial.ts`) | 03/11/2026 |
 | Termes interdits | C1 | portée | aligné | C1→S | Socle 1.10.0 ; noms d'une installation par `greffe_termes_nominatifs`. C1 garde sa version à expressions régulières (personnes, chirurgiens) | 03/11/2026 |
 | Sources, relecture, auteur | C1 | portée | aligné | C1→S | Socle 1.10.0 ; le socle ajoute `auteur_nom` et l'affichage par réglage (D3) | 03/11/2026 |
-| Liens de sources morts | C1 | portée | écart | C1→S | `liens_sources_etat` | 03/11/2026 |
+| Liens de sources morts | ⇄ | portée | aligné | ⇄ | Socle 1.12.0 : même table ; le socle vérifie avec la session du rédacteur et refuse les adresses privées (`sources-verif.ts`, candidat copie) | 03/11/2026 |
 | Pilier et satellites | C1 | portée | aligné | C1→S | Socle 1.11.0 : contrôle en base (manque « pilier ») et satellites absents du pilier | 03/11/2026 |
 | Taxonomie | S | portée | écart | S→C1 | Socle 1.11.0 : rubriques, étiquettes contrôlées, séries, pages publiques | 03/11/2026 |
 | Contrôles de maillage | S | portée | écart | S→C1 | Socle 1.11.0 : liens cassés ou redirigés, orphelins, ancres pauvres, requête en double (`maillage_etat`) | 03/11/2026 |
@@ -105,18 +105,18 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Redirections | S | portée | écart | S→C1 | Socle 1.11.0 : redirection 301 automatique au changement d'adresse | 03/11/2026 |
 | Liste du blog | S | portée | écart | S→C1 | Recherche, étiquettes, pagination, durée de lecture (`src/lib/blog.ts` → copie) | 03/11/2026 |
 | Image de couverture | S | portée | écart | S→C1 | `cover_url` absent de C1 | 03/11/2026 |
-| RSS | S | portée | écart | S→C1 | `src/routes/rss[.]xml.tsx` absent de C1 | 03/11/2026 |
+| RSS | S | portée | écart | S→C1 | `src/routes/rss[.]xml.tsx` absent de C1 ; socle 1.12.0 : flux par rubrique et par étiquette | 03/11/2026 |
 | « À lire ensuite » | S | portée | écart | S→C1 | Socle 1.11.0 : `lire_ensuite` (pilier et frères, étiquettes, rubrique, série) ; absent de C1 | 03/11/2026 |
 | Partage, signalement | S | portée | écart | S→C1 | `ShareButtons`, `ReportButton` | 03/11/2026 |
 | Commentaires d'articles | S | portée | propre | — | C1 ne les reprend pas (site anonymisé) | 03/11/2026 |
 | Publicité dans le blog | S | portée | propre | — | `AdSlot` : C1 ne le reprend pas | 03/11/2026 |
 | Appel à l'action en fin d'article | C1 | portée | à décider | C1→S | `AppelDemo` → encart réglable du socle | 03/11/2026 |
-| Données structurées article | ⇄ | portée | écart | ⇄ | S : fil d'Ariane ; C1 : relecture et sources (`article-donnees.ts` → copie) | 03/11/2026 |
-| Rendu du texte | ⇄ | portée | écart | ⇄ | S `src/lib/richtext.tsx`, C1 `src/components/Corps.tsx` : deux syntaxes proches → un seul moteur, copie exacte | 03/11/2026 |
+| Données structurées article | S | copie | écart | S→C1 | Socle 1.12.0 : `src/lib/article-donnees.ts` sans dépendance (relecture, sources, auteur, rubrique, étiquettes, série, questions-réponses, type de page) : à copier dans C1 | 03/11/2026 |
+| Rendu du texte | S | copie | écart | S→C1 | Socle 1.12.0 : `src/lib/corps.ts` (analyse, copie exacte) et `CorpsArticle` ; reprend la syntaxe de C1 et ajoute sommaire, encadré, questions-réponses, listes numérotées | 03/11/2026 |
 | Recherche plein texte | C1 | portée | écart | C1→S | Les deux : `unaccent` + racines françaises. C1 ajoute la recherche par début de mot (`:*`) et une configuration sans racine | 03/11/2026 |
 | Plan du site XML | S | portée | écart | ⇄ | S : `lastmod` réel par page ; C1 : programmation respectée | 03/11/2026 |
 | Lexique public | C1 | portée | à décider | C1→S | `/lexique`, `DefinedTerm` : base du lien automatique vers les définitions | 03/11/2026 |
-| Lien Search Console | C1 | portée | écart | C1→S | `lienSearchConsole()` | 03/11/2026 |
+| Lien Search Console | C1 | portée | aligné | C1→S | Socle 1.12.0 : dans `article-donnees.ts` | 03/11/2026 |
 | Pages construites (sections) | S | propre | propre | — | Table `pages` du socle : pages d'atterrissage, distinctes des contenus éditoriaux | 03/11/2026 |
 
 ### Modules
@@ -137,3 +137,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Socle 1.9.0 | Lot 1 : articles du socle dans `contenus_publics`. Nouveaux écarts S→C1 : longueur du corps, colonnes du socle |
 | 03/11/2026 | Socle 1.10.0 | Lot 2 : circuit de rédaction. Nouveaux écarts S→C1 : règles d'écran en copie exacte, circuit simple, exigences réglables, `auteur_nom` |
 | 03/11/2026 | Socle 1.11.0 | Lot 3 : taxonomie et maillage. Nouveaux écarts S→C1 : taxonomie, contrôles de maillage, `maillage.ts`, redirections, « À lire ensuite » |
+| 03/11/2026 | Socle 1.12.0 | Lot 4 : référencement technique. Nouvelles copies exactes S→C1 : `corps.ts`, `article-donnees.ts` ; flux filtrés, plan du site des images |

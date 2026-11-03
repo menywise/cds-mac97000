@@ -8,7 +8,7 @@ import { AdSlot } from "@/components/cds/AdSlot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { listBlogPage } from "@/lib/content.functions";
+import { listBlogPage, listRubriquesBlog } from "@/lib/content.functions";
 import { BLOG_SEARCH_MAX_LENGTH, cleanBlogPage, cleanBlogSearch, cleanBlogTag } from "@/lib/blog";
 import { seo } from "@/lib/seo";
 import { requireFeature } from "@/config/features";
@@ -38,7 +38,11 @@ export const Route = createFileRoute("/blog/")({
   }),
   // Liste filtrée et paginée en base (12 par page), sans le texte des articles.
   loader: async ({ deps }) => {
-    const data = await listBlogPage({ data: deps });
+    const [data, rubriques] = await Promise.all([
+      listBlogPage({ data: deps }),
+      // Navigation par rubrique : un repli silencieux, la liste reste lisible sans elle.
+      listRubriquesBlog().catch(() => [] as Array<{ slug: string; libelle: string }>),
+    ]);
     // Numéro de page au-delà de la dernière : renvoi vers la dernière page.
     if (deps.page > data.pageCount) {
       throw redirect({
@@ -51,7 +55,7 @@ export const Route = createFileRoute("/blog/")({
         replace: true,
       });
     }
-    return data;
+    return { ...data, rubriques };
   },
   head: ({ match }) =>
     seo({
@@ -74,7 +78,7 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
-  const { posts, page, pageCount, tags } = Route.useLoaderData();
+  const { posts, page, pageCount, tags, rubriques } = Route.useLoaderData();
   const { q = "", tag = null } = Route.useSearch();
   const navigate = useNavigate();
   const [query, setQuery] = useState(q);
@@ -127,6 +131,25 @@ function BlogIndex() {
           Vous cherchez des repères fiables plutôt que des avis tranchés. Chaque article part d'une
           situation réelle et se termine par ce que vous pouvez appliquer aujourd'hui.
         </p>
+
+        {rubriques.length > 0 ? (
+          <nav aria-label="Rubriques" className="mt-6">
+            <ul className="flex flex-wrap gap-2 rounded-xl border border-border bg-card p-3">
+              {rubriques.map((r) => (
+                <li key={r.slug}>
+                  <Link
+                    to="/blog/rubrique/$slug"
+                    params={{ slug: r.slug }}
+                    title={`Tous les articles de la rubrique « ${r.libelle} »`}
+                    className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm font-medium text-foreground hover:border-primary"
+                  >
+                    {r.libelle}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
 
         <div className="mt-6 space-y-3">
           <div className="space-y-1.5">

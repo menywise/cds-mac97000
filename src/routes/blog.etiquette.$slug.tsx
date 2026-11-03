@@ -19,14 +19,24 @@ export const Route = createFileRoute("/blog/etiquette/$slug")({
   },
   head: ({ loaderData, params }) => {
     const e = loaderData?.etiquette;
+    const seoBase = seo({
+      title: e ? `${e.libelle} — Blog` : "Étiquette",
+      description: clampText(e?.definition || `Les articles sur : ${e?.libelle ?? ""}.`, 160),
+      path: `/blog/etiquette/${params.slug}`,
+      type: "website",
+      ...(loaderData && !loaderData.indexable ? { noindex: true } : {}),
+    });
     return {
-      ...seo({
-        title: e ? `${e.libelle} — Blog` : "Étiquette",
-        description: clampText(e?.definition || `Les articles sur : ${e?.libelle ?? ""}.`, 160),
-        path: `/blog/etiquette/${params.slug}`,
-        type: "website",
-        ...(loaderData && !loaderData.indexable ? { noindex: true } : {}),
-      }),
+      ...seoBase,
+      links: [
+        ...seoBase.links,
+        {
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: `Flux RSS : ${e?.libelle ?? ""}`,
+          href: `/rss.xml?etiquette=${params.slug}`,
+        },
+      ],
       scripts: [
         breadcrumbJsonLd([
           { name: "Accueil", path: "/" },

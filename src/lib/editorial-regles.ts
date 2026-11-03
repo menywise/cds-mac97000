@@ -38,6 +38,8 @@ export type ReglagesEditoriaux = {
   avertissement: string;
   /** Articles à partir desquels une page d'étiquette est indexée (socle 1.11.0). */
   seuil_etiquette: number;
+  /** Type de page des articles dans les données structurées (socle 1.12.0). */
+  type_page: "WebPage" | "MedicalWebPage";
 };
 
 export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
@@ -50,6 +52,7 @@ export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
   auteur_mode: "fonction",
   avertissement: "",
   seuil_etiquette: 3,
+  type_page: "WebPage",
 };
 
 /** Réglages lus en base, complétés par les valeurs par défaut (valeur absente ou d'un autre type). */
@@ -75,6 +78,7 @@ export function lireReglages(valeur: unknown): ReglagesEditoriaux {
       Number.isInteger(seuil) && seuil >= 1 && seuil <= 50
         ? seuil
         : REGLAGES_PAR_DEFAUT.seuil_etiquette,
+    type_page: v["type_page"] === "MedicalWebPage" ? "MedicalWebPage" : "WebPage",
   };
 }
 

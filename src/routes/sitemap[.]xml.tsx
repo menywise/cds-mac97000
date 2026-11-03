@@ -11,7 +11,7 @@ import { listSitemapProducts } from "@/lib/shop.functions";
 import { listDirectorySitemap } from "@/lib/directory.functions";
 import { fallbackSiteConfig } from "@/lib/site-config";
 import { GREFFE } from "@/greffe";
-import { lastmodLine, latestDay, toDay } from "@/lib/sitemap";
+import { imageLines, lastmodLine, latestDay, toDay } from "@/lib/sitemap";
 
 type SitemapPage = {
   path: string;
@@ -20,6 +20,8 @@ type SitemapPage = {
   module?: FeatureKey;
   /** Date réelle de dernière modification (AAAA-MM-JJ) ; absente quand le site ne la connaît pas. */
   lastmod?: string | undefined;
+  /** Images de la page (plan du site des images), adresses absolues. */
+  images?: Array<{ loc: string; title?: string }>;
 };
 
 /** Pages publiques indexables, avec leur priorité et le module dont elles dépendent. */
@@ -154,6 +156,18 @@ export const Route = createFileRoute("/sitemap.xml")({
               priority: "0.8",
               changefreq: "monthly",
               lastmod: toDay(post.updated_at ?? post.published_at),
+              ...(post.image_url
+                ? {
+                    images: [
+                      {
+                        loc: /^https:\/\//.test(post.image_url)
+                          ? post.image_url
+                          : `${base}${post.image_url.startsWith("/") ? "" : "/"}${post.image_url}`,
+                        title: post.image_alt || post.titre,
+                      },
+                    ],
+                  }
+                : {}),
             });
           }
           indexDates.set("/blog", latestDay(posts.map((p) => p.updated_at ?? p.published_at)));
@@ -177,11 +191,11 @@ export const Route = createFileRoute("/sitemap.xml")({
           return lastmod ? { ...page, lastmod } : page;
         });
         const body = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${[...statics, ...dynamic]
   .map(
     (page) =>
-      `  <url>\n    <loc>${base}${page.path === "/" ? "/" : page.path}</loc>\n${lastmodLine(page.lastmod)}    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>`,
+      `  <url>\n    <loc>${base}${page.path === "/" ? "/" : page.path}</loc>\n${lastmodLine(page.lastmod)}    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n${imageLines(page.images)}  </url>`,
   )
   .join("\n")}
 </urlset>
