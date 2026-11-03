@@ -229,6 +229,7 @@ export const QA_PAGES: QaPage[] = [
   { path: "/admin/modules", label: "Modules", role: "admin" },
   { path: "/admin/utilisateurs", label: "Utilisateurs", role: "admin" },
   { path: "/admin/contenus", label: "Contenus", role: "admin", anyOf: ["faq", "pricing", "blog"] },
+  { path: "/editorial", label: "Éditorial", role: "admin", module: "blog" },
   { path: "/admin/pages", label: "Pages", role: "admin", module: "pages" },
   { path: "/admin/mediatheque", label: "Médiathèque", role: "admin", module: "media" },
   {

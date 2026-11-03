@@ -7,6 +7,7 @@ INSERT INTO auth.users (id, email) VALUES
   ('00000000-0000-0000-0000-0000000000a2', 'membre@test.fr');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a1', 'admin@test.fr');
 SELECT public.bootstrap_current_user('Administrateur');
+RESET ROLE;
 INSERT INTO public.contenus_publics (id, slug, titre, publie) VALUES ('00000000-0000-0000-0000-0000000000b1', 'article', 'Article', true);
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a2', 'membre@test.fr');
 SELECT public.bootstrap_current_user('Membre');

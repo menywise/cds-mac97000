@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { bootstrapCurrentUser, useAuth } from "@/hooks/useAuth";
 import { seo } from "@/lib/seo";
 import { isFeatureOn, withActiveModules } from "@/config/features";
+import { useDroitsEditorial } from "@/lib/editorial";
 
 export const Route = createFileRoute("/_authenticated/tableau-de-bord")({
   head: () =>
@@ -42,6 +43,13 @@ const raccourcis = [
     desc: "Demandes envoyées par le formulaire",
     title: "Consulter les messages reçus",
     module: "contact",
+  },
+  {
+    to: "/editorial",
+    label: "Éditorial",
+    desc: "Écrire, relire et publier les articles",
+    title: "Ouvrir le poste Éditorial",
+    module: "blog",
   },
   {
     to: "/profil",
@@ -83,6 +91,7 @@ type FollowedTopic = { id: string; title: string; last_activity_at: string };
 
 function DashboardPage() {
   const { user } = useAuth();
+  const droitsEditorial = useDroitsEditorial();
   const [role, setRole] = useState<"admin" | "user" | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [followed, setFollowed] = useState<FollowedTopic[] | null>(null);
@@ -256,7 +265,11 @@ function DashboardPage() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {withActiveModules(raccourcis)
             .filter(
-              (item) => role === "admin" || (item.to !== "/admin" && item.to !== "/admin/messages"),
+              (item) =>
+                role === "admin" ||
+                (item.to !== "/admin" &&
+                  item.to !== "/admin/messages" &&
+                  (item.to !== "/editorial" || droitsEditorial?.ecrit === true)),
             )
             .map((item) => (
               <Link

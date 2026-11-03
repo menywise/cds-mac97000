@@ -223,6 +223,7 @@ const SOCLE_PROTECTED_PATHS: ReadonlyArray<{ prefix: string; anyOf: readonly Fea
   { prefix: "/admin/boutique", anyOf: ["shop"] },
   { prefix: "/admin/conformite", anyOf: ["studio"] },
   { prefix: "/admin/contenus", anyOf: ["faq", "pricing", "blog"] },
+  { prefix: "/editorial", anyOf: ["blog"] },
   { prefix: "/admin/crm", anyOf: ["crm"] },
   { prefix: "/admin/formations", anyOf: ["lms"] },
   { prefix: "/admin/forum", anyOf: ["forum"] },

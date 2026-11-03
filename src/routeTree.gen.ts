@@ -40,6 +40,7 @@ import { Route as VerificationEmailRouteImport } from './routes/verification-ema
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedCompteRouteImport } from './routes/_authenticated/compte'
 import { Route as AuthenticatedDecouvrirRouteImport } from './routes/_authenticated/decouvrir'
+import { Route as AuthenticatedEditorialRouteImport } from './routes/_authenticated/editorial'
 import { Route as AuthenticatedMesAchatsRouteImport } from './routes/_authenticated/mes-achats'
 import { Route as AuthenticatedMesAnnoncesRouteImport } from './routes/_authenticated/mes-annonces'
 import { Route as AuthenticatedMesFichesRouteImport } from './routes/_authenticated/mes-fiches'
@@ -265,6 +266,11 @@ const AuthenticatedCompteRoute = AuthenticatedCompteRouteImport.update({
 const AuthenticatedDecouvrirRoute = AuthenticatedDecouvrirRouteImport.update({
   id: '/decouvrir',
   path: '/decouvrir',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEditorialRoute = AuthenticatedEditorialRouteImport.update({
+  id: '/editorial',
+  path: '/editorial',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMesAchatsRoute = AuthenticatedMesAchatsRouteImport.update({
@@ -682,6 +688,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/compte': typeof AuthenticatedCompteRoute
   '/decouvrir': typeof AuthenticatedDecouvrirRoute
+  '/editorial': typeof AuthenticatedEditorialRoute
   '/mes-achats': typeof AuthenticatedMesAchatsRoute
   '/mes-annonces': typeof AuthenticatedMesAnnoncesRoute
   '/mes-fiches': typeof AuthenticatedMesFichesRoute
@@ -785,6 +792,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/compte': typeof AuthenticatedCompteRoute
   '/decouvrir': typeof AuthenticatedDecouvrirRoute
+  '/editorial': typeof AuthenticatedEditorialRoute
   '/mes-achats': typeof AuthenticatedMesAchatsRoute
   '/mes-annonces': typeof AuthenticatedMesAnnoncesRoute
   '/mes-fiches': typeof AuthenticatedMesFichesRoute
@@ -890,6 +898,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/compte': typeof AuthenticatedCompteRoute
   '/_authenticated/decouvrir': typeof AuthenticatedDecouvrirRoute
+  '/_authenticated/editorial': typeof AuthenticatedEditorialRoute
   '/_authenticated/mes-achats': typeof AuthenticatedMesAchatsRoute
   '/_authenticated/mes-annonces': typeof AuthenticatedMesAnnoncesRoute
   '/_authenticated/mes-fiches': typeof AuthenticatedMesFichesRoute
@@ -995,6 +1004,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/compte'
     | '/decouvrir'
+    | '/editorial'
     | '/mes-achats'
     | '/mes-annonces'
     | '/mes-fiches'
@@ -1098,6 +1108,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/compte'
     | '/decouvrir'
+    | '/editorial'
     | '/mes-achats'
     | '/mes-annonces'
     | '/mes-fiches'
@@ -1202,6 +1213,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/compte'
     | '/_authenticated/decouvrir'
+    | '/_authenticated/editorial'
     | '/_authenticated/mes-achats'
     | '/_authenticated/mes-annonces'
     | '/_authenticated/mes-fiches'
@@ -1559,6 +1571,13 @@ declare module '@tanstack/react-router' {
       path: '/decouvrir'
       fullPath: '/decouvrir'
       preLoaderRoute: typeof AuthenticatedDecouvrirRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/editorial': {
+      id: '/_authenticated/editorial'
+      path: '/editorial'
+      fullPath: '/editorial'
+      preLoaderRoute: typeof AuthenticatedEditorialRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mes-achats': {
@@ -2064,6 +2083,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompteRoute: typeof AuthenticatedCompteRoute
   AuthenticatedDecouvrirRoute: typeof AuthenticatedDecouvrirRoute
+  AuthenticatedEditorialRoute: typeof AuthenticatedEditorialRoute
   AuthenticatedMesAchatsRoute: typeof AuthenticatedMesAchatsRoute
   AuthenticatedMesAnnoncesRoute: typeof AuthenticatedMesAnnoncesRoute
   AuthenticatedMesFichesRoute: typeof AuthenticatedMesFichesRoute
@@ -2105,6 +2125,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompteRoute: AuthenticatedCompteRoute,
   AuthenticatedDecouvrirRoute: AuthenticatedDecouvrirRoute,
+  AuthenticatedEditorialRoute: AuthenticatedEditorialRoute,
   AuthenticatedMesAchatsRoute: AuthenticatedMesAchatsRoute,
   AuthenticatedMesAnnoncesRoute: AuthenticatedMesAnnoncesRoute,
   AuthenticatedMesFichesRoute: AuthenticatedMesFichesRoute,

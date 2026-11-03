@@ -92,10 +92,11 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Modèle des articles | C1 | portée | aligné | C1→S | Socle 1.9.0 : `contenus_publics` remplace `blog_posts`. Restent au lot 2 : `statut` et les champs du circuit | 03/11/2026 |
 | Longueur du corps | S | portée | écart | S→C1 | Socle : 100 000 caractères (guides piliers) ; C1 : 30 000 | 03/11/2026 |
 | Colonnes du socle absentes de C1 | S | portée | écart | S→C1 | `image_url`, `image_alt`, `etiquettes`, `auteur_id` | 03/11/2026 |
-| Circuit de rédaction | C1 | portée | écart | C1→S | Statuts, passages, journal, versions (lot 2) | 03/11/2026 |
-| Manques avant publication | C1 | portée | écart | C1→S | `manques_publication()` ; miroir écran `manquesSaisie()` → copie exacte | 03/11/2026 |
-| Termes interdits | C1 | portée | écart | C1→S | `termes_interdits_publics`, `contenus_publics_a_revoir()` ; liste des noms par une accroche | 03/11/2026 |
-| Sources, relecture, auteur | C1 | portée | écart | C1→S | `sources`, `relu_le`, `auteur_fonction`, avertissement réglable | 03/11/2026 |
+| Circuit de rédaction | C1 | portée | aligné | C1→S | Socle 1.10.0 : statuts, passages, journal, versions. Le socle ajoute le circuit simple (S→C1 à décider) | 03/11/2026 |
+| Manques avant publication | C1 | portée | aligné | C1→S | Socle 1.10.0, exigences réglables | 03/11/2026 |
+| Règles d'écran du circuit | S | copie | écart | S→C1 | `src/lib/editorial-regles.ts`, sans dépendance : à copier tel quel dans C1 (remplace une partie de son `editorial.ts`) | 03/11/2026 |
+| Termes interdits | C1 | portée | aligné | C1→S | Socle 1.10.0 ; noms d'une installation par `greffe_termes_nominatifs`. C1 garde sa version à expressions régulières (personnes, chirurgiens) | 03/11/2026 |
+| Sources, relecture, auteur | C1 | portée | aligné | C1→S | Socle 1.10.0 ; le socle ajoute `auteur_nom` et l'affichage par réglage (D3) | 03/11/2026 |
 | Liens de sources morts | C1 | portée | écart | C1→S | `liens_sources_etat` | 03/11/2026 |
 | Pilier et satellites | C1 | portée | écart | C1→S | `est_pilier`, `pilier_id`, `renvoieVersPilier()` | 03/11/2026 |
 | Liste du blog | S | portée | écart | S→C1 | Recherche, étiquettes, pagination, durée de lecture (`src/lib/blog.ts` → copie) | 03/11/2026 |
@@ -130,3 +131,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 |---|---|---|
 | 03/11/2026 | Création | Mesure des deux dépôts, première version du registre, décision « modèle `contenus_publics` » |
 | 03/11/2026 | Socle 1.9.0 | Lot 1 : articles du socle dans `contenus_publics`. Nouveaux écarts S→C1 : longueur du corps, colonnes du socle |
+| 03/11/2026 | Socle 1.10.0 | Lot 2 : circuit de rédaction. Nouveaux écarts S→C1 : règles d'écran en copie exacte, circuit simple, exigences réglables, `auteur_nom` |

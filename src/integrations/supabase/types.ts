@@ -341,22 +341,30 @@ export type Database = {
         Row: {
           auteur_fonction: string
           auteur_id: string | null
+          auteur_nom: string
           chapo: string
           corps: string
           created_at: string
+          date_prevue: string | null
           description: string
+          est_pilier: boolean
           etiquettes: string[]
           id: string
           image_alt: string
           image_url: string | null
           libelle_menu: string
           ordre: number
+          pilier_id: string | null
+          public_vise: string
           publie: boolean
           publie_le: string | null
           relu_le: string | null
+          relu_par: string | null
+          requete_visee: string
           search_doc: unknown
           slug: string
           sources: string
+          statut: string
           titre: string
           type: string
           updated_at: string
@@ -365,22 +373,30 @@ export type Database = {
         Insert: {
           auteur_fonction?: string
           auteur_id?: string | null
+          auteur_nom?: string
           chapo?: string
           corps?: string
           created_at?: string
+          date_prevue?: string | null
           description?: string
+          est_pilier?: boolean
           etiquettes?: string[]
           id?: string
           image_alt?: string
           image_url?: string | null
           libelle_menu?: string
           ordre?: number
+          pilier_id?: string | null
+          public_vise?: string
           publie?: boolean
           publie_le?: string | null
           relu_le?: string | null
+          relu_par?: string | null
+          requete_visee?: string
           search_doc?: unknown
           slug: string
           sources?: string
+          statut?: string
           titre: string
           type?: string
           updated_at?: string
@@ -389,28 +405,124 @@ export type Database = {
         Update: {
           auteur_fonction?: string
           auteur_id?: string | null
+          auteur_nom?: string
           chapo?: string
           corps?: string
           created_at?: string
+          date_prevue?: string | null
           description?: string
+          est_pilier?: boolean
           etiquettes?: string[]
           id?: string
           image_alt?: string
           image_url?: string | null
           libelle_menu?: string
           ordre?: number
+          pilier_id?: string | null
+          public_vise?: string
           publie?: boolean
           publie_le?: string | null
           relu_le?: string | null
+          relu_par?: string | null
+          requete_visee?: string
           search_doc?: unknown
           slug?: string
           sources?: string
+          statut?: string
           titre?: string
           type?: string
           updated_at?: string
           updated_by?: string | null
         }
         Relationships: []
+      }
+      contenus_publics_journal: {
+        Row: {
+          auto: boolean
+          contenu_id: string
+          created_at: string
+          de: string | null
+          id: string
+          motif: string
+          par: string | null
+          vers: string
+        }
+        Insert: {
+          auto?: boolean
+          contenu_id: string
+          created_at?: string
+          de?: string | null
+          id?: string
+          motif?: string
+          par?: string | null
+          vers: string
+        }
+        Update: {
+          auto?: boolean
+          contenu_id?: string
+          created_at?: string
+          de?: string | null
+          id?: string
+          motif?: string
+          par?: string | null
+          vers?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contenus_publics_journal_contenu_id_fkey"
+            columns: ["contenu_id"]
+            isOneToOne: false
+            referencedRelation: "contenus_publics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contenus_publics_versions: {
+        Row: {
+          chapo: string
+          contenu_id: string
+          corps: string
+          created_at: string
+          description: string
+          id: string
+          numero: number
+          par: string | null
+          sources: string
+          titre: string
+        }
+        Insert: {
+          chapo: string
+          contenu_id: string
+          corps: string
+          created_at?: string
+          description: string
+          id?: string
+          numero: number
+          par?: string | null
+          sources: string
+          titre: string
+        }
+        Update: {
+          chapo?: string
+          contenu_id?: string
+          corps?: string
+          created_at?: string
+          description?: string
+          id?: string
+          numero?: number
+          par?: string | null
+          sources?: string
+          titre?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contenus_publics_versions_contenu_id_fkey"
+            columns: ["contenu_id"]
+            isOneToOne: false
+            referencedRelation: "contenus_publics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -2325,6 +2437,30 @@ export type Database = {
         }
         Relationships: []
       }
+      termes_interdits_publics: {
+        Row: {
+          categorie: string
+          created_at: string
+          created_by: string | null
+          id: string
+          terme: string
+        }
+        Insert: {
+          categorie?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          terme: string
+        }
+        Update: {
+          categorie?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          terme?: string
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           approved: boolean
@@ -2405,54 +2541,7 @@ export type Database = {
       }
     }
     Views: {
-      blog_posts: {
-        Row: {
-          author_id: string | null
-          content: string | null
-          cover_url: string | null
-          created_at: string | null
-          excerpt: string | null
-          id: string | null
-          published: boolean | null
-          published_at: string | null
-          search_doc: unknown
-          slug: string | null
-          tags: string[] | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          author_id?: string | null
-          content?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          excerpt?: string | null
-          id?: string | null
-          published?: boolean | null
-          published_at?: string | null
-          search_doc?: unknown
-          slug?: string | null
-          tags?: string[] | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          author_id?: string | null
-          content?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          excerpt?: string | null
-          id?: string | null
-          published?: boolean | null
-          published_at?: string | null
-          search_doc?: unknown
-          slug?: string | null
-          tags?: string[] | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       ad_campaign_is_live: { Args: { _campaign_id: string }; Returns: boolean }
@@ -2472,6 +2561,7 @@ export type Database = {
         Args: { _admin: boolean; _user_id: string }
         Returns: undefined
       }
+      admin_set_editor: { Args: { _editor: boolean; _user_id: string }; Returns: undefined }
       bootstrap_current_user: {
         Args: { _full_name?: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -2480,6 +2570,21 @@ export type Database = {
         Args: { _lesson_id: string; _user_id: string }
         Returns: boolean
       }
+      can_write_content: { Args: { _user_id: string }; Returns: boolean }
+      changer_statut_contenu: {
+        Args: { _id: string; _motif?: string; _publie_le?: string; _vers: string }
+        Returns: undefined
+      }
+      contenus_publics_a_revoir: {
+        Args: never
+        Returns: {
+          id: string
+          slug: string
+          termes: string[]
+          titre: string
+          type: string
+        }[]
+      }
       delete_my_account: { Args: never; Returns: undefined }
       directory_departement_counts: {
         Args: never
@@ -2487,6 +2592,23 @@ export type Database = {
           departement: string
           listings: number
         }[]
+      }
+      directory_listing_modifiable: { Args: { _id: string }; Returns: boolean }
+      directory_listing_visible: { Args: { _id: string }; Returns: boolean }
+      editorial_defaults: { Args: never; Returns: Json }
+      editorial_etat: {
+        Args: never
+        Returns: {
+          codes: string[]
+          id: string
+          manques: string[]
+          statut_lu: string
+        }[]
+      }
+      editorial_reglages: { Args: never; Returns: Json }
+      en_perimetre: {
+        Args: { "": Database["public"]["Tables"]["template_checks"]["Row"] }
+        Returns: boolean
       }
       forum_author_name: { Args: { _user_id: string }; Returns: string }
       forum_category_counts: {
@@ -2524,6 +2646,50 @@ export type Database = {
           topic_id: string
         }[]
       }
+      geo_communes_principales: {
+        Args: { _departement: string; _limit?: number; _pays?: string }
+        Returns: { code: string; name: string; population: number | null }[]
+      }
+      geo_compute_neighbours: {
+        Args: { _departement?: string | null; _rayon_km?: number; _max?: number; _limit?: number }
+        Returns: number
+      }
+      geo_distance_km: {
+        Args: { _lat1: number; _lat2: number; _lon1: number; _lon2: number }
+        Returns: number
+      }
+      geo_importer: { Args: { _lignes: Json }; Returns: number }
+      geo_lieu: {
+        Args: { _kind: string; _code: string; _pays?: string }
+        Returns: {
+          kind: string
+          code: string
+          name: string
+          slug: string
+          parent_code: string | null
+          epci_code: string | null
+          postal_codes: string[]
+          population: number | null
+          latitude: number | null
+          longitude: number | null
+        }[]
+      }
+      geo_neighbours: {
+        Args: { _code: string; _limit?: number }
+        Returns: { code: string; name: string; population: number | null; distance_km: number | null }[]
+      }
+      geo_search: {
+        Args: { _q: string; _kinds?: string[] | null; _limit?: number }
+        Returns: {
+          kind: string
+          code: string
+          name: string
+          parent_code: string | null
+          postal_codes: string[]
+          population: number | null
+        }[]
+      }
+      geo_status: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2554,62 +2720,24 @@ export type Database = {
           video_url: string
         }[]
       }
+      manques_publication: {
+        Args: { _id: string }
+        Returns: {
+          code: string
+          message: string
+        }[]
+      }
       member_accepts_messages: { Args: { _user_id: string }; Returns: boolean }
       module_defaults: { Args: never; Returns: Json }
-      module_socle_keys: { Args: never; Returns: string[] }
-      geo_compute_neighbours: {
-        Args: { _departement?: string | null; _rayon_km?: number; _max?: number; _limit?: number }
-        Returns: number
-      }
-      geo_distance_km: {
-        Args: { _lat1: number; _lat2: number; _lon1: number; _lon2: number }
-        Returns: number
-      }
-      geo_neighbours: {
-        Args: { _code: string; _limit?: number }
-        Returns: { code: string; name: string; population: number | null; distance_km: number | null }[]
-      }
-      geo_communes_principales: {
-        Args: { _departement: string; _limit?: number; _pays?: string }
-        Returns: { code: string; name: string; population: number | null }[]
-      }
-      geo_importer: { Args: { _lignes: Json }; Returns: number }
-      geo_lieu: {
-        Args: { _kind: string; _code: string; _pays?: string }
-        Returns: {
-          kind: string
-          code: string
-          name: string
-          slug: string
-          parent_code: string | null
-          epci_code: string | null
-          postal_codes: string[]
-          population: number | null
-          latitude: number | null
-          longitude: number | null
-        }[]
-      }
-      geo_status: { Args: never; Returns: Json }
-      geo_search: {
-        Args: { _q: string; _kinds?: string[] | null; _limit?: number }
-        Returns: {
-          kind: string
-          code: string
-          name: string
-          parent_code: string | null
-          postal_codes: string[]
-          population: number | null
-        }[]
-      }
       module_enabled: { Args: { _key: string }; Returns: boolean }
-      en_perimetre: {
-        Args: { "": Database["public"]["Tables"]["template_checks"]["Row"] }
-        Returns: boolean
-      }
-      module_is_greffe: { Args: { _key: string }; Returns: boolean }
       module_greffe_values: { Args: { _value: Json }; Returns: Json }
-      directory_listing_visible: { Args: { _id: string }; Returns: boolean }
-      directory_listing_modifiable: { Args: { _id: string }; Returns: boolean }
+      module_is_greffe: { Args: { _key: string }; Returns: boolean }
+      module_socle_keys: { Args: never; Returns: string[] }
+      newsletter_known_source: { Args: { _source: string }; Returns: string }
+      newsletter_subscribe: {
+        Args: { _email: string; _first_name?: string; _source?: string }
+        Returns: undefined
+      }
       payment_attach_session: {
         Args: { _payment_id: string; _session_id: string }
         Returns: undefined
@@ -2638,11 +2766,6 @@ export type Database = {
           product_label: string
           superseded_sessions: string[]
         }[]
-      }
-      newsletter_known_source: { Args: { _source: string }; Returns: string }
-      newsletter_subscribe: {
-        Args: { _email: string; _first_name?: string; _source?: string }
-        Returns: undefined
       }
       purge_contact_messages: { Args: never; Returns: number }
       purge_report_contacts: { Args: never; Returns: number }
@@ -2699,7 +2822,6 @@ export type Database = {
         }[]
       }
       search_tags: { Args: { _tags: string[] }; Returns: string }
-      sources_valides: { Args: { _sources: string }; Returns: boolean }
       shop_download: {
         Args: { _item_id: string; _user_id: string }
         Returns: {
@@ -2727,13 +2849,18 @@ export type Database = {
           total_cents: number
         }[]
       }
+      sources_valides: { Args: { _sources: string }; Returns: boolean }
       starter_reset_demo: { Args: { _scope: string }; Returns: Json }
       starter_status: { Args: never; Returns: Json }
+      statut_effectif: {
+        Args: { _publie_le: string; _relu_le: string; _statut: string; _type: string }
+        Returns: string
+      }
       tables_sans_protection: { Args: never; Returns: string[] }
       valid_page_data: { Args: { _data: Json }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2861,7 +2988,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "editor"],
     },
   },
 } as const

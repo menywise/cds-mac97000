@@ -40,7 +40,7 @@ dossiers piliers).
 
 | # | Question | Recommandation |
 |---|---|---|
-| D1 | Rôle « rédacteur » dans le socle ? Le circuit en a besoin. | Oui : ajouter `editor` à `app_role`, fonction `private.can_write_content()` commune. |
+| D1 | Rôle « rédacteur » dans le socle ? Le circuit en a besoin. **Appliqué au lot 2 (`editor`).** | Oui : ajouter `editor` à `app_role`, fonction `private.can_write_content()` commune. |
 | D2 | Noms français (`contenus_publics`, `titre`) dans un socle aux noms anglais ? **Appliqué au lot 1.** | Oui, garder les noms du premier clone. Renommer côté C1 coûterait plus cher et casserait sa production. Noté comme écart assumé. |
 | D3 | Auteur : fonction seule (C1) ou personne nommée ? | **Tranché le 03/11/2026 : les deux, par réglage.** `auteur_mode` : `fonction` ou `nomme` (page auteur). Affichage au lot 2. |
 | D4 | Commentaires d'articles | Module à part, éteint par défaut. Rattachés à `contenus_publics.id`. |
@@ -102,6 +102,23 @@ perte de référencement.
 Retour vers C1 : rien à ce lot. C1 a déjà la table ; il ajoutera les colonnes du socle au lot 3.
 
 ### Lot 2 — Circuit de rédaction et garde-fous (version 1.10.0)
+
+**Fait le 03/11/2026** : migration `20261103140000_v1_10_0_circuit_editorial.sql`, blocs
+`supabase/seed/v1_10_0/`, test `tests/db/test_31`, poste `/editorial`, règles d'écran
+`src/lib/editorial-regles.ts`. Écarts assumés par rapport au texte ci-dessous :
+
+- **circuit simple** ajouté en réglage (`circuit`) : un admin publie une rédaction directement, la
+  publication vaut relecture ; parade au risque « circuit trop lourd pour un petit site » ;
+- **exigences réglables** : `exiger_sources`, `exiger_relecture`, `exiger_auteur`, `longueurs_seo`,
+  toutes allumées par défaut ; l'auteur exigé suit l'affichage choisi (D3 : fonction ou nom) ;
+- **termes interdits sans expression régulière** : texte et terme ramenés à des mots sans accents,
+  recherche par inclusion (les blocs refusent l'antislash) ; l'accroche des noms d'une installation
+  est une fonction `greffe_termes_nominatifs`, appelée si elle existe ;
+- **opération serveur** reconnue au rôle de la session (ni `authenticated`, ni `anon`) : clé de
+  service, éditeur SQL, migrations ;
+- fonctions dans `public` (le socle n'a pas de schéma `private`), réglages dans `site_settings` ;
+- **reste à faire** : `liens_sources_etat` (vérification des liens de sources) passe au lot 4, avec
+  le contrôle des liens internes.
 
 Repris de C1 (`20270226120000_editorial_pilotage.sql`, `docs/editorial/circuit.md`).
 

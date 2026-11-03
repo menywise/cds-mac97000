@@ -1,5 +1,6 @@
--- Socle 1.9.0 : les articles vivent dans contenus_publics (modèle commun). Vue de compatibilité
--- blog_posts, règles d'accès inchangées, longueurs bornées, adresse unique par type, recherche.
+-- Socle 1.9.0 : les articles vivent dans contenus_publics (modèle commun). Règles d'accès,
+-- longueurs bornées, adresse unique par type, recherche. La vue blog_posts (1.9.0) est retirée en
+-- 1.10.0 : test_31.
 \set ON_ERROR_STOP 1
 \i tests/db/_helpers.sql
 BEGIN;
@@ -17,8 +18,6 @@ RESET ROLE;
 DO $$ BEGIN
   IF (SELECT relkind FROM pg_class WHERE oid = 'public.contenus_publics'::regclass) <> 'r' THEN
     RAISE EXCEPTION 'contenus_publics doit être une table'; END IF;
-  IF (SELECT relkind FROM pg_class WHERE oid = 'public.blog_posts'::regclass) <> 'v' THEN
-    RAISE EXCEPTION 'blog_posts doit être la vue de compatibilité'; END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'blog_comments_post_id_fkey'
                  AND confrelid = 'public.contenus_publics'::regclass) THEN
     RAISE EXCEPTION 'la clé des commentaires doit viser contenus_publics'; END IF;
@@ -44,8 +43,6 @@ END $$;
 SELECT pg_temp.as_anon();
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.contenus_publics WHERE id::text LIKE '00000000-%') <> 1 THEN RAISE EXCEPTION 'visiteur : publiés seulement'; END IF;
-  IF (SELECT count(*) FROM public.blog_posts WHERE id::text LIKE '00000000-%') <> 1 THEN RAISE EXCEPTION 'vue : règles de la table pour le visiteur'; END IF;
-  IF (SELECT title FROM public.blog_posts WHERE id::text LIKE '00000000-%') <> 'Article publié' THEN RAISE EXCEPTION 'vue : anciens noms de colonnes'; END IF;
 END $$;
 SELECT pg_temp.expect_error($$INSERT INTO public.contenus_publics (slug, titre) VALUES ('pirate', 'Article pirate')$$, 'visiteur écrit');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a2', 'membre@test.fr');
@@ -53,25 +50,13 @@ DO $$ BEGIN
   IF (SELECT count(*) FROM public.contenus_publics WHERE id::text LIKE '00000000-%') <> 1 THEN RAISE EXCEPTION 'membre : publiés seulement'; END IF;
 END $$;
 SELECT pg_temp.expect_error($$INSERT INTO public.contenus_publics (slug, titre) VALUES ('membre', 'Article de membre')$$, 'membre écrit');
-SELECT pg_temp.expect_error($$INSERT INTO public.blog_posts (slug, title) VALUES ('membre', 'Article de membre')$$, 'membre écrit par la vue');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a1', 'admin@test.fr');
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.contenus_publics WHERE id::text LIKE '00000000-%') <> 2 THEN RAISE EXCEPTION 'admin : brouillons compris'; END IF;
 END $$;
 
--- 4. Vue de compatibilité : l'ancien code admin écrit encore ---------------------------------------
-INSERT INTO public.blog_posts (id, slug, title, excerpt, content, published, tags)
-  VALUES ('00000000-0000-0000-0000-0000000000b3', 'par-la-vue', 'Écrit par la vue', 'Résumé', 'Texte', false, '{a}');
-UPDATE public.blog_posts SET title = 'Modifié par la vue' WHERE id = '00000000-0000-0000-0000-0000000000b3';
-DO $$ BEGIN
-  IF (SELECT titre || '/' || type FROM public.contenus_publics WHERE id = '00000000-0000-0000-0000-0000000000b3')
-     <> 'Modifié par la vue/article' THEN RAISE EXCEPTION 'écriture par la vue'; END IF;
-END $$;
+-- 4. Pages et articles dans la même table --------------------------------------------------------
 INSERT INTO public.contenus_publics (id, type, slug, titre) VALUES ('00000000-0000-0000-0000-0000000000b4', 'page', 'une-page', 'Une page');
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM public.blog_posts WHERE id = '00000000-0000-0000-0000-0000000000b4') THEN
-    RAISE EXCEPTION 'la vue ne montre que les articles'; END IF;
-END $$;
 SELECT pg_temp.expect_error($$INSERT INTO public.contenus_publics (type, slug, titre) VALUES ('page', 'une-page', 'Doublon de page')$$, 'deux pages même adresse');
 
 -- 5. Adresse unique par type, longueurs -------------------------------------------------------------

@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getPost } from "@/lib/content.functions";
 import { RichText } from "@/lib/richtext";
 import { readingMinutes } from "@/lib/reading";
+import { auteurAffiche, dateSimple, lireSources } from "@/lib/editorial-regles";
 import { absoluteUrl } from "@/lib/site-config";
 import { breadcrumbJsonLd, jsonLdScript, seo } from "@/lib/seo";
 import { requireFeature } from "@/config/features";
@@ -73,7 +74,9 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { post, comments, related } = Route.useLoaderData();
+  const { post, comments, related, editorial } = Route.useLoaderData();
+  const auteur = auteurAffiche(post, editorial.auteur_mode);
+  const sources = lireSources(post.sources);
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -126,6 +129,8 @@ function BlogPostPage() {
         ) : null}
         <p className="mt-1 text-xs text-muted-foreground">
           {readingMinutes(post.content)} min de lecture
+          {post.relu_le ? ` · relu le ${dateSimple(post.relu_le)}` : ""}
+          {auteur ? ` · ${auteur}` : ""}
         </p>
         <p className="mt-4 text-sm font-medium text-foreground">{post.excerpt}</p>
 
@@ -143,6 +148,38 @@ function BlogPostPage() {
         ) : null}
 
         <RichText value={post.content} className="mt-6" />
+
+        {sources.length > 0 ? (
+          <section aria-labelledby="sources-titre" className="mt-8">
+            <h2 id="sources-titre" className="text-base font-semibold text-foreground">
+              Sources
+            </h2>
+            <ul className="mt-2 list-disc space-y-1 rounded-xl border border-border bg-card py-3 pl-8 pr-4 text-sm text-foreground">
+              {sources.map((s) => (
+                <li key={s.url}>
+                  <a
+                    href={s.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    title={`Ouvrir la source : ${s.libelle}`}
+                    className="text-primary-text underline underline-offset-2"
+                  >
+                    {s.libelle}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {editorial.avertissement ? (
+          <p
+            role="note"
+            className="mt-8 rounded-md border border-info-border bg-info-soft px-3 py-2 text-sm text-info-text"
+          >
+            {editorial.avertissement}
+          </p>
+        ) : null}
 
         <AdSlot placement="blog-article" className="mt-8" />
 
