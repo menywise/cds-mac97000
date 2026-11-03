@@ -110,7 +110,7 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Partage, signalement | S | portée | écart | S→C1 | `ShareButtons`, `ReportButton` | 03/11/2026 |
 | Commentaires d'articles | S | portée | propre | — | C1 ne les reprend pas (site anonymisé) | 03/11/2026 |
 | Publicité dans le blog | S | portée | propre | — | `AdSlot` : C1 ne le reprend pas | 03/11/2026 |
-| Appel à l'action en fin d'article | C1 | portée | à décider | C1→S | `AppelDemo` → encart réglable du socle | 03/11/2026 |
+| Appel à l'action en fin d'article | S | portée | écart | S→C1 | Socle 1.15.0 : `appels_action`, réglable par article ou pour le site ; C1 peut y ranger son `AppelDemo` | 03/11/2026 |
 | Données structurées article | S | copie | écart | S→C1 | Socle 1.12.0 : `src/lib/article-donnees.ts` sans dépendance (relecture, sources, auteur, rubrique, étiquettes, série, questions-réponses, type de page) : à copier dans C1 | 03/11/2026 |
 | Rendu du texte | S | copie | écart | S→C1 | Socle 1.12.0 : `src/lib/corps.ts` (analyse, copie exacte) et `CorpsArticle` ; reprend la syntaxe de C1 et ajoute sommaire, encadré, questions-réponses, listes numérotées | 03/11/2026 |
 | Recherche plein texte | S | portée | écart | S→C1 | Socle 1.13.0 : `recherche_articles` (opérateurs, synonymes, facettes, extrait surligné, pondération), suggestion de mot proche, recherches sans résultat. C1 garde sa configuration sans racine (candidat C1→S) | 03/11/2026 |
@@ -141,3 +141,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Socle 1.12.0 | Lot 4 : référencement technique. Nouvelles copies exactes S→C1 : `corps.ts`, `article-donnees.ts` ; flux filtrés, plan du site des images |
 | 03/11/2026 | Socle 1.13.0 | Lot 5 : recherche avancée. Nouvel écart S→C1 : recherche des articles en base, synonymes (C1 peut les remplir depuis son glossaire), recherches sans résultat |
 | 03/11/2026 | Socle 1.14.0 | Lot 6 : société savante. Nouveaux écarts S→C1 : bibliographie (`bibliographie.ts` en copie exacte), liens d'intérêts, niveau de preuve, genres, relecteurs ; accès membres reporté |
+| 03/11/2026 | Socle 1.15.0 | Lot 7 : pilotage. Nouveaux écarts S→C1 : appels à l'action (C1 : `AppelDemo` devient un encart réglable), intention, `pilotage.ts`, santé du contenu |

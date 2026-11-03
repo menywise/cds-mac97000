@@ -19,7 +19,9 @@ import {
   ajouterSynonyme,
   ajouterTerme,
   changerStatut,
+  basculerAppelAction,
   creerArticle,
+  enregistrerAppelAction,
   enregistrerReferences,
   effacerRechercheSansResultat,
   enregistrerContenu,
@@ -28,6 +30,7 @@ import {
   enregistrerRubrique,
   enregistrerSerie,
   fetchARevoir,
+  fetchAppelsAction,
   fetchEditorial,
   fetchEtatSources,
   fetchMaillage,
@@ -37,6 +40,7 @@ import {
   fetchJournal,
   fetchReglages,
   fetchTermes,
+  supprimerAppelAction,
   supprimerContenu,
   supprimerEtiquette,
   supprimerRubrique,
@@ -44,6 +48,7 @@ import {
   supprimerSynonyme,
   supprimerTerme,
   useDroitsEditorial,
+  type AppelAction,
   type ContenuARevoir,
   type ContenuEditorial,
   type EtatMaillage,
@@ -61,6 +66,7 @@ import {
   STATUTS,
   actionsPossibles,
   GENRES,
+  INTENTIONS,
   dateSimple,
   lireSources,
   manquesSaisie,
@@ -72,6 +78,7 @@ import {
 } from "@/lib/editorial-regles";
 import { slugify } from "@/lib/format";
 import { lienMarkdown, suggestionsDeLiens } from "@/lib/maillage";
+import { calendrier, santeContenu } from "@/lib/pilotage";
 import { lienSearchConsole } from "@/lib/article-donnees";
 import { verifierLiensSources } from "@/lib/editorial.functions";
 import { absoluteUrl } from "@/lib/site-config";
@@ -109,6 +116,7 @@ type PosteCtx = {
   taxo: Taxonomie;
   maillage: Map<string, EtatMaillage>;
   sources: Map<string, EtatSource>;
+  appels: AppelAction[];
   admin: boolean;
 };
 const Contexte = createContext<PosteCtx>({
@@ -116,6 +124,7 @@ const Contexte = createContext<PosteCtx>({
   taxo: { rubriques: [], etiquettes: [], series: [] },
   maillage: new Map(),
   sources: new Map(),
+  appels: [],
   admin: false,
 });
 
@@ -178,22 +187,25 @@ function Poste({ admin }: { admin: boolean }) {
   const [taxo, setTaxo] = useState<Taxonomie>({ rubriques: [], etiquettes: [], series: [] });
   const [maillage, setMaillage] = useState<Map<string, EtatMaillage>>(new Map());
   const [sources, setSources] = useState<Map<string, EtatSource>>(new Map());
+  const [appels, setAppels] = useState<AppelAction[]>([]);
   const [echec, setEchec] = useState(false);
 
   const recharger = useCallback(async () => {
     try {
-      const [c, r, t, m, so] = await Promise.all([
+      const [c, r, t, m, so, ap] = await Promise.all([
         fetchEditorial(),
         fetchReglages(),
         fetchTaxonomie(),
         fetchMaillage(),
         fetchEtatSources(),
+        fetchAppelsAction(),
       ]);
       setContenus(c);
       setReglages(r);
       setTaxo(t);
       setMaillage(m);
       setSources(so);
+      setAppels(ap);
       setEchec(false);
     } catch {
       setEchec(true);
@@ -205,10 +217,11 @@ function Poste({ admin }: { admin: boolean }) {
   }, [recharger]);
 
   return (
-    <Contexte.Provider value={{ contenus: contenus ?? [], taxo, maillage, sources, admin }}>
+    <Contexte.Provider value={{ contenus: contenus ?? [], taxo, maillage, sources, appels, admin }}>
       <Tabs defaultValue="articles" className="mt-8">
         <TabsList>
           <TabsTrigger value="articles">Articles</TabsTrigger>
+          <TabsTrigger value="pilotage">Pilotage</TabsTrigger>
           <TabsTrigger value="taxonomie">Taxonomie</TabsTrigger>
           {admin ? <TabsTrigger value="reglages">Réglages</TabsTrigger> : null}
         </TabsList>
@@ -236,6 +249,9 @@ function Poste({ admin }: { admin: boolean }) {
             />
           )}
         </TabsContent>
+        <TabsContent value="pilotage" className="mt-6 space-y-4">
+          <PilotagePanneau />
+        </TabsContent>
         <TabsContent value="taxonomie" className="mt-6 space-y-4">
           <TaxonomiePanneau recharger={recharger} />
           <RecherchePanneau recharger={recharger} />
@@ -245,6 +261,7 @@ function Poste({ admin }: { admin: boolean }) {
             <Reglages initial={reglages} recharger={recharger} />
             <Termes />
             <SourcesPanneau recharger={recharger} />
+            <AppelsPanneau reglages={reglages} recharger={recharger} />
           </TabsContent>
         ) : null}
       </Tabs>
@@ -609,6 +626,8 @@ function Edition({
     liens_interets: contenu.liens_interets,
     niveau_preuve: contenu.niveau_preuve,
     relecteurs: contenu.relecteurs.join(", "),
+    intention: contenu.intention,
+    appel_action_id: contenu.appel_action_id ?? "",
   });
   const [refs, setRefs] = useState<ReferenceSaisie[] | null>(null);
   useEffect(() => {
@@ -618,7 +637,7 @@ function Edition({
   }, [contenu.id]);
   const [estPilier, setEstPilier] = useState(contenu.est_pilier);
   const [etiq, setEtiq] = useState<string[]>(contenu.etiquettes);
-  const { taxo, contenus } = useContext(Contexte);
+  const { taxo, contenus, appels } = useContext(Contexte);
   const piliers = contenus.filter(
     (c) => c.est_pilier && c.id !== contenu.id && c.type === "article",
   );
@@ -666,6 +685,8 @@ function Edition({
       evenement_le: v.genre === "compte_rendu" && v.evenement_le ? v.evenement_le : null,
       liens_interets: v.liens_interets.trim(),
       niveau_preuve: v.niveau_preuve,
+      intention: v.intention,
+      appel_action_id: v.appel_action_id || null,
       relecteurs: v.relecteurs
         .split(",")
         .map((x) => x.trim())
@@ -1027,6 +1048,40 @@ function Edition({
           </ol>
         )}
       </fieldset>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("intention")}>Intention du lecteur</Label>
+          <select
+            id={id("intention")}
+            value={v.intention}
+            onChange={(e) => setV({ ...v, intention: e.target.value })}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {INTENTIONS.map((x) => (
+              <option key={x.value} value={x.value}>
+                {x.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("appel_action_id")}>Appel à l'action en fin d'article</Label>
+          <select
+            id={id("appel_action_id")}
+            value={v.appel_action_id}
+            onChange={(e) => setV({ ...v, appel_action_id: e.target.value })}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Celui du site (réglage)</option>
+            {appels.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nom}
+                {a.actif ? "" : " (inactif)"}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor={id("date_prevue")}>Date prévue</Label>
@@ -1964,5 +2019,253 @@ function RecherchePanneau({ recharger }: { recharger: () => Promise<void> }) {
         </form>
       </section>
     </>
+  );
+}
+
+/** Pilotage (socle 1.15.0) : santé du contenu et calendrier par semaine. */
+function PilotagePanneau() {
+  const { contenus, maillage, sources } = useContext(Contexte);
+  const [sansResultat, setSansResultat] = useState(0);
+  useEffect(() => {
+    fetchRecherche()
+      .then((r) => setSansResultat(r.sansResultat.length))
+      .catch(() => setSansResultat(0));
+  }, []);
+  const articles = contenus.filter((c) => c.type === "article");
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+  const sante = santeContenu(
+    articles.map((c) => ({
+      ...c,
+      sources_mortes: lireSources(c.sources).filter((s) => sources.get(s.url)?.ok === false).length,
+    })),
+    [...maillage.values()],
+    sansResultat,
+    aujourdhui,
+  );
+  const lignes: [string, number, string][] = [
+    ["Articles en ligne", sante.enLigne, ""],
+    ["Relectures dues", sante.relecturesDues, "statut « à actualiser »"],
+    ["Articles en retard", sante.enRetard, "date prévue dépassée"],
+    ["Articles orphelins", sante.orphelins, "aucun lien entrant"],
+    ["Articles aux liens cassés", sante.liensCasses, ""],
+    ["Articles aux sources injoignables", sante.sourcesInjoignables, ""],
+    ["Articles en concurrence", sante.requetesEnDouble, "même requête visée"],
+    ["Recherches sans résultat", sansResultat, "voir l'onglet Taxonomie"],
+  ];
+  const semaines = calendrier(articles);
+  return (
+    <>
+      <section className={`space-y-3 ${cardClass}`} aria-labelledby="pil-sante">
+        <h2 id="pil-sante" className="text-base font-semibold text-foreground">
+          Santé du contenu
+        </h2>
+        <dl className="grid gap-2 sm:grid-cols-2">
+          {lignes.map(([libelle, n, aide]) => (
+            <div
+              key={libelle}
+              className={`rounded-md border px-3 py-2 text-sm ${
+                n > 0 && libelle !== "Articles en ligne"
+                  ? "border-warning-border bg-warning-soft text-warning-text"
+                  : "border-border text-foreground"
+              }`}
+            >
+              <dt className="font-medium">{libelle}</dt>
+              <dd>
+                {n}
+                {aide ? ` · ${aide}` : ""}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+      <section className={`space-y-3 ${cardClass}`} aria-labelledby="pil-calendrier">
+        <h2 id="pil-calendrier" className="text-base font-semibold text-foreground">
+          Calendrier
+        </h2>
+        {semaines.length === 0 ? (
+          <p className="text-sm text-foreground">
+            Aucun article daté : donner une date prévue dans la fiche d'un article.
+          </p>
+        ) : (
+          <ol className="space-y-3 rounded-md border border-border p-3">
+            {semaines.map((s) => (
+              <li key={s.semaine}>
+                <p className="text-sm font-semibold text-foreground">
+                  Semaine du {dateSimple(s.semaine)}
+                </p>
+                <ul className="mt-1 space-y-1 rounded-md border border-border p-2 text-sm text-foreground">
+                  {s.elements.map((e) => (
+                    <li key={e.id} className="flex flex-wrap items-center gap-2">
+                      <span>{dateSimple(e.jour)}</span> ·{" "}
+                      <span className="font-medium">{e.titre}</span>
+                      <Pastille statut={e.statut as Statut} />
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+    </>
+  );
+}
+
+/** Appels à l'action de fin d'article (socle 1.15.0), gérés par les admins. */
+function AppelsPanneau({
+  reglages,
+  recharger,
+}: {
+  reglages: ReglagesEditoriaux;
+  recharger: () => Promise<void>;
+}) {
+  const { appels } = useContext(Contexte);
+  const vide = { nom: "", titre: "", texte: "", bouton: "", lien: "", actif: true };
+  const [v, setV] = useState(vide);
+
+  async function apres(erreur: string, ok: string) {
+    if (erreur) toast.error("Enregistrement impossible.", { description: erreur });
+    else {
+      toast.success(ok);
+      await recharger();
+    }
+    return !erreur;
+  }
+
+  return (
+    <section className={`space-y-4 ${cardClass}`} aria-labelledby="appels-titre">
+      <h2 id="appels-titre" className="text-base font-semibold text-foreground">
+        Appels à l'action
+      </h2>
+      <p className="text-sm text-foreground">
+        Un encart en fin d'article : demander une démonstration, s'inscrire à la lettre, adhérer,
+        écrire. Chaque article choisit le sien, ou reçoit celui du site.
+      </p>
+      <div className="space-y-1.5">
+        <Label htmlFor="appel-defaut">Appel à l'action du site</Label>
+        <select
+          id="appel-defaut"
+          value={reglages.appel_action_defaut}
+          onChange={async (e) => {
+            await apres(
+              await enregistrerReglages({ ...reglages, appel_action_defaut: e.target.value }),
+              "Appel à l'action du site enregistré.",
+            );
+          }}
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="">Aucun</option>
+          {appels
+            .filter((a) => a.actif)
+            .map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nom}
+              </option>
+            ))}
+        </select>
+      </div>
+      {appels.length > 0 ? (
+        <ul className="divide-y divide-border rounded-md border border-border">
+          {appels.map((a) => (
+            <li
+              key={a.id}
+              className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
+            >
+              <span className="text-foreground">
+                <span className="font-medium">{a.nom}</span> · {a.titre} · {a.bouton} → {a.lien}
+                {a.actif ? "" : " · inactif"}
+              </span>
+              <span className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  title={a.actif ? "Ne plus afficher cet encart" : "Afficher de nouveau cet encart"}
+                  onClick={async () =>
+                    void apres(
+                      await basculerAppelAction(a.id, !a.actif),
+                      a.actif ? "Encart désactivé." : "Encart activé.",
+                    )
+                  }
+                >
+                  {a.actif ? "Désactiver" : "Activer"}
+                </Button>
+                <ConfirmButton
+                  title={`Supprimer l'encart « ${a.nom} »`}
+                  question={`Supprimer l'encart « ${a.nom} » ? Les articles qui l'utilisaient reçoivent celui du site.`}
+                  onConfirm={async () => {
+                    await apres(await supprimerAppelAction(a.id), "Encart supprimé.");
+                  }}
+                />
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <form
+        className="grid gap-3 sm:grid-cols-2"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (await apres(await enregistrerAppelAction(v), "Encart créé.")) setV(vide);
+        }}
+      >
+        <div className="space-y-1.5">
+          <Label htmlFor="appel-nom">Nom (pour s'y retrouver)</Label>
+          <Input
+            id="appel-nom"
+            value={v.nom}
+            onChange={(e) => setV({ ...v, nom: e.target.value })}
+            required
+            minLength={2}
+            maxLength={60}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="appel-titre">Titre affiché</Label>
+          <Input
+            id="appel-titre"
+            value={v.titre}
+            onChange={(e) => setV({ ...v, titre: e.target.value })}
+            required
+            minLength={3}
+            maxLength={120}
+          />
+        </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="appel-texte">Texte</Label>
+          <Textarea
+            id="appel-texte"
+            rows={2}
+            value={v.texte}
+            onChange={(e) => setV({ ...v, texte: e.target.value })}
+            maxLength={400}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="appel-bouton">Texte du bouton</Label>
+          <Input
+            id="appel-bouton"
+            value={v.bouton}
+            onChange={(e) => setV({ ...v, bouton: e.target.value })}
+            required
+            minLength={2}
+            maxLength={40}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="appel-lien">Lien (/contact ou https://…)</Label>
+          <Input
+            id="appel-lien"
+            value={v.lien}
+            onChange={(e) => setV({ ...v, lien: e.target.value })}
+            required
+            maxLength={500}
+          />
+        </div>
+        <Button type="submit" className="sm:col-span-2 sm:w-fit" title="Créer cet encart">
+          Créer l'encart
+        </Button>
+      </form>
+    </section>
   );
 }

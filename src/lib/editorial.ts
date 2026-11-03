@@ -44,6 +44,8 @@ export type ContenuEditorial = {
   liens_interets: string;
   niveau_preuve: string;
   relecteurs: string[];
+  intention: string;
+  appel_action_id: string | null;
   /** Calculés par editorial_etat(). */
   statut_lu: Statut;
   manques: string[];
@@ -51,7 +53,7 @@ export type ContenuEditorial = {
 };
 
 const COLONNES =
-  "id, type, slug, titre, description, chapo, corps, sources, auteur_fonction, auteur_nom, etiquettes, image_url, image_alt, relu_le, publie_le, updated_at, date_prevue, public_vise, requete_visee, rubrique_id, serie_id, serie_ordre, est_pilier, pilier_id, genre, evenement, evenement_le, liens_interets, niveau_preuve, relecteurs";
+  "id, type, slug, titre, description, chapo, corps, sources, auteur_fonction, auteur_nom, etiquettes, image_url, image_alt, relu_le, publie_le, updated_at, date_prevue, public_vise, requete_visee, rubrique_id, serie_id, serie_ordre, est_pilier, pilier_id, genre, evenement, evenement_le, liens_interets, niveau_preuve, relecteurs, intention, appel_action_id";
 
 /** Message lisible d'une erreur de la base : les refus de la base sont déjà en français. */
 export function messageErreur(error: { code?: string; message?: string } | null): string {
@@ -127,6 +129,8 @@ export type Champs = Pick<
   | "liens_interets"
   | "niveau_preuve"
   | "relecteurs"
+  | "intention"
+  | "appel_action_id"
 >;
 
 export async function creerArticle(titre: string, slug: string): Promise<string> {
@@ -454,5 +458,44 @@ export async function enregistrerReferences(
     .delete()
     .eq("contenu_id", contenuId)
     .gt("rang", lignes.length);
+  return messageErreur(error);
+}
+
+/* ----------------------- Appels à l'action (socle 1.15.0) ----------------------- */
+
+export type AppelAction = {
+  id: string;
+  nom: string;
+  titre: string;
+  texte: string;
+  bouton: string;
+  lien: string;
+  actif: boolean;
+};
+
+export async function fetchAppelsAction(): Promise<AppelAction[]> {
+  const { data, error } = await supabase
+    .from("appels_action")
+    .select("id, nom, titre, texte, bouton, lien, actif")
+    .order("nom");
+  if (error) throw new Error(messageErreur(error));
+  return data ?? [];
+}
+
+export async function enregistrerAppelAction(v: Omit<AppelAction, "id">): Promise<string> {
+  const { error } = await supabase.from("appels_action").insert(v);
+  if (error?.code === "23514") {
+    return "Nom de 2 à 60 caractères, titre de 3 à 120, bouton de 2 à 40, lien commençant par / ou https://.";
+  }
+  return messageErreur(error);
+}
+
+export async function basculerAppelAction(id: string, actif: boolean): Promise<string> {
+  const { error } = await supabase.from("appels_action").update({ actif }).eq("id", id);
+  return messageErreur(error);
+}
+
+export async function supprimerAppelAction(id: string): Promise<string> {
+  const { error } = await supabase.from("appels_action").delete().eq("id", id);
   return messageErreur(error);
 }

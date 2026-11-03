@@ -44,7 +44,17 @@ export type ReglagesEditoriaux = {
   exiger_liens_interets: boolean;
   niveaux_preuve: string[];
   format_citation: "vancouver" | "apa";
+  /** Appel à l'action par défaut en fin d'article, vide : aucun (socle 1.15.0). */
+  appel_action_defaut: string;
 };
+
+/** Intention d'un contenu (brief, socle 1.15.0). */
+export const INTENTIONS = [
+  { value: "", label: "Non précisée" },
+  { value: "comprendre", label: "Comprendre" },
+  { value: "comparer", label: "Comparer" },
+  { value: "agir", label: "Agir" },
+] as const;
 
 /** Genres de contenu (socle 1.14.0). */
 export const GENRES = [
@@ -77,6 +87,7 @@ export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
     "Retour de terrain",
   ],
   format_citation: "vancouver",
+  appel_action_defaut: "",
 };
 
 /** Réglages lus en base, complétés par les valeurs par défaut (valeur absente ou d'un autre type). */
@@ -111,6 +122,11 @@ export function lireReglages(valeur: unknown): ReglagesEditoriaux {
           .slice(0, 12)
       : REGLAGES_PAR_DEFAUT.niveaux_preuve,
     format_citation: v["format_citation"] === "apa" ? "apa" : "vancouver",
+    appel_action_defaut:
+      typeof v["appel_action_defaut"] === "string" &&
+      /^[0-9a-f-]{36}$/.test(v["appel_action_defaut"])
+        ? v["appel_action_defaut"]
+        : "",
   };
 }
 
