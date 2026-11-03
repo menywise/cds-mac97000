@@ -8,6 +8,7 @@ import {
   BLOG_PAGE_SIZE,
   cleanBlogPage,
   cleanBlogSearch,
+  cleanBlogSlug,
   cleanBlogTag,
   type BlogListInput,
   type BlogListPost,
@@ -62,37 +63,37 @@ export const listBlogPage = createServerFn({ method: "GET" })
     page: cleanBlogPage(input?.page),
     q: cleanBlogSearch(input?.q),
     tag: cleanBlogTag(input?.tag),
+    rubrique: cleanBlogSlug(input?.rubrique),
+    serie: cleanBlogSlug(input?.serie),
   }))
   .handler(async ({ data: input }) => {
     const client = publicClient();
-    /** Mêmes filtres pour le décompte et pour la page : publié, étiquette, recherche. */
-    const filtered = <
-      T extends { contains(column: "etiquettes", value: string[]): T; or(filters: string): T },
-    >(
-      query: T,
-    ): T => {
-      let result = query;
-      if (input.tag) result = result.contains("etiquettes", [input.tag]);
-      if (input.q) {
-        const motif = `%${input.q}%`;
-        result = result.or(`titre.ilike.${motif},chapo.ilike.${motif},corps.ilike.${motif}`);
-      }
-      return result;
-    };
-    // Décompte d'abord : une page au-delà de la dernière est ramenée à la dernière, sans erreur
-    // (PostgREST refuse un décalage supérieur au nombre de lignes).
-    const [countRes, tagsRes] = await Promise.all([
-      filtered(
-        client
+    const tagRows =
+      check(
+        await client
           .from(ARTICLES)
-          .select("id", { count: "exact", head: true })
+          .select("tags:etiquettes")
           .eq("type", "article")
           .eq("publie", true),
-      ),
-      client.from(ARTICLES).select("tags:etiquettes").eq("type", "article").eq("publie", true),
-    ]);
+        { contexte: ARTICLES },
+      ) ?? [];
+    const tags = [...new Set(tagRows.flatMap((row) => row.tags ?? []))].sort((a, b) =>
+      a.localeCompare(b, "fr"),
+    );
+    if (input.q) return { ...(await rechercherArticles(input)), tags };
+    // Sans recherche : liste filtrée par étiquette, paginée en base. Décompte d'abord : une page
+    // au-delà de la dernière est ramenée à la dernière (PostgREST refuse un décalage trop grand).
+    const filtered = <T extends { contains(column: "etiquettes", value: string[]): T }>(
+      query: T,
+    ): T => (input.tag ? query.contains("etiquettes", [input.tag]) : query);
+    const countRes = await filtered(
+      client
+        .from(ARTICLES)
+        .select("id", { count: "exact", head: true })
+        .eq("type", "article")
+        .eq("publie", true),
+    );
     check(countRes, { contexte: ARTICLES });
-    const tagRows = check(tagsRes, { contexte: ARTICLES }) ?? [];
     const total = countRes.count ?? 0;
     const pageCount = Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE));
     const page = Math.min(input.page, pageCount);
@@ -116,16 +117,65 @@ export const listBlogPage = createServerFn({ method: "GET" })
       ...post,
       reading_minutes: readingMinutes(content),
     }));
-    return {
-      posts,
-      total,
-      page,
-      pageCount,
-      tags: [...new Set(tagRows.flatMap((row) => row.tags ?? []))].sort((a, b) =>
-        a.localeCompare(b, "fr"),
-      ),
-    };
+    return { posts, total, page, pageCount, tags, facettes: [], suggestion: null };
   });
+
+/**
+ * Recherche dans les articles (socle 1.13.0) : recherche_articles en base (opérateurs, synonymes,
+ * filtres, extrait surligné, pondération), facettes et suggestion de mot proche.
+ */
+async function rechercherArticles(input: BlogListInput) {
+  const client = publicClient();
+  const etiquette = input.tag
+    ? (check(
+        await client.from("etiquettes").select("slug").eq("libelle", input.tag).maybeSingle(),
+        { contexte: "etiquettes" },
+      )?.slug ?? null)
+    : null;
+  const appel = (page: number) =>
+    client.rpc("recherche_articles", {
+      _q: input.q,
+      ...(input.rubrique ? { _rubrique: input.rubrique } : {}),
+      ...(etiquette ? { _etiquette: etiquette } : {}),
+      ...(input.serie ? { _serie: input.serie } : {}),
+      _limite: BLOG_PAGE_SIZE,
+      _decalage: (page - 1) * BLOG_PAGE_SIZE,
+    });
+  const [resultatsRes, facettesRes, suggestionRes] = await Promise.all([
+    appel(input.page),
+    client.rpc("recherche_articles_facettes", { _q: input.q }),
+    client.rpc("suggestion_recherche", { _q: input.q }),
+  ]);
+  let lignes = check(resultatsRes, { contexte: "recherche_articles" }) ?? [];
+  let total = lignes[0]?.total ?? 0;
+  // Page au-delà de la dernière : le total vient de la première page, le routeur ramène à la dernière.
+  if (lignes.length === 0 && input.page > 1) {
+    const premiere = check(await appel(1), { contexte: "recherche_articles" }) ?? [];
+    total = premiere[0]?.total ?? 0;
+    lignes = [];
+  }
+  const pageCount = Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE));
+  const posts: BlogListPost[] = lignes.map((l) => ({
+    id: l.id,
+    slug: l.slug,
+    title: l.titre,
+    excerpt: l.chapo,
+    cover_url: null,
+    published_at: l.publie_le,
+    tags: l.etiquettes,
+    reading_minutes: 0,
+    extrait: l.extrait,
+  }));
+  const suggestion = check(suggestionRes, { contexte: "suggestion_recherche" }) ?? null;
+  return {
+    posts,
+    total,
+    page: Math.min(input.page, pageCount),
+    pageCount,
+    facettes: check(facettesRes, { contexte: "recherche_articles_facettes" }) ?? [],
+    suggestion: suggestion && suggestion !== input.q ? suggestion : null,
+  };
+}
 
 /** Flux RSS : titre, résumé, date et adresse des articles les plus récents, sans le texte. */
 /**

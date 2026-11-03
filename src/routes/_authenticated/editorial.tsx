@@ -16,9 +16,11 @@ import { requireFeature } from "@/config/features";
 import { ARTICLE_LONGUEURS, borneSlug } from "@/lib/blog";
 import {
   CATEGORIES_TERMES,
+  ajouterSynonyme,
   ajouterTerme,
   changerStatut,
   creerArticle,
+  effacerRechercheSansResultat,
   enregistrerContenu,
   enregistrerReglages,
   enregistrerEtiquette,
@@ -28,6 +30,7 @@ import {
   fetchEditorial,
   fetchEtatSources,
   fetchMaillage,
+  fetchRecherche,
   fetchTaxonomie,
   fetchJournal,
   fetchReglages,
@@ -36,12 +39,15 @@ import {
   supprimerEtiquette,
   supprimerRubrique,
   supprimerSerie,
+  supprimerSynonyme,
   supprimerTerme,
   useDroitsEditorial,
   type ContenuARevoir,
   type ContenuEditorial,
   type EtatMaillage,
   type EtatSource,
+  type RechercheSansResultat,
+  type Synonyme,
   type Taxonomie,
   type LigneJournal,
   type TermeInterdit,
@@ -228,6 +234,7 @@ function Poste({ admin }: { admin: boolean }) {
         </TabsContent>
         <TabsContent value="taxonomie" className="mt-6 space-y-4">
           <TaxonomiePanneau recharger={recharger} />
+          <RecherchePanneau recharger={recharger} />
         </TabsContent>
         {admin ? (
           <TabsContent value="reglages" className="mt-6 space-y-4">
@@ -1559,5 +1566,163 @@ function SourcesPanneau({ recharger }: { recharger: () => Promise<void> }) {
         <p className="text-sm text-foreground">Toutes les sources vérifiées répondent.</p>
       ) : null}
     </section>
+  );
+}
+
+/** Synonymes et recherches sans résultat (socle 1.13.0) : ce que les lecteurs cherchent en vain. */
+function RecherchePanneau({ recharger }: { recharger: () => Promise<void> }) {
+  const [synonymes, setSynonymes] = useState<Synonyme[]>([]);
+  const [sansResultat, setSansResultat] = useState<RechercheSansResultat[]>([]);
+  const [terme, setTerme] = useState("");
+  const [variantes, setVariantes] = useState("");
+
+  const charger = useCallback(async () => {
+    try {
+      const r = await fetchRecherche();
+      setSynonymes(r.synonymes);
+      setSansResultat(r.sansResultat);
+    } catch {
+      toast.error("Recherche : données indisponibles.");
+    }
+  }, []);
+
+  useEffect(() => {
+    void charger();
+  }, [charger]);
+
+  async function idee(t: string) {
+    const titre = t.charAt(0).toUpperCase() + t.slice(1);
+    const erreur = await creerArticle(titre, borneSlug(slugify(titre)));
+    if (erreur) {
+      toast.error("Idée non créée.", { description: erreur });
+      return;
+    }
+    await effacerRechercheSansResultat(t);
+    toast.success("Idée créée, en rédaction.", { description: titre });
+    await Promise.all([charger(), recharger()]);
+  }
+
+  return (
+    <>
+      <section className={`space-y-4 ${cardClass}`} aria-labelledby="rch-sans">
+        <h2 id="rch-sans" className="text-base font-semibold text-foreground">
+          Recherches sans résultat
+        </h2>
+        <p className="text-sm text-foreground">
+          Ce que les lecteurs cherchent sur le blog sans rien trouver. Aucun compte ni aucune
+          adresse n'est gardé : seulement les mots et le nombre de fois.
+        </p>
+        {sansResultat.length === 0 ? (
+          <p className="text-sm text-foreground">Aucune pour l'instant.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {sansResultat.map((r) => (
+              <li
+                key={r.terme}
+                className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
+              >
+                <span className="text-foreground">
+                  <span className="font-medium">{r.terme}</span> · {r.nombre} fois · dernière le{" "}
+                  {new Date(r.derniere).toLocaleDateString("fr-FR")}
+                </span>
+                <span className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => void idee(r.terme)}
+                    title="Créer un article sur ce sujet, en rédaction"
+                  >
+                    En faire une idée
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    title="Retirer de la liste"
+                    onClick={async () => {
+                      const erreur = await effacerRechercheSansResultat(r.terme);
+                      if (erreur) toast.error("Non retiré.", { description: erreur });
+                      else await charger();
+                    }}
+                  >
+                    Retirer
+                  </Button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className={`space-y-4 ${cardClass}`} aria-labelledby="rch-syn">
+        <h2 id="rch-syn" className="text-base font-semibold text-foreground">
+          Synonymes
+        </h2>
+        <p className="text-sm text-foreground">
+          Plusieurs noms pour la même chose : une recherche sur l'un trouve les articles qui
+          emploient les autres.
+        </p>
+        {synonymes.length > 0 ? (
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {synonymes.map((sy) => (
+              <li key={sy.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                <span className="text-foreground">
+                  <span className="font-medium">{sy.terme}</span> = {sy.variantes.join(", ")}
+                </span>
+                <ConfirmButton
+                  title={`Retirer les synonymes de « ${sy.terme} »`}
+                  question={`Retirer les synonymes de « ${sy.terme} » ?`}
+                  label="Retirer"
+                  confirmLabel="Retirer"
+                  onConfirm={async () => {
+                    const erreur = await supprimerSynonyme(sy.id);
+                    if (erreur) toast.error("Non retiré.", { description: erreur });
+                    else await charger();
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <form
+          className="grid gap-3 sm:grid-cols-2"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const erreur = await ajouterSynonyme(terme, variantes.split(","));
+            if (erreur) {
+              toast.error("Synonymes non ajoutés.", { description: erreur });
+              return;
+            }
+            setTerme("");
+            setVariantes("");
+            await charger();
+          }}
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="rch-terme">Terme</Label>
+            <Input
+              id="rch-terme"
+              value={terme}
+              onChange={(e) => setTerme(e.target.value)}
+              minLength={2}
+              maxLength={60}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="rch-variantes">Variantes, séparées par des virgules</Label>
+            <Input
+              id="rch-variantes"
+              value={variantes}
+              onChange={(e) => setVariantes(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="sm:col-span-2 sm:w-fit" title="Ajouter ces synonymes">
+            Ajouter
+          </Button>
+        </form>
+      </section>
+    </>
   );
 }

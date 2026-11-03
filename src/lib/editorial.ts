@@ -348,3 +348,44 @@ export async function fetchEtatSources(): Promise<Map<string, EtatSource>> {
   if (error) throw new Error(messageErreur(error));
   return new Map((data ?? []).map((e) => [e.url, e]));
 }
+
+/* ------------------------- Recherche (socle 1.13.0) ------------------------- */
+
+export type Synonyme = { id: string; terme: string; variantes: string[] };
+export type RechercheSansResultat = { terme: string; nombre: number; derniere: string };
+
+export async function fetchRecherche(): Promise<{
+  synonymes: Synonyme[];
+  sansResultat: RechercheSansResultat[];
+}> {
+  const [syn, sans] = await Promise.all([
+    supabase.from("synonymes").select("id, terme, variantes").order("terme"),
+    supabase
+      .from("recherches_sans_resultat")
+      .select("terme, nombre, derniere")
+      .order("nombre", { ascending: false })
+      .order("derniere", { ascending: false })
+      .limit(30),
+  ]);
+  if (syn.error || sans.error) throw new Error(messageErreur(syn.error ?? sans.error));
+  return { synonymes: syn.data ?? [], sansResultat: sans.data ?? [] };
+}
+
+export async function ajouterSynonyme(terme: string, variantes: string[]): Promise<string> {
+  const { error } = await supabase
+    .from("synonymes")
+    .insert({ terme: terme.trim(), variantes: variantes.map((v) => v.trim()).filter(Boolean) });
+  if (error?.code === "23505") return "Ce terme a déjà ses synonymes : le modifier.";
+  if (error?.code === "23514") return "Un terme de 2 à 60 caractères et de 1 à 20 variantes.";
+  return messageErreur(error);
+}
+
+export async function supprimerSynonyme(id: string): Promise<string> {
+  const { error } = await supabase.from("synonymes").delete().eq("id", id);
+  return messageErreur(error);
+}
+
+export async function effacerRechercheSansResultat(terme: string): Promise<string> {
+  const { error } = await supabase.from("recherches_sans_resultat").delete().eq("terme", terme);
+  return messageErreur(error);
+}

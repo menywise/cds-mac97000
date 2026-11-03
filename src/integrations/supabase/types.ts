@@ -2000,6 +2000,27 @@ export type Database = {
         }
         Relationships: []
       }
+      recherches_sans_resultat: {
+        Row: {
+          derniere: string
+          nombre: number
+          premiere: string
+          terme: string
+        }
+        Insert: {
+          derniere?: string
+          nombre?: number
+          premiere?: string
+          terme: string
+        }
+        Update: {
+          derniere?: string
+          nombre?: number
+          premiere?: string
+          terme?: string
+        }
+        Relationships: []
+      }
       redirections: {
         Row: {
           created_at: string
@@ -2524,6 +2545,27 @@ export type Database = {
         }
         Relationships: []
       }
+      synonymes: {
+        Row: {
+          created_at: string
+          id: string
+          terme: string
+          variantes: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          terme: string
+          variantes?: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          terme?: string
+          variantes?: string[]
+        }
+        Relationships: []
+      }
       template_checks: {
         Row: {
           area: string
@@ -2936,6 +2978,37 @@ export type Database = {
       purge_contact_messages: { Args: never; Returns: number }
       purge_report_contacts: { Args: never; Returns: number }
       recette_purge: { Args: { _membre?: string }; Returns: Json }
+      recherche_articles: {
+        Args: {
+          _decalage?: number
+          _depuis?: string
+          _etiquette?: string
+          _limite?: number
+          _q: string
+          _rubrique?: string
+          _serie?: string
+        }
+        Returns: {
+          chapo: string
+          etiquettes: string[]
+          extrait: string
+          id: string
+          publie_le: string
+          rang: number
+          slug: string
+          titre: string
+          total: number
+        }[]
+      }
+      recherche_articles_facettes: {
+        Args: { _q: string }
+        Returns: {
+          cle: string
+          facette: string
+          libelle: string
+          nombre: number
+        }[]
+      }
       report_improvements: {
         Args: { _limit?: number }
         Returns: {
@@ -3031,6 +3104,7 @@ export type Database = {
         Args: { _publie_le: string; _relu_le: string; _statut: string; _type: string }
         Returns: string
       }
+      suggestion_recherche: { Args: { _q: string }; Returns: string }
       tables_sans_protection: { Args: never; Returns: string[] }
       valid_page_data: { Args: { _data: Json }; Returns: boolean }
     }

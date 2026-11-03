@@ -251,7 +251,21 @@ rubriques sur `/blog`. Écarts assumés par rapport au texte ci-dessous :
   socle).
 - **Lien Search Console** par contenu (repris de C1). Aucun chiffre importé.
 
-### Lot 5 — Recherche avancée (version 1.12.0)
+### Lot 5 — Recherche avancée (version 1.13.0)
+
+**Fait le 03/11/2026** : migration `20261103200000_v1_13_0_recherche.sql`, blocs
+`supabase/seed/v1_13_0/`, test `tests/db/test_34`, recherche de `/blog` par la base, synonymes et
+recherches sans résultat dans le poste Éditorial. Écarts assumés par rapport au texte ci-dessous :
+
+- **opérateurs écrits à la main** plutôt que `websearch_to_tsquery`, pour chercher chaque mot par son
+  début et l'élargir à ses synonymes ; « ou » relie un mot au seul mot qui précède ;
+- **fautes de frappe** : comparaison sans accents (les trigrammes d'une lettre accentuée dépendent
+  du serveur), mot proposé avec ses accents ;
+- **journal anonyme** borné à 1 000 termes ; un terme ne garde que des mots (5 au plus) ;
+- **facettes** affichées pour la rubrique et la série ; les années sont calculées, pas encore
+  affichées ; la recherche globale `/recherche` garde son propre moteur ;
+- les règles d'écran (nettoyage, extrait surligné) sont dans `src/lib/blog.ts`, sans dépendance,
+  plutôt que dans un fichier `recherche-requete.ts` à part.
 
 La recherche sert le lecteur, et elle dit au rédacteur ce qui manque.
 

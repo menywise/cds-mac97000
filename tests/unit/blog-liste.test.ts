@@ -13,6 +13,8 @@ import {
   ARTICLE_LONGUEURS,
   borneSlug,
   descriptionDepuis,
+  decouperExtrait,
+  cleanBlogSlug,
 } from "../../src/lib/blog.ts";
 
 test("la liste est paginée par 12", () => {
@@ -30,11 +32,12 @@ test("numéro de page : entier à partir de 1, sinon 1", () => {
   assert.equal(cleanBlogPage(1e12), 100000);
 });
 
-test("recherche : caractères du filtre PostgREST neutralisés, espaces réduits, longueur bornée", () => {
+test("recherche : jokers et parenthèses neutralisés, guillemets et tiret gardés, longueur bornée", () => {
   assert.equal(cleanBlogSearch(undefined), "");
   assert.equal(cleanBlogSearch("  référencement   local "), "référencement local");
   assert.equal(cleanBlogSearch("a%b_c*d"), "a b c d");
-  assert.equal(cleanBlogSearch('x,y(z)"w\\v'), "x y z w v");
+  assert.equal(cleanBlogSearch('x,y(z)"w\\v'), 'x y z "w v');
+  assert.equal(cleanBlogSearch('"lien interne" -ancre'), '"lien interne" -ancre');
   assert.equal(cleanBlogSearch("a".repeat(500)).length, BLOG_SEARCH_MAX_LENGTH);
   assert.equal(cleanBlogSearch("%,()"), "");
 });
@@ -61,4 +64,23 @@ test("adresse : bornée à 80 caractères, sans tiret final", () => {
   const slug = borneSlug(`${"a".repeat(79)}-suite`);
   assert.equal(slug, "a".repeat(79));
   assert.equal(borneSlug("article-court"), "article-court");
+});
+
+test("extrait de recherche : mots trouvés repérés, marques retirées du texte", () => {
+  assert.deepEqual(decouperExtrait("La ⟦pince⟧ sert … une ⟦pince⟧ fine"), [
+    { texte: "La ", trouve: false },
+    { texte: "pince", trouve: true },
+    { texte: " sert … une ", trouve: false },
+    { texte: "pince", trouve: true },
+    { texte: " fine", trouve: false },
+  ]);
+  assert.deepEqual(decouperExtrait("orphelin ⟧ seul"), [
+    { texte: "orphelin  seul", trouve: false },
+  ]);
+});
+
+test("filtre de rubrique ou de série : adresse valide seulement", () => {
+  assert.equal(cleanBlogSlug(" Materiel "), "materiel");
+  assert.equal(cleanBlogSlug("a b"), "");
+  assert.equal(cleanBlogSlug(undefined), "");
 });
