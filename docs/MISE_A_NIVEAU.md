@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.14.0**, migration
-  `20261103220000_v1_14_0_societe_savante`.
+  migrations de la plateforme. Version courante : **1.15.0**, migration
+  `20261103230000_v1_15_0_pilotage`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou

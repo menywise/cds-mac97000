@@ -329,7 +329,24 @@ d'artisan ne les allume pas.
   pour rester honnête avec les moteurs.
 - **Lexique** (repris de C1) : définitions publiques, `DefinedTerm`, lien depuis les articles.
 
-### Lot 7 — Pilotage du contenu (version 1.14.0)
+### Lot 7 — Pilotage du contenu (version 1.15.0)
+
+**Fait le 03/11/2026** : migration `20261103230000_v1_15_0_pilotage.sql`, blocs
+`supabase/seed/v1_15_0/`, test `tests/db/test_36`, `src/lib/pilotage.ts` (sans dépendance), onglet
+Pilotage (santé du contenu, calendrier par semaine), brief et appels à l'action dans le poste
+Éditorial, encart en fin d'article. Écarts assumés par rapport au texte ci-dessous :
+
+- **lettre d'information** non branchée : l'envoi des nouveaux articles passe par le module de
+  lettre existant et ses règles d'envoi ; à concevoir avec lui ;
+- **liens marqués (UTM)** non ajoutés : à décider avec la mesure d'audience de chaque installation ;
+- un appel à l'action par article ou celui du site (pas encore par rubrique).
+
+### Reste à faire après le lot 7
+
+- **Accès réservé aux membres** (reporté du lot 6) : texte protégé en colonne, lu par une fonction
+  qui vérifie le droit du lecteur ; recherche, extraits, maillage et données structurées sans fuite.
+- **Lettre d'information** des nouveaux articles.
+- **Lexique** public et lien automatique vers les définitions (repris de C1).
 
 - **Calendrier** : `date_prevue`, vue par semaine et par mois (C1 l'a en base).
 - **Brief** par contenu : `public_vise`, `requete_visee` (C1), intention (comprendre, comparer,

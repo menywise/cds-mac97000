@@ -137,7 +137,7 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { post, comments, related, editorial, etiquettes, fil, serie, references } =
+  const { post, comments, related, editorial, etiquettes, fil, serie, references, appel } =
     Route.useLoaderData();
   const [citation, setCitation] = useState<string | null>(null);
   const auteur = auteurAffiche(post, editorial.auteur_mode);
@@ -417,6 +417,21 @@ function BlogPostPage() {
               Copier
             </Button>
           </div>
+        ) : null}
+
+        {appel ? (
+          <aside
+            aria-label={appel.titre}
+            className="mt-8 rounded-xl border border-primary bg-card p-5 print:hidden"
+          >
+            <p className="text-lg font-semibold text-foreground">{appel.titre}</p>
+            {appel.texte ? <p className="mt-1 text-sm text-foreground">{appel.texte}</p> : null}
+            <Button asChild className="mt-3">
+              <a href={appel.lien} title={appel.bouton}>
+                {appel.bouton}
+              </a>
+            </Button>
+          </aside>
         ) : null}
 
         {editorial.avertissement ? (

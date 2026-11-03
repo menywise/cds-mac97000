@@ -247,7 +247,7 @@ export const getPost = createServerFn({ method: "GET" })
       await client
         .from(ARTICLES)
         .select(
-          `${COLONNES_ARTICLE}, content:corps, description, image_alt, updated_at, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre, genre, evenement, evenement_le, liens_interets, niveau_preuve, relecteurs`,
+          `${COLONNES_ARTICLE}, content:corps, description, image_alt, updated_at, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre, genre, evenement, evenement_le, liens_interets, niveau_preuve, relecteurs, appel_action_id`,
         )
         .eq("type", "article")
         .eq("publie", true)
@@ -295,6 +295,19 @@ export const getPost = createServerFn({ method: "GET" })
       excerpt: r.chapo,
     }));
     const reglages = lireReglages(check(reglagesRes, { contexte: "site_settings" })?.value);
+    // Appel à l'action : celui de l'article, sinon celui du site ; un encart inactif n'est pas lu.
+    const appelId = post.appel_action_id || reglages.appel_action_defaut;
+    const appel = appelId
+      ? check(
+          await client
+            .from("appels_action")
+            .select("titre, texte, bouton, lien")
+            .eq("id", appelId)
+            .eq("actif", true)
+            .maybeSingle(),
+          { contexte: "appels_action" },
+        )
+      : null;
     const etiquettes = check(etiquettesRes, { contexte: "etiquettes" }) ?? [];
     const rubriques = check(rubriquesRes, { contexte: "rubriques" }) ?? [];
     const rubrique = rubriques.find((r) => r.id === post.rubrique_id) ?? null;
@@ -315,6 +328,7 @@ export const getPost = createServerFn({ method: "GET" })
         format_citation: reglages.format_citation,
       },
       references: check(refsRes, { contexte: "references_contenu" }) ?? [],
+      appel,
       etiquettes: etiquettes.map((e) => ({ slug: e.slug, libelle: e.libelle })),
       fil: [parent, rubrique]
         .filter((r): r is NonNullable<typeof r> => r !== null)

@@ -186,6 +186,39 @@ export type Database = {
         }
         Relationships: []
       }
+      appels_action: {
+        Row: {
+          actif: boolean
+          bouton: string
+          created_at: string
+          id: string
+          lien: string
+          nom: string
+          texte: string
+          titre: string
+        }
+        Insert: {
+          actif?: boolean
+          bouton: string
+          created_at?: string
+          id?: string
+          lien: string
+          nom: string
+          texte?: string
+          titre: string
+        }
+        Update: {
+          actif?: boolean
+          bouton?: string
+          created_at?: string
+          id?: string
+          lien?: string
+          nom?: string
+          texte?: string
+          titre?: string
+        }
+        Relationships: []
+      }
       audit_findings: {
         Row: {
           audit_id: string
@@ -339,6 +372,7 @@ export type Database = {
       }
       contenus_publics: {
         Row: {
+          appel_action_id: string | null
           auteur_fonction: string
           auteur_id: string | null
           auteur_nom: string
@@ -355,6 +389,7 @@ export type Database = {
           id: string
           image_alt: string
           image_url: string | null
+          intention: string
           libelle_menu: string
           liens_interets: string
           niveau_preuve: string
@@ -380,6 +415,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          appel_action_id?: string | null
           auteur_fonction?: string
           auteur_id?: string | null
           auteur_nom?: string
@@ -396,6 +432,7 @@ export type Database = {
           id?: string
           image_alt?: string
           image_url?: string | null
+          intention?: string
           libelle_menu?: string
           liens_interets?: string
           niveau_preuve?: string
@@ -421,6 +458,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          appel_action_id?: string | null
           auteur_fonction?: string
           auteur_id?: string | null
           auteur_nom?: string
@@ -437,6 +475,7 @@ export type Database = {
           id?: string
           image_alt?: string
           image_url?: string | null
+          intention?: string
           libelle_menu?: string
           liens_interets?: string
           niveau_preuve?: string
