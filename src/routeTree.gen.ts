@@ -105,6 +105,9 @@ import { Route as AnnuaireCategorieSlugRouteImport } from './routes/annuaire.cat
 import { Route as AnnuaireCommuneCodeRouteImport } from './routes/annuaire.commune.$code'
 import { Route as AnnuaireDepartementSlugRouteImport } from './routes/annuaire.departement.$slug'
 import { Route as ApiCronPurgeContactRouteImport } from './routes/api.cron.purge-contact'
+import { Route as BlogEtiquetteSlugRouteImport } from './routes/blog.etiquette.$slug'
+import { Route as BlogRubriqueSlugRouteImport } from './routes/blog.rubrique.$slug'
+import { Route as BlogSerieSlugRouteImport } from './routes/blog.serie.$slug'
 import { Route as FormationSlugIndexRouteImport } from './routes/formation.$slug.index'
 import { Route as ForumCategorieSlugRouteImport } from './routes/forum.categorie.$slug'
 import { Route as AuthenticatedCrmProspectProspectIdRouteImport } from './routes/_authenticated/crm.prospect.$prospectId'
@@ -618,6 +621,21 @@ const ApiCronPurgeContactRoute = ApiCronPurgeContactRouteImport.update({
   path: '/api/cron/purge-contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogEtiquetteSlugRoute = BlogEtiquetteSlugRouteImport.update({
+  id: '/blog/etiquette/$slug',
+  path: '/blog/etiquette/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRubriqueSlugRoute = BlogRubriqueSlugRouteImport.update({
+  id: '/blog/rubrique/$slug',
+  path: '/blog/rubrique/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSerieSlugRoute = BlogSerieSlugRouteImport.update({
+  id: '/blog/serie/$slug',
+  path: '/blog/serie/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormationSlugIndexRoute = FormationSlugIndexRouteImport.update({
   id: '/formation/$slug/',
   path: '/formation/$slug/',
@@ -750,6 +768,9 @@ export interface FileRoutesByFullPath {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
+  '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
+  '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
+  '/blog/serie/$slug': typeof BlogSerieSlugRoute
   '/forum/categorie/$slug': typeof ForumCategorieSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/crm/': typeof AuthenticatedCrmIndexRoute
@@ -854,6 +875,9 @@ export interface FileRoutesByTo {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
+  '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
+  '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
+  '/blog/serie/$slug': typeof BlogSerieSlugRoute
   '/forum/categorie/$slug': typeof ForumCategorieSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/crm': typeof AuthenticatedCrmIndexRoute
@@ -960,6 +984,9 @@ export interface FileRoutesById {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
+  '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
+  '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
+  '/blog/serie/$slug': typeof BlogSerieSlugRoute
   '/forum/categorie/$slug': typeof ForumCategorieSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/crm/': typeof AuthenticatedCrmIndexRoute
@@ -1066,6 +1093,9 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
+    | '/blog/etiquette/$slug'
+    | '/blog/rubrique/$slug'
+    | '/blog/serie/$slug'
     | '/forum/categorie/$slug'
     | '/admin/'
     | '/crm/'
@@ -1170,6 +1200,9 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
+    | '/blog/etiquette/$slug'
+    | '/blog/rubrique/$slug'
+    | '/blog/serie/$slug'
     | '/forum/categorie/$slug'
     | '/admin'
     | '/crm'
@@ -1275,6 +1308,9 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
+    | '/blog/etiquette/$slug'
+    | '/blog/rubrique/$slug'
+    | '/blog/serie/$slug'
     | '/forum/categorie/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/crm/'
@@ -1346,6 +1382,9 @@ export interface RootRouteChildren {
   AnnuaireCommuneCodeRoute: typeof AnnuaireCommuneCodeRoute
   AnnuaireDepartementSlugRoute: typeof AnnuaireDepartementSlugRoute
   ApiCronPurgeContactRoute: typeof ApiCronPurgeContactRoute
+  BlogEtiquetteSlugRoute: typeof BlogEtiquetteSlugRoute
+  BlogRubriqueSlugRoute: typeof BlogRubriqueSlugRoute
+  BlogSerieSlugRoute: typeof BlogSerieSlugRoute
   ForumCategorieSlugRoute: typeof ForumCategorieSlugRoute
   FormationSlugIndexRoute: typeof FormationSlugIndexRoute
   FormationSlugLeconLessonIdRoute: typeof FormationSlugLeconLessonIdRoute
@@ -2028,6 +2067,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronPurgeContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/etiquette/$slug': {
+      id: '/blog/etiquette/$slug'
+      path: '/blog/etiquette/$slug'
+      fullPath: '/blog/etiquette/$slug'
+      preLoaderRoute: typeof BlogEtiquetteSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/rubrique/$slug': {
+      id: '/blog/rubrique/$slug'
+      path: '/blog/rubrique/$slug'
+      fullPath: '/blog/rubrique/$slug'
+      preLoaderRoute: typeof BlogRubriqueSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/serie/$slug': {
+      id: '/blog/serie/$slug'
+      path: '/blog/serie/$slug'
+      fullPath: '/blog/serie/$slug'
+      preLoaderRoute: typeof BlogSerieSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/formation/$slug/': {
       id: '/formation/$slug/'
       path: '/formation/$slug'
@@ -2229,6 +2289,9 @@ const rootRouteChildren: RootRouteChildren = {
   AnnuaireCommuneCodeRoute: AnnuaireCommuneCodeRoute,
   AnnuaireDepartementSlugRoute: AnnuaireDepartementSlugRoute,
   ApiCronPurgeContactRoute: ApiCronPurgeContactRoute,
+  BlogEtiquetteSlugRoute: BlogEtiquetteSlugRoute,
+  BlogRubriqueSlugRoute: BlogRubriqueSlugRoute,
+  BlogSerieSlugRoute: BlogSerieSlugRoute,
   ForumCategorieSlugRoute: ForumCategorieSlugRoute,
   FormationSlugIndexRoute: FormationSlugIndexRoute,
   FormationSlugLeconLessonIdRoute: FormationSlugLeconLessonIdRoute,

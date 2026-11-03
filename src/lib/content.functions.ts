@@ -3,6 +3,7 @@ import { publicClient } from "@/lib/supabase-public";
 import { check } from "@/lib/check";
 import { readingMinutes } from "@/lib/reading";
 import { lireReglages } from "@/lib/editorial-regles";
+import { etiquetteIndexable } from "@/lib/maillage";
 import {
   BLOG_PAGE_SIZE,
   cleanBlogPage,
@@ -163,7 +164,9 @@ export const getPost = createServerFn({ method: "GET" })
     const post = check(
       await client
         .from(ARTICLES)
-        .select(`${COLONNES_ARTICLE}, content:corps, relu_le, sources, auteur_fonction, auteur_nom`)
+        .select(
+          `${COLONNES_ARTICLE}, content:corps, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre`,
+        )
         .eq("type", "article")
         .eq("publie", true)
         .eq("slug", input.slug)
@@ -171,43 +174,234 @@ export const getPost = createServerFn({ method: "GET" })
       { contexte: ARTICLES },
     );
     if (!post) return null;
-    // Commentaires, articles voisins et réglages éditoriaux : en parallèle.
-    const [commentsRes, othersRes, reglagesRes] = await Promise.all([
-      client
-        .from("blog_comments")
-        .select("id, author_name, content, created_at, moderation_note, moderated_at")
-        .eq("post_id", post.id)
-        .eq("approved", true)
-        .order("created_at", { ascending: true }),
-      client
-        .from(ARTICLES)
-        .select("id, slug, title:titre, excerpt:chapo, published_at:publie_le, tags:etiquettes")
-        .eq("type", "article")
-        .eq("publie", true)
-        .neq("id", post.id)
-        .order("publie_le", { ascending: false })
-        .limit(12),
-      client.from("site_settings").select("value").eq("key", "editorial").maybeSingle(),
-    ]);
+    // Commentaires, suggestions de lecture, réglages et taxonomie : en parallèle.
+    const [commentsRes, relatedRes, reglagesRes, etiquettesRes, rubriquesRes, serieRes] =
+      await Promise.all([
+        client
+          .from("blog_comments")
+          .select("id, author_name, content, created_at, moderation_note, moderated_at")
+          .eq("post_id", post.id)
+          .eq("approved", true)
+          .order("created_at", { ascending: true }),
+        client.rpc("lire_ensuite", { _id: post.id, _n: 3 }),
+        client.from("site_settings").select("value").eq("key", "editorial").maybeSingle(),
+        client
+          .from("etiquettes")
+          .select("slug, libelle")
+          .in("libelle", post.tags ?? []),
+        client.from("rubriques").select("id, slug, libelle, parent_id"),
+        post.serie_id
+          ? client
+              .from(ARTICLES)
+              .select("slug, titre, serie_ordre, serie:series(slug, titre)")
+              .eq("type", "article")
+              .eq("publie", true)
+              .eq("serie_id", post.serie_id)
+              .order("serie_ordre", { ascending: true, nullsFirst: false })
+          : Promise.resolve({ data: [], error: null }),
+      ]);
     const comments = check(commentsRes, { contexte: "blog_comments" });
-    const others = check(othersRes, { contexte: ARTICLES });
-    const tags = post.tags ?? [];
-    const related = (others ?? [])
-      .map((item) => ({
-        item,
-        shared: (item.tags ?? []).filter((tag) => tags.includes(tag)).length,
-      }))
-      .sort((a, b) => b.shared - a.shared)
-      .slice(0, 3)
-      .map((entry) => entry.item);
+    const related = (check(relatedRes, { contexte: "lire_ensuite" }) ?? []).map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      title: r.titre,
+      excerpt: r.chapo,
+    }));
     const reglages = lireReglages(check(reglagesRes, { contexte: "site_settings" })?.value);
+    const etiquettes = check(etiquettesRes, { contexte: "etiquettes" }) ?? [];
+    const rubriques = check(rubriquesRes, { contexte: "rubriques" }) ?? [];
+    const rubrique = rubriques.find((r) => r.id === post.rubrique_id) ?? null;
+    const parent = rubrique?.parent_id
+      ? (rubriques.find((r) => r.id === rubrique.parent_id) ?? null)
+      : null;
+    const suite = check(serieRes, { contexte: "series" }) ?? [];
+    const rang = suite.findIndex((a) => a.slug === post.slug);
+    const serieInfo = suite[0]?.serie as { slug: string; titre: string } | null | undefined;
     return {
       post,
       comments: comments ?? [],
       related,
       editorial: { auteur_mode: reglages.auteur_mode, avertissement: reglages.avertissement },
+      etiquettes: etiquettes.map((e) => ({ slug: e.slug, libelle: e.libelle })),
+      fil: [parent, rubrique]
+        .filter((r): r is NonNullable<typeof r> => r !== null)
+        .map((r) => ({ slug: r.slug, libelle: r.libelle })),
+      serie:
+        serieInfo && rang >= 0
+          ? {
+              slug: serieInfo.slug,
+              titre: serieInfo.titre,
+              rang: rang + 1,
+              total: suite.length,
+              precedent:
+                rang > 0 ? { slug: suite[rang - 1]!.slug, titre: suite[rang - 1]!.titre } : null,
+              suivant:
+                rang < suite.length - 1
+                  ? { slug: suite[rang + 1]!.slug, titre: suite[rang + 1]!.titre }
+                  : null,
+            }
+          : null,
     };
   });
+
+/** Ancienne adresse d'un article : nouvelle adresse, ou null (socle 1.11.0). */
+export const trouverRedirection = createServerFn({ method: "GET" })
+  .inputValidator((input: { chemin: string }) => ({
+    chemin: String(input?.chemin ?? "").slice(0, 200),
+  }))
+  .handler(async ({ data: input }) => {
+    const data = check(
+      await publicClient().from("redirections").select("vers").eq("de", input.chemin).maybeSingle(),
+      { contexte: "redirections" },
+    );
+    return data?.vers ?? null;
+  });
+
+/** Articles en ligne d'une liste, du plus récent au plus ancien, sans le texte. */
+const LISTE_ARTICLE =
+  "id, slug, title:titre, excerpt:chapo, published_at:publie_le, tags:etiquettes";
+
+/** Page de rubrique : rubrique, sous-rubriques, articles en ligne (sous-rubriques comprises). */
+export const getRubrique = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string }) => input)
+  .handler(async ({ data: input }) => {
+    const client = publicClient();
+    const rubriques =
+      check(await client.from("rubriques").select("id, slug, libelle, intro, parent_id, ordre"), {
+        contexte: "rubriques",
+      }) ?? [];
+    const rubrique = rubriques.find((r) => r.slug === input.slug);
+    if (!rubrique) return null;
+    const enfants = rubriques
+      .filter((r) => r.parent_id === rubrique.id)
+      .sort((a, b) => a.ordre - b.ordre || a.libelle.localeCompare(b.libelle, "fr"));
+    const parent = rubriques.find((r) => r.id === rubrique.parent_id) ?? null;
+    const posts =
+      check(
+        await client
+          .from(ARTICLES)
+          .select(LISTE_ARTICLE)
+          .eq("type", "article")
+          .eq("publie", true)
+          .in("rubrique_id", [rubrique.id, ...enfants.map((e) => e.id)])
+          .order("publie_le", { ascending: false })
+          .limit(100),
+        { contexte: ARTICLES },
+      ) ?? [];
+    return {
+      rubrique: { slug: rubrique.slug, libelle: rubrique.libelle, intro: rubrique.intro },
+      parent: parent ? { slug: parent.slug, libelle: parent.libelle } : null,
+      enfants: enfants.map((e) => ({ slug: e.slug, libelle: e.libelle })),
+      posts,
+    };
+  });
+
+/** Page d'étiquette : définition, articles en ligne, et indexation selon le seuil réglé. */
+export const getEtiquette = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string }) => input)
+  .handler(async ({ data: input }) => {
+    const client = publicClient();
+    const etiquette = check(
+      await client
+        .from("etiquettes")
+        .select("slug, libelle, definition")
+        .eq("slug", input.slug)
+        .maybeSingle(),
+      { contexte: "etiquettes" },
+    );
+    if (!etiquette) return null;
+    const [postsRes, reglagesRes] = await Promise.all([
+      client
+        .from(ARTICLES)
+        .select(LISTE_ARTICLE)
+        .eq("type", "article")
+        .eq("publie", true)
+        .contains("etiquettes", [etiquette.libelle])
+        .order("publie_le", { ascending: false })
+        .limit(100),
+      client.from("site_settings").select("value").eq("key", "editorial").maybeSingle(),
+    ]);
+    const posts = check(postsRes, { contexte: ARTICLES }) ?? [];
+    const reglages = lireReglages(check(reglagesRes, { contexte: "site_settings" })?.value);
+    return {
+      etiquette,
+      posts,
+      indexable: etiquetteIndexable(posts.length, reglages.seuil_etiquette),
+    };
+  });
+
+/** Page de série : présentation et articles en ligne, dans l'ordre de la série. */
+export const getSerie = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string }) => input)
+  .handler(async ({ data: input }) => {
+    const client = publicClient();
+    const serie = check(
+      await client
+        .from("series")
+        .select("id, slug, titre, description")
+        .eq("slug", input.slug)
+        .maybeSingle(),
+      { contexte: "series" },
+    );
+    if (!serie) return null;
+    const posts =
+      check(
+        await client
+          .from(ARTICLES)
+          .select(LISTE_ARTICLE)
+          .eq("type", "article")
+          .eq("publie", true)
+          .eq("serie_id", serie.id)
+          .order("serie_ordre", { ascending: true, nullsFirst: false }),
+        { contexte: ARTICLES },
+      ) ?? [];
+    return {
+      serie: { slug: serie.slug, titre: serie.titre, description: serie.description },
+      posts,
+    };
+  });
+
+/** Plan du site : rubriques et séries ayant un article en ligne, étiquettes au-delà du seuil. */
+export const listSitemapTaxonomie = createServerFn({ method: "GET" }).handler(async () => {
+  const client = publicClient();
+  const [postsRes, rubriquesRes, etiquettesRes, seriesRes, reglagesRes] = await Promise.all([
+    client
+      .from(ARTICLES)
+      .select("rubrique_id, serie_id, etiquettes, updated_at")
+      .eq("type", "article")
+      .eq("publie", true)
+      .limit(SITEMAP_POSTS_LIMIT),
+    client.from("rubriques").select("id, slug, parent_id"),
+    client.from("etiquettes").select("slug, libelle"),
+    client.from("series").select("id, slug"),
+    client.from("site_settings").select("value").eq("key", "editorial").maybeSingle(),
+  ]);
+  const posts = check(postsRes, { contexte: ARTICLES }) ?? [];
+  const rubriques = check(rubriquesRes, { contexte: "rubriques" }) ?? [];
+  const reglages = lireReglages(check(reglagesRes, { contexte: "site_settings" })?.value);
+  const derniere = (filtre: (p: (typeof posts)[number]) => boolean) =>
+    posts
+      .filter(filtre)
+      .reduce<string | null>((max, p) => (!max || p.updated_at > max ? p.updated_at : max), null);
+  const out: { path: string; lastmod: string }[] = [];
+  for (const r of rubriques) {
+    const ids = [r.id, ...rubriques.filter((x) => x.parent_id === r.id).map((x) => x.id)];
+    const d = derniere((p) => !!p.rubrique_id && ids.includes(p.rubrique_id));
+    if (d) out.push({ path: `/blog/rubrique/${r.slug}`, lastmod: d });
+  }
+  for (const e of check(etiquettesRes, { contexte: "etiquettes" }) ?? []) {
+    const avec = posts.filter((p) => (p.etiquettes ?? []).includes(e.libelle));
+    if (etiquetteIndexable(avec.length, reglages.seuil_etiquette)) {
+      const d = derniere((p) => (p.etiquettes ?? []).includes(e.libelle));
+      if (d) out.push({ path: `/blog/etiquette/${e.slug}`, lastmod: d });
+    }
+  }
+  for (const se of check(seriesRes, { contexte: "series" }) ?? []) {
+    const d = derniere((p) => p.serie_id === se.id);
+    if (d) out.push({ path: `/blog/serie/${se.slug}`, lastmod: d });
+  }
+  return out;
+});
 
 /** Grille de conformité du modèle : sert au pilotage et aux audits. */
 export const listTemplateChecks = createServerFn({ method: "GET" }).handler(async () => {

@@ -145,6 +145,26 @@ version par la copie.
 
 ### Lot 3 — Taxonomie et maillage interne (version 1.11.0)
 
+**Fait le 03/11/2026** : migration `20261103160000_v1_11_0_maillage.sql`, blocs
+`supabase/seed/v1_11_0/`, test `tests/db/test_32`, pages `/blog/rubrique/…`, `/blog/etiquette/…`,
+`/blog/serie/…`, onglet Taxonomie et panneau Maillage du poste Éditorial, règles d'écran
+`src/lib/maillage.ts`. Écarts assumés par rapport au texte ci-dessous :
+
+- **pas de table `liens_internes`** : la base lit les liens dans le texte à chaque calcul
+  (`extraire_liens`, `liens_du_texte`). Toujours juste, rien à resynchroniser ; le volume d'un blog
+  le permet ;
+- **lien vers un contenu hors ligne** compté comme cassé (il mènerait le visiteur à une page
+  introuvable) : un pilier ne cite un satellite qu'une fois celui-ci publié ;
+- les suggestions de liens se calculent à l'écran (pilier, frères, étiquettes, rubrique, mots du
+  titre) ; la proximité plein texte en base et le lien automatique vers un lexique restent à faire
+  (le socle n'a pas encore de lexique) ;
+- les rubriques sont gérées par les admins ; étiquettes et séries par les rédacteurs, supprimées
+  par les admins ;
+- une page de rubrique ou de série sans article en ligne n'est pas indexée, comme une page
+  d'étiquette sous le seuil (réglage `seuil_etiquette`, 3 par défaut) ;
+- **reste à faire** : liens vers les rubriques depuis `/blog` (aujourd'hui atteintes par le fil
+  d'Ariane des articles et le plan du site).
+
 Le maillage interne dit aux lecteurs et aux moteurs de recherche ce qui compte et ce qui va
 ensemble. Aujourd'hui il dépend de la mémoire du rédacteur. Ce lot le rend visible et contrôlé.
 

@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { listPublicPages, listSitemapPosts, listSitemapTopics } from "@/lib/content.functions";
+import {
+  listPublicPages,
+  listSitemapPosts,
+  listSitemapTaxonomie,
+  listSitemapTopics,
+} from "@/lib/content.functions";
 import { isModuleOn, onlyActive, type FeatureKey } from "@/config/modules";
 import { loadSiteConfig } from "@/lib/site-config.functions";
 import { listSitemapProducts } from "@/lib/shop.functions";
@@ -73,7 +78,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         // Date réelle des pages d'accueil de module : celle de leur contenu le plus récent.
         const indexDates = new Map<string, string | undefined>();
         try {
-          const [posts, topics, freePages, products, directory] = await Promise.all([
+          const [posts, topics, freePages, products, directory, taxonomie] = await Promise.all([
             isModuleOn(site.modules, "blog") ? listSitemapPosts() : Promise.resolve([]),
             isModuleOn(site.modules, "forum") ? listSitemapTopics() : Promise.resolve([]),
             isModuleOn(site.modules, "pages") ? listPublicPages() : Promise.resolve([]),
@@ -81,7 +86,17 @@ export const Route = createFileRoute("/sitemap.xml")({
             isModuleOn(site.modules, "directory")
               ? listDirectorySitemap({ data: { geo: isModuleOn(site.modules, "geo") } })
               : Promise.resolve(null),
+            isModuleOn(site.modules, "blog") ? listSitemapTaxonomie() : Promise.resolve([]),
           ]);
+          // Blog : rubriques et séries ayant un article en ligne, étiquettes au-delà du seuil réglé.
+          for (const entry of taxonomie) {
+            dynamic.push({
+              path: entry.path,
+              priority: "0.6",
+              changefreq: "weekly",
+              lastmod: toDay(entry.lastmod),
+            });
+          }
           // Annuaire : fiches publiées, catégories et départements ayant au moins une fiche.
           for (const entry of directory?.listings ?? []) {
             dynamic.push({

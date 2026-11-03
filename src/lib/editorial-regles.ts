@@ -36,6 +36,8 @@ export type ReglagesEditoriaux = {
   longueurs_seo: boolean;
   auteur_mode: "fonction" | "nomme";
   avertissement: string;
+  /** Articles à partir desquels une page d'étiquette est indexée (socle 1.11.0). */
+  seuil_etiquette: number;
 };
 
 export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
@@ -47,6 +49,7 @@ export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
   longueurs_seo: true,
   auteur_mode: "fonction",
   avertissement: "",
+  seuil_etiquette: 3,
 };
 
 /** Réglages lus en base, complétés par les valeurs par défaut (valeur absente ou d'un autre type). */
@@ -55,6 +58,7 @@ export function lireReglages(valeur: unknown): ReglagesEditoriaux {
   const bool = (k: keyof ReglagesEditoriaux) =>
     typeof v[k] === "boolean" ? (v[k] as boolean) : (REGLAGES_PAR_DEFAUT[k] as boolean);
   const delai = Number(v["delai_relecture_mois"]);
+  const seuil = Number(v["seuil_etiquette"]);
   return {
     circuit: v["circuit"] === "simple" ? "simple" : "complet",
     delai_relecture_mois:
@@ -67,6 +71,10 @@ export function lireReglages(valeur: unknown): ReglagesEditoriaux {
     longueurs_seo: bool("longueurs_seo"),
     auteur_mode: v["auteur_mode"] === "nomme" ? "nomme" : "fonction",
     avertissement: typeof v["avertissement"] === "string" ? v["avertissement"].slice(0, 400) : "",
+    seuil_etiquette:
+      Number.isInteger(seuil) && seuil >= 1 && seuil <= 50
+        ? seuil
+        : REGLAGES_PAR_DEFAUT.seuil_etiquette,
   };
 }
 

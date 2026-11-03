@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/cds/SiteHeader";
 import { ConfirmButton } from "@/components/cds/ConfirmButton";
@@ -21,16 +21,26 @@ import {
   creerArticle,
   enregistrerContenu,
   enregistrerReglages,
+  enregistrerEtiquette,
+  enregistrerRubrique,
+  enregistrerSerie,
   fetchARevoir,
   fetchEditorial,
+  fetchMaillage,
+  fetchTaxonomie,
   fetchJournal,
   fetchReglages,
   fetchTermes,
   supprimerContenu,
+  supprimerEtiquette,
+  supprimerRubrique,
+  supprimerSerie,
   supprimerTerme,
   useDroitsEditorial,
   type ContenuARevoir,
   type ContenuEditorial,
+  type EtatMaillage,
+  type Taxonomie,
   type LigneJournal,
   type TermeInterdit,
 } from "@/lib/editorial";
@@ -48,6 +58,7 @@ import {
   type Statut,
 } from "@/lib/editorial-regles";
 import { slugify } from "@/lib/format";
+import { lienMarkdown, suggestionsDeLiens } from "@/lib/maillage";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/editorial")({
@@ -75,6 +86,20 @@ const TON: Record<Statut, string> = {
   publie: "border-success-border bg-success-soft text-success-text",
   a_actualiser: "border-warning-border bg-warning-soft text-warning-text",
 };
+
+/** Données partagées du poste : tous les contenus, taxonomie, état du maillage. */
+type PosteCtx = {
+  contenus: ContenuEditorial[];
+  taxo: Taxonomie;
+  maillage: Map<string, EtatMaillage>;
+  admin: boolean;
+};
+const Contexte = createContext<PosteCtx>({
+  contenus: [],
+  taxo: { rubriques: [], etiquettes: [], series: [] },
+  maillage: new Map(),
+  admin: false,
+});
 
 function Pastille({ statut }: { statut: Statut }) {
   const info = statutInfo(statut);
@@ -132,13 +157,22 @@ function EditorialPage() {
 function Poste({ admin }: { admin: boolean }) {
   const [contenus, setContenus] = useState<ContenuEditorial[] | null>(null);
   const [reglages, setReglages] = useState<ReglagesEditoriaux>(REGLAGES_PAR_DEFAUT);
+  const [taxo, setTaxo] = useState<Taxonomie>({ rubriques: [], etiquettes: [], series: [] });
+  const [maillage, setMaillage] = useState<Map<string, EtatMaillage>>(new Map());
   const [echec, setEchec] = useState(false);
 
   const recharger = useCallback(async () => {
     try {
-      const [c, r] = await Promise.all([fetchEditorial(), fetchReglages()]);
+      const [c, r, t, m] = await Promise.all([
+        fetchEditorial(),
+        fetchReglages(),
+        fetchTaxonomie(),
+        fetchMaillage(),
+      ]);
       setContenus(c);
       setReglages(r);
+      setTaxo(t);
+      setMaillage(m);
       setEchec(false);
     } catch {
       setEchec(true);
@@ -150,42 +184,48 @@ function Poste({ admin }: { admin: boolean }) {
   }, [recharger]);
 
   return (
-    <Tabs defaultValue="articles" className="mt-8">
-      <TabsList>
-        <TabsTrigger value="articles">Articles</TabsTrigger>
-        {admin ? <TabsTrigger value="reglages">Réglages</TabsTrigger> : null}
-      </TabsList>
-      <TabsContent value="articles" className="mt-6 space-y-4">
-        {echec ? (
-          <Alert variant="destructive">
-            <AlertTitle>Chargement impossible</AlertTitle>
-            <AlertDescription>
-              Les articles n'ont pas pu être chargés.{" "}
-              <button type="button" className="underline" onClick={() => void recharger()}>
-                Réessayer
-              </button>
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        <NouvelArticle recharger={recharger} />
-        {contenus === null ? (
-          <Skeleton className="h-40 w-full" />
-        ) : (
-          <ListeParStatut
-            contenus={contenus.filter((c) => c.type === "article")}
-            admin={admin}
-            reglages={reglages}
-            recharger={recharger}
-          />
-        )}
-      </TabsContent>
-      {admin ? (
-        <TabsContent value="reglages" className="mt-6 space-y-4">
-          <Reglages initial={reglages} recharger={recharger} />
-          <Termes />
+    <Contexte.Provider value={{ contenus: contenus ?? [], taxo, maillage, admin }}>
+      <Tabs defaultValue="articles" className="mt-8">
+        <TabsList>
+          <TabsTrigger value="articles">Articles</TabsTrigger>
+          <TabsTrigger value="taxonomie">Taxonomie</TabsTrigger>
+          {admin ? <TabsTrigger value="reglages">Réglages</TabsTrigger> : null}
+        </TabsList>
+        <TabsContent value="articles" className="mt-6 space-y-4">
+          {echec ? (
+            <Alert variant="destructive">
+              <AlertTitle>Chargement impossible</AlertTitle>
+              <AlertDescription>
+                Les articles n'ont pas pu être chargés.{" "}
+                <button type="button" className="underline" onClick={() => void recharger()}>
+                  Réessayer
+                </button>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+          <NouvelArticle recharger={recharger} />
+          {contenus === null ? (
+            <Skeleton className="h-40 w-full" />
+          ) : (
+            <ListeParStatut
+              contenus={contenus.filter((c) => c.type === "article")}
+              admin={admin}
+              reglages={reglages}
+              recharger={recharger}
+            />
+          )}
         </TabsContent>
-      ) : null}
-    </Tabs>
+        <TabsContent value="taxonomie" className="mt-6 space-y-4">
+          <TaxonomiePanneau recharger={recharger} />
+        </TabsContent>
+        {admin ? (
+          <TabsContent value="reglages" className="mt-6 space-y-4">
+            <Reglages initial={reglages} recharger={recharger} />
+            <Termes />
+          </TabsContent>
+        ) : null}
+      </Tabs>
+    </Contexte.Provider>
   );
 }
 
@@ -325,6 +365,7 @@ function Fiche({
           ))}
         </ul>
       ) : null}
+      <MaillagePanneau contenu={contenu} />
       <div className="mt-4 flex flex-wrap gap-2">
         {actions.map((a) => (
           <Passage key={a.vers + a.label} contenu={contenu} action={a} recharger={recharger} />
@@ -529,13 +570,22 @@ function Edition({
     sources: contenu.sources,
     auteur_fonction: contenu.auteur_fonction,
     auteur_nom: contenu.auteur_nom,
-    etiquettes: contenu.etiquettes.join(", "),
     image_url: contenu.image_url ?? "",
     image_alt: contenu.image_alt,
     date_prevue: contenu.date_prevue ?? "",
     public_vise: contenu.public_vise,
     requete_visee: contenu.requete_visee,
+    rubrique_id: contenu.rubrique_id ?? "",
+    serie_id: contenu.serie_id ?? "",
+    serie_ordre: contenu.serie_ordre ? String(contenu.serie_ordre) : "",
+    pilier_id: contenu.pilier_id ?? "",
   });
+  const [estPilier, setEstPilier] = useState(contenu.est_pilier);
+  const [etiq, setEtiq] = useState<string[]>(contenu.etiquettes);
+  const { taxo, contenus } = useContext(Contexte);
+  const piliers = contenus.filter(
+    (c) => c.est_pilier && c.id !== contenu.id && c.type === "article",
+  );
   const [envoi, setEnvoi] = useState(false);
   const id = (champ: string) => `ed-${champ}-${contenu.id}`;
   const enLigneOuRelu = ["pret", "programme", "publie", "a_actualiser"].includes(contenu.statut_lu);
@@ -564,10 +614,12 @@ function Edition({
       sources: v.sources.trim(),
       auteur_fonction: v.auteur_fonction.trim(),
       auteur_nom: v.auteur_nom.trim(),
-      etiquettes: v.etiquettes
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
+      etiquettes: etiq,
+      rubrique_id: v.rubrique_id || null,
+      serie_id: v.serie_id || null,
+      serie_ordre: v.serie_id && v.serie_ordre ? Number(v.serie_ordre) : null,
+      est_pilier: estPilier,
+      pilier_id: estPilier ? null : v.pilier_id || null,
       image_url: v.image_url.trim() || null,
       image_alt: v.image_alt.trim(),
       date_prevue: v.date_prevue || null,
@@ -649,9 +701,101 @@ function Edition({
           </p>
         </div>
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor={id("etiquettes")}>Étiquettes</Label>
-        <Input {...champ("etiquettes")} placeholder="référencement, conformité, tarifs" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("rubrique_id")}>Rubrique</Label>
+          <select
+            id={id("rubrique_id")}
+            value={v.rubrique_id}
+            onChange={(e) => setV({ ...v, rubrique_id: e.target.value })}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Aucune</option>
+            {taxo.rubriques.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.parent_id ? "— " : ""}
+                {r.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("pilier_id")}>Place dans le maillage</Label>
+          <select
+            id={id("pilier_id")}
+            value={estPilier ? "__pilier" : v.pilier_id}
+            onChange={(e) => {
+              setEstPilier(e.target.value === "__pilier");
+              setV({ ...v, pilier_id: e.target.value === "__pilier" ? "" : e.target.value });
+            }}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Article indépendant</option>
+            <option value="__pilier">Pilier : guide de fond d'un sujet</option>
+            {piliers.map((p) => (
+              <option key={p.id} value={p.id}>
+                Satellite de : {p.titre}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <fieldset className="space-y-1.5">
+        <legend className="text-sm font-medium text-foreground">Étiquettes</legend>
+        {taxo.etiquettes.length === 0 ? (
+          <p className="text-xs text-foreground">
+            Aucune étiquette : les créer dans l'onglet Taxonomie.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {taxo.etiquettes.map((e) => {
+              const coche = etiq.includes(e.libelle);
+              return (
+                <label
+                  key={e.id}
+                  title={e.definition || e.libelle}
+                  className={`flex min-h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-xs ${
+                    coche
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={coche}
+                    onChange={() =>
+                      setEtiq(coche ? etiq.filter((x) => x !== e.libelle) : [...etiq, e.libelle])
+                    }
+                  />
+                  {e.libelle}
+                </label>
+              );
+            })}
+          </div>
+        )}
+      </fieldset>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("serie_id")}>Série</Label>
+          <select
+            id={id("serie_id")}
+            value={v.serie_id}
+            onChange={(e) => setV({ ...v, serie_id: e.target.value })}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Aucune</option>
+            {taxo.series.map((se) => (
+              <option key={se.id} value={se.id}>
+                {se.titre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("serie_ordre")}>Place dans la série</Label>
+          <Input {...champ("serie_ordre")} type="number" min={1} max={999} disabled={!v.serie_id} />
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <ImageField
@@ -941,5 +1085,356 @@ function Termes() {
         </div>
       ) : null}
     </section>
+  );
+}
+
+function MaillagePanneau({ contenu }: { contenu: ContenuEditorial }) {
+  const { contenus, maillage } = useContext(Contexte);
+  const etat = maillage.get(contenu.id);
+  const [ouvert, setOuvert] = useState(false);
+  const suggestions = useMemo(
+    () =>
+      ouvert
+        ? suggestionsDeLiens(
+            { ...contenu, en_ligne: false },
+            contenus
+              .filter((c) => c.type === "article")
+              .map((c) => ({
+                ...c,
+                en_ligne: c.statut_lu === "publie" || c.statut_lu === "a_actualiser",
+              })),
+          )
+        : [],
+    [ouvert, contenu, contenus],
+  );
+  if (!etat) return null;
+  const alertes = [
+    ...(etat.orphelin ? ["Aucun article en ligne ne renvoie vers celui-ci."] : []),
+    ...(etat.liens_casses.length ? [`Liens cassés : ${etat.liens_casses.join(", ")}.`] : []),
+    ...(etat.liens_rediriges.length
+      ? [`Liens vers une ancienne adresse, à mettre à jour : ${etat.liens_rediriges.join(", ")}.`]
+      : []),
+    ...(etat.ancres_pauvres.length
+      ? [`Ancres qui ne disent rien de la page visée : ${etat.ancres_pauvres.join(", ")}.`]
+      : []),
+    ...(etat.satellites_absents.length
+      ? [`Satellites en ligne non cités par ce pilier : ${etat.satellites_absents.join(", ")}.`]
+      : []),
+    ...(etat.requete_en_double.length
+      ? [`Même requête visée que : ${etat.requete_en_double.join(", ")}.`]
+      : []),
+  ];
+  return (
+    <div className="mt-4 rounded-md border border-border p-3 text-sm text-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p>
+          Maillage : {etat.sortants} lien{etat.sortants > 1 ? "s" : ""} vers le blog,{" "}
+          {etat.entrants} article{etat.entrants > 1 ? "s" : ""} en ligne qui y renvoie
+          {etat.entrants > 1 ? "nt" : ""}.
+        </p>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => setOuvert((o) => !o)}
+          title="Proposer des articles à citer dans ce texte"
+        >
+          {ouvert ? "Masquer les suggestions" : "Suggérer des liens"}
+        </Button>
+      </div>
+      {alertes.length > 0 ? (
+        <ul className="mt-2 list-disc space-y-1 rounded-md border border-warning-border bg-warning-soft py-2 pl-7 pr-3 text-warning-text">
+          {alertes.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+      ) : null}
+      {ouvert ? (
+        suggestions.length === 0 ? (
+          <p className="mt-2">Aucun article en ligne proche pour l'instant.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-border rounded-md border border-border">
+            {suggestions.map((sg) => (
+              <li
+                key={sg.id}
+                className="flex flex-wrap items-center justify-between gap-2 px-3 py-2"
+              >
+                <span>
+                  <span className="font-medium">{sg.titre}</span> · {sg.raison}
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  title="Copier le lien à coller dans le texte"
+                  onClick={() => {
+                    void navigator.clipboard
+                      .writeText(lienMarkdown(sg.titre, sg.slug))
+                      .then(() => toast.success("Lien copié : à coller dans le texte."));
+                  }}
+                >
+                  Copier le lien
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )
+      ) : null}
+    </div>
+  );
+}
+
+function TaxonomiePanneau({ recharger }: { recharger: () => Promise<void> }) {
+  const { taxo, admin } = useContext(Contexte);
+  const [rub, setRub] = useState({ libelle: "", intro: "", parent_id: "" });
+  const [eti, setEti] = useState({ libelle: "", definition: "" });
+  const [ser, setSer] = useState({ titre: "", description: "" });
+  const meres = taxo.rubriques.filter((r) => !r.parent_id);
+
+  async function apres(erreur: string, ok: string) {
+    if (erreur) {
+      toast.error("Enregistrement impossible.", { description: erreur });
+      return false;
+    }
+    toast.success(ok);
+    await recharger();
+    return true;
+  }
+
+  return (
+    <>
+      <section className={`space-y-4 ${cardClass}`} aria-labelledby="tx-rubriques">
+        <h2 id="tx-rubriques" className="text-base font-semibold text-foreground">
+          Rubriques
+        </h2>
+        <p className="text-sm text-foreground">
+          Une rubrique par article, deux niveaux au plus. Chaque rubrique a sa page, avec son texte
+          d'introduction : elle donne le fil d'Ariane des articles.
+        </p>
+        {taxo.rubriques.length > 0 ? (
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {taxo.rubriques.map((r) => (
+              <li key={r.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                <span className="text-foreground">
+                  {r.parent_id ? "— " : ""}
+                  {r.libelle} · /blog/rubrique/{r.slug}
+                </span>
+                {admin ? (
+                  <ConfirmButton
+                    title={`Supprimer la rubrique « ${r.libelle} »`}
+                    question={`Supprimer la rubrique « ${r.libelle} » ? Ses articles restent, sans rubrique.`}
+                    onConfirm={async () => {
+                      await apres(await supprimerRubrique(r.id), "Rubrique supprimée.");
+                    }}
+                  />
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {admin ? (
+          <form
+            className="grid gap-3 sm:grid-cols-2"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const ok = await apres(
+                await enregistrerRubrique(null, {
+                  libelle: rub.libelle.trim(),
+                  slug: borneSlug(slugify(rub.libelle)),
+                  intro: rub.intro.trim(),
+                  parent_id: rub.parent_id || null,
+                  ordre: 0,
+                }),
+                "Rubrique créée.",
+              );
+              if (ok) setRub({ libelle: "", intro: "", parent_id: "" });
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="tx-rub-libelle">Nouvelle rubrique</Label>
+              <Input
+                id="tx-rub-libelle"
+                value={rub.libelle}
+                onChange={(e) => setRub({ ...rub, libelle: e.target.value })}
+                minLength={2}
+                maxLength={60}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="tx-rub-parent">Rubrique mère</Label>
+              <select
+                id="tx-rub-parent"
+                value={rub.parent_id}
+                onChange={(e) => setRub({ ...rub, parent_id: e.target.value })}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Aucune (premier niveau)</option>
+                {meres.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.libelle}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="tx-rub-intro">Texte d'introduction de la page</Label>
+              <Textarea
+                id="tx-rub-intro"
+                rows={2}
+                maxLength={2000}
+                value={rub.intro}
+                onChange={(e) => setRub({ ...rub, intro: e.target.value })}
+              />
+            </div>
+            <Button type="submit" className="sm:col-span-2 sm:w-fit" title="Créer cette rubrique">
+              Créer la rubrique
+            </Button>
+          </form>
+        ) : (
+          <p className="text-sm text-foreground">
+            Les rubriques sont créées par un administrateur.
+          </p>
+        )}
+      </section>
+
+      <section className={`space-y-4 ${cardClass}`} aria-labelledby="tx-etiquettes">
+        <h2 id="tx-etiquettes" className="text-base font-semibold text-foreground">
+          Étiquettes
+        </h2>
+        <p className="text-sm text-foreground">
+          Un vocabulaire commun : un article ne porte que des étiquettes de cette liste. Une
+          définition courte aide les rédacteurs à choisir.
+        </p>
+        {taxo.etiquettes.length > 0 ? (
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {taxo.etiquettes.map((e) => (
+              <li key={e.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                <span className="text-foreground">
+                  <span className="font-medium">{e.libelle}</span>
+                  {e.definition ? ` · ${e.definition}` : ""}
+                </span>
+                {admin ? (
+                  <ConfirmButton
+                    title={`Supprimer l'étiquette « ${e.libelle} »`}
+                    question={`Supprimer l'étiquette « ${e.libelle} » ? Les articles qui la portent la gardent jusqu'à leur prochaine modification.`}
+                    onConfirm={async () => {
+                      await apres(await supprimerEtiquette(e.id), "Étiquette supprimée.");
+                    }}
+                  />
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <form
+          className="grid gap-3 sm:grid-cols-2"
+          onSubmit={async (ev) => {
+            ev.preventDefault();
+            const ok = await apres(
+              await enregistrerEtiquette(null, {
+                libelle: eti.libelle.trim(),
+                definition: eti.definition.trim(),
+              }),
+              "Étiquette créée.",
+            );
+            if (ok) setEti({ libelle: "", definition: "" });
+          }}
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="tx-eti-libelle">Nouvelle étiquette</Label>
+            <Input
+              id="tx-eti-libelle"
+              value={eti.libelle}
+              onChange={(ev) => setEti({ ...eti, libelle: ev.target.value })}
+              minLength={2}
+              maxLength={60}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="tx-eti-definition">Définition</Label>
+            <Input
+              id="tx-eti-definition"
+              value={eti.definition}
+              onChange={(ev) => setEti({ ...eti, definition: ev.target.value })}
+              maxLength={300}
+            />
+          </div>
+          <Button type="submit" className="sm:col-span-2 sm:w-fit" title="Créer cette étiquette">
+            Créer l'étiquette
+          </Button>
+        </form>
+      </section>
+
+      <section className={`space-y-4 ${cardClass}`} aria-labelledby="tx-series">
+        <h2 id="tx-series" className="text-base font-semibold text-foreground">
+          Séries
+        </h2>
+        <p className="text-sm text-foreground">
+          Une suite d'articles à lire dans l'ordre : chaque article de la série renvoie au précédent
+          et au suivant.
+        </p>
+        {taxo.series.length > 0 ? (
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {taxo.series.map((se) => (
+              <li key={se.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                <span className="text-foreground">
+                  {se.titre} · /blog/serie/{se.slug}
+                </span>
+                {admin ? (
+                  <ConfirmButton
+                    title={`Supprimer la série « ${se.titre} »`}
+                    question={`Supprimer la série « ${se.titre} » ? Ses articles restent, hors série.`}
+                    onConfirm={async () => {
+                      await apres(await supprimerSerie(se.id), "Série supprimée.");
+                    }}
+                  />
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <form
+          className="grid gap-3 sm:grid-cols-2"
+          onSubmit={async (ev) => {
+            ev.preventDefault();
+            const ok = await apres(
+              await enregistrerSerie(null, {
+                titre: ser.titre.trim(),
+                slug: borneSlug(slugify(ser.titre)),
+                description: ser.description.trim(),
+              }),
+              "Série créée.",
+            );
+            if (ok) setSer({ titre: "", description: "" });
+          }}
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="tx-ser-titre">Nouvelle série</Label>
+            <Input
+              id="tx-ser-titre"
+              value={ser.titre}
+              onChange={(ev) => setSer({ ...ser, titre: ev.target.value })}
+              minLength={3}
+              maxLength={120}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="tx-ser-description">Présentation</Label>
+            <Input
+              id="tx-ser-description"
+              value={ser.description}
+              onChange={(ev) => setSer({ ...ser, description: ev.target.value })}
+              maxLength={600}
+            />
+          </div>
+          <Button type="submit" className="sm:col-span-2 sm:w-fit" title="Créer cette série">
+            Créer la série
+          </Button>
+        </form>
+      </section>
+    </>
   );
 }

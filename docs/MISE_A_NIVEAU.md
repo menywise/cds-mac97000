@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.10.0**, migration
-  `20261103140000_v1_10_0_circuit_editorial`.
+  migrations de la plateforme. Version courante : **1.11.0**, migration
+  `20261103160000_v1_11_0_maillage`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -35,7 +35,9 @@ installation.
   apparaissent « à actualiser » (aucune date de relecture avant la 1.10.0) : les relire, ou couper
   « Relecture exigée » dans Éditorial → Réglages. Une installation qui bloque aussi des noms tirés
   de ses propres tables écrit `public.greffe_termes_nominatifs(text) returns text[]` dans
-  `supabase/greffe/`. Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
+  `supabase/greffe/`. La 1.11.0 suit la règle générale (base d'abord) : elle reprend les étiquettes
+  existantes dans un vocabulaire contrôlé et signale les liens internes déjà cassés sans retirer
+  d'article. Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
   `site_settings` donne la version en un coup d'œil.
