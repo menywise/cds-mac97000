@@ -25,7 +25,8 @@ export const Route = createFileRoute("/blog/serie/$slug")({
         ),
         path: `/blog/serie/${params.slug}`,
         type: "website",
-        ...(loaderData && loaderData.posts.length === 0 ? { noindex: true } : {}),
+        // Série introuvable (404) ou sans article en ligne : non indexée.
+        ...(!loaderData || loaderData.posts.length === 0 ? { noindex: true } : {}),
       }),
       scripts: [
         breadcrumbJsonLd([

@@ -76,6 +76,9 @@ DO $$ BEGIN
   IF public.suggestion_recherche('ecartuers') IS DISTINCT FROM 'écarteurs' THEN
     RAISE EXCEPTION 'suggestion : %', public.suggestion_recherche('ecartuers'); END IF;
   IF public.suggestion_recherche('pince') IS NOT NULL THEN RAISE EXCEPTION 'mot connu : pas de suggestion'; END IF;
+  -- Socle 1.15.1 : une lettre fausse dans un mot de cinq lettres (similarité 0,33) trouve sa suggestion.
+  IF public.suggestion_recherche('pinse') IS DISTINCT FROM 'pince' THEN
+    RAISE EXCEPTION 'suggestion mot court : %', public.suggestion_recherche('pinse'); END IF;
   PERFORM public.recherche_articles('Sutures   résorbables !');
   PERFORM public.recherche_articles('sutures résorbables');
   PERFORM public.recherche_articles('sutures', 'materiel');

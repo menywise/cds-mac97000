@@ -143,3 +143,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Socle 1.14.0 | Lot 6 : société savante. Nouveaux écarts S→C1 : bibliographie (`bibliographie.ts` en copie exacte), liens d'intérêts, niveau de preuve, genres, relecteurs ; accès membres reporté |
 | 03/11/2026 | Socle 1.15.0 | Lot 7 : pilotage. Nouveaux écarts S→C1 : appels à l'action (C1 : `AppelDemo` devient un encart réglable), intention, `pilotage.ts`, santé du contenu |
 | 03/11/2026 | Recette et retour vers C1 | Base du socle passée de 1.8.0 à 1.15.0, recette des lots 2 à 7 (plan, « Recette du 03/11/2026 »). Sept copies exactes ajoutées à `verifier-socle.mjs` de C1 ; `article-donnees.ts` branché, les six autres en attente de leur migration ou de leur écran |
+| 04/11/2026 | Socle 1.15.1 | Correctifs de la recette : seuil de la suggestion à 0,3, pages introuvables du blog en `noindex`. Rien à copier pour C1 (fonction portée, sa recherche diffère) |

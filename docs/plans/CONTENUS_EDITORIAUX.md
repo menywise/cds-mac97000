@@ -384,8 +384,8 @@ des sept versions conformes). Code de `main` lancé sur le poste, branché sur c
 | N° | Gravité | Écart | Suite |
 |---|---|---|---|
 | R1 | Bloquant, hors code | Le site publié tourne sur un code antérieur à 1.9.0 : `/blog` et les articles répondent 500 depuis le retrait de la vue `blog_posts` (1.10.0) | Republier le projet (code de `main`) |
-| R2 | Mineur | Pages introuvables (article, rubrique, étiquette, série) : statut 404 correct, mais balise `robots` à « index, follow » | `noindex` sur ces pages |
-| R3 | Mineur | Suggestion muette sur une faute d'une lettre dans un mot court : « sokle » ne propose rien (similarité 0,33, seuil 0,35) ; « methde » propose « méthode » | Décider : seuil à 0,3 ou statu quo |
+| R2 | Mineur | Pages introuvables (article, rubrique, étiquette, série) : statut 404 correct, mais balise `robots` à « index, follow » | **Corrigé en 1.15.1** : `noindex` sur ces pages |
+| R3 | Mineur | Suggestion muette sur une faute d'une lettre dans un mot court : « sokle » ne propose rien (similarité 0,33, seuil 0,35) ; « methde » propose « méthode » | **Corrigé en 1.15.1** : seuil à 0,3 (décision du 03/11/2026), test « pinse » → « pince » |
 | R4 | Attendu | L'article existant passe « à actualiser » (aucune relecture avant 1.10.0) ; sans fonction de l'auteur ni source, une republication après correction sera refusée | Le relire et le compléter, ou couper les exigences dans Éditorial → Réglages |
 
 ## 5. Retour vers le premier clone, lot par lot

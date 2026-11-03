@@ -24,7 +24,8 @@ export const Route = createFileRoute("/blog/etiquette/$slug")({
       description: clampText(e?.definition || `Les articles sur : ${e?.libelle ?? ""}.`, 160),
       path: `/blog/etiquette/${params.slug}`,
       type: "website",
-      ...(loaderData && !loaderData.indexable ? { noindex: true } : {}),
+      // Étiquette introuvable (404) ou sous le seuil : non indexée.
+      ...(!loaderData || !loaderData.indexable ? { noindex: true } : {}),
     });
     return {
       ...seoBase,
