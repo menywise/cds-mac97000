@@ -21,8 +21,8 @@ export const Route = createFileRoute("/blog/rubrique/$slug")({
       description: clampText(r?.intro || `Les articles de la rubrique ${r?.libelle ?? ""}.`, 160),
       path: `/blog/rubrique/${params.slug}`,
       type: "website",
-      // Rubrique sans article en ligne : page pauvre, non indexée.
-      ...(loaderData && loaderData.posts.length === 0 ? { noindex: true } : {}),
+      // Rubrique introuvable (404) ou sans article en ligne (page pauvre) : non indexée.
+      ...(!loaderData || loaderData.posts.length === 0 ? { noindex: true } : {}),
     });
     return {
       ...seoBase,

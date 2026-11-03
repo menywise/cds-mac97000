@@ -53,6 +53,8 @@ export const Route = createFileRoute("/blog/$slug")({
       description: post?.description || post?.excerpt || "Article du blog.",
       path: `/blog/${params.slug}`,
       type: "article",
+      // Article introuvable (404) : jamais indexé.
+      ...(post ? {} : { noindex: true }),
       ...(post?.cover_url ? { image: imageAbsolue(post.cover_url, site) } : {}),
     });
     return {
