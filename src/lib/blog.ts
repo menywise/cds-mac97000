@@ -59,3 +59,31 @@ export type BlogListPost = {
   /** Durée de lecture en minutes, calculée sur le serveur à partir du texte. */
   reading_minutes: number;
 };
+
+/**
+ * Longueurs des articles (contenus_publics, socle 1.9.0) : mêmes bornes que la base, pour borner
+ * la saisie avant l'envoi. La base reste juge.
+ */
+export const ARTICLE_LONGUEURS = {
+  titre: { min: 3, max: 120 },
+  slug: 80,
+  description: 160,
+  chapo: 600,
+  corps: 100000,
+} as const;
+
+/**
+ * Description pour les moteurs de recherche et les partages, tirée du résumé : 160 caractères au
+ * plus, coupée sur un mot entier avec « … ». Même règle que la reprise de la migration 1.9.0.
+ */
+export function descriptionDepuis(chapo: string) {
+  const texte = chapo.trim();
+  const max = ARTICLE_LONGUEURS.description;
+  if (texte.length <= max) return texte;
+  return `${texte.slice(0, max - 1).replace(/\s+\S*$/, "")}…`;
+}
+
+/** Adresse d'un article : celle de `slugify`, bornée à la longueur permise par la base. */
+export function borneSlug(slug: string) {
+  return slug.slice(0, ARTICLE_LONGUEURS.slug).replace(/-+$/, "");
+}

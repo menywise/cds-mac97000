@@ -3,7 +3,7 @@ import { requireAdmin } from "../guard";
 import { errorResult, textResult } from "../supabase";
 
 const TABLES = [
-  "blog_posts",
+  "contenus_publics",
   "blog_comments",
   "faq_items",
   "pricing_plans",

@@ -111,7 +111,7 @@ INSERT INTO public.forum_replies (id, topic_id, author_id, author_name, content)
   VALUES ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000a3', 'Jean Partant', 'Réponse');
 INSERT INTO public.forum_likes (user_id, topic_id) VALUES ('00000000-0000-0000-0000-0000000000a3', '00000000-0000-0000-0000-0000000000f1');
 INSERT INTO public.forum_follows (user_id, topic_id) VALUES ('00000000-0000-0000-0000-0000000000a3', '00000000-0000-0000-0000-0000000000f1');
-INSERT INTO public.blog_posts (id, title, slug) VALUES ('00000000-0000-0000-0000-0000000000b1', 'Article', 'article');
+INSERT INTO public.contenus_publics (id, titre, slug) VALUES ('00000000-0000-0000-0000-0000000000b1', 'Article', 'article');
 INSERT INTO public.blog_comments (post_id, author_id, author_name, content)
   VALUES ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-0000000000a3', 'Jean Partant', 'Commentaire');
 INSERT INTO public.reviews (author_id, author_name, rating, content)

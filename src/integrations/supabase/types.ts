@@ -299,58 +299,10 @@ export type Database = {
             foreignKeyName: "blog_comments_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "blog_posts"
+            referencedRelation: "contenus_publics"
             referencedColumns: ["id"]
           },
         ]
-      }
-      blog_posts: {
-        Row: {
-          author_id: string | null
-          content: string
-          cover_url: string | null
-          created_at: string
-          excerpt: string
-          id: string
-          published: boolean
-          published_at: string | null
-          search_doc: unknown
-          slug: string
-          tags: string[]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_id?: string | null
-          content?: string
-          cover_url?: string | null
-          created_at?: string
-          excerpt?: string
-          id?: string
-          published?: boolean
-          published_at?: string | null
-          search_doc?: unknown
-          slug: string
-          tags?: string[]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string | null
-          content?: string
-          cover_url?: string | null
-          created_at?: string
-          excerpt?: string
-          id?: string
-          published?: boolean
-          published_at?: string | null
-          search_doc?: unknown
-          slug?: string
-          tags?: string[]
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       contact_messages: {
         Row: {
@@ -382,6 +334,81 @@ export type Database = {
           name?: string
           status?: string
           subject?: string
+        }
+        Relationships: []
+      }
+      contenus_publics: {
+        Row: {
+          auteur_fonction: string
+          auteur_id: string | null
+          chapo: string
+          corps: string
+          created_at: string
+          description: string
+          etiquettes: string[]
+          id: string
+          image_alt: string
+          image_url: string | null
+          libelle_menu: string
+          ordre: number
+          publie: boolean
+          publie_le: string | null
+          relu_le: string | null
+          search_doc: unknown
+          slug: string
+          sources: string
+          titre: string
+          type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auteur_fonction?: string
+          auteur_id?: string | null
+          chapo?: string
+          corps?: string
+          created_at?: string
+          description?: string
+          etiquettes?: string[]
+          id?: string
+          image_alt?: string
+          image_url?: string | null
+          libelle_menu?: string
+          ordre?: number
+          publie?: boolean
+          publie_le?: string | null
+          relu_le?: string | null
+          search_doc?: unknown
+          slug: string
+          sources?: string
+          titre: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auteur_fonction?: string
+          auteur_id?: string | null
+          chapo?: string
+          corps?: string
+          created_at?: string
+          description?: string
+          etiquettes?: string[]
+          id?: string
+          image_alt?: string
+          image_url?: string | null
+          libelle_menu?: string
+          ordre?: number
+          publie?: boolean
+          publie_le?: string | null
+          relu_le?: string | null
+          search_doc?: unknown
+          slug?: string
+          sources?: string
+          titre?: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -2378,7 +2405,54 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          content: string | null
+          cover_url: string | null
+          created_at: string | null
+          excerpt: string | null
+          id: string | null
+          published: boolean | null
+          published_at: string | null
+          search_doc: unknown
+          slug: string | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          content?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string | null
+          published?: boolean | null
+          published_at?: string | null
+          search_doc?: unknown
+          slug?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          content?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string | null
+          published?: boolean | null
+          published_at?: string | null
+          search_doc?: unknown
+          slug?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       ad_campaign_is_live: { Args: { _campaign_id: string }; Returns: boolean }
@@ -2625,6 +2699,7 @@ export type Database = {
         }[]
       }
       search_tags: { Args: { _tags: string[] }; Returns: string }
+      sources_valides: { Args: { _sources: string }; Returns: boolean }
       shop_download: {
         Args: { _item_id: string; _user_id: string }
         Returns: {

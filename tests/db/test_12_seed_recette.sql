@@ -3,7 +3,7 @@
 BEGIN;
 -- Seed de recette : rejouable, visible des visiteurs, retiré entièrement par le nettoyage.
 UPDATE public.site_settings SET value = value || '{"lms": true, "members": true, "messaging": true, "marketplace": true}' WHERE key = 'modules';
-INSERT INTO public.blog_posts (id, slug, title, content, published, published_at)
+INSERT INTO public.contenus_publics (id, slug, titre, corps, publie, publie_le)
   VALUES ('00000000-0000-0000-0000-0000000000b1', 'article-test', 'Article', 'Texte', true, now());
 \i supabase/seed/recette_seed.sql
 \i supabase/seed/recette_seed.sql
@@ -30,6 +30,6 @@ DO $$ BEGIN
      OR EXISTS (SELECT 1 FROM auth.users WHERE id::text LIKE 'e7000000-%')
      OR EXISTS (SELECT 1 FROM public.blog_comments WHERE id::text LIKE 'e7000000-%')
   THEN RAISE EXCEPTION 'nettoyage incomplet'; END IF;
-  IF NOT EXISTS (SELECT 1 FROM public.blog_posts WHERE id = '00000000-0000-0000-0000-0000000000b1') THEN RAISE EXCEPTION 'article réel supprimé'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.contenus_publics WHERE id = '00000000-0000-0000-0000-0000000000b1') THEN RAISE EXCEPTION 'article réel supprimé'; END IF;
 END $$;
 ROLLBACK;

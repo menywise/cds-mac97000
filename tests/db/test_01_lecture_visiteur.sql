@@ -4,7 +4,7 @@
 BEGIN;
 INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-00000000000a', 'membre@test.fr');
 INSERT INTO public.member_profiles (user_id, display_name, listed) VALUES ('00000000-0000-0000-0000-00000000000a', 'Membre A', true);
-INSERT INTO public.blog_posts (id, slug, title, published) VALUES ('00000000-0000-0000-0000-0000000000b1', 'art', 'Article', true);
+INSERT INTO public.contenus_publics (id, slug, titre, publie) VALUES ('00000000-0000-0000-0000-0000000000b1', 'art', 'Article', true);
 INSERT INTO public.blog_comments (post_id, author_id, content, approved) VALUES
   ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-00000000000a', 'Validé', true),
   ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-00000000000a', 'En attente', false);
