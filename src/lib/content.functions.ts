@@ -247,7 +247,7 @@ export const getPost = createServerFn({ method: "GET" })
       await client
         .from(ARTICLES)
         .select(
-          `${COLONNES_ARTICLE}, content:corps, description, image_alt, updated_at, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre`,
+          `${COLONNES_ARTICLE}, content:corps, description, image_alt, updated_at, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre, genre, evenement, evenement_le, liens_interets, niveau_preuve, relecteurs`,
         )
         .eq("type", "article")
         .eq("publie", true)
@@ -257,7 +257,7 @@ export const getPost = createServerFn({ method: "GET" })
     );
     if (!post) return null;
     // Commentaires, suggestions de lecture, réglages et taxonomie : en parallèle.
-    const [commentsRes, relatedRes, reglagesRes, etiquettesRes, rubriquesRes, serieRes] =
+    const [commentsRes, relatedRes, reglagesRes, etiquettesRes, rubriquesRes, serieRes, refsRes] =
       await Promise.all([
         client
           .from("blog_comments")
@@ -281,6 +281,11 @@ export const getPost = createServerFn({ method: "GET" })
               .eq("serie_id", post.serie_id)
               .order("serie_ordre", { ascending: true, nullsFirst: false })
           : Promise.resolve({ data: [], error: null }),
+        client
+          .from("references_contenu")
+          .select("rang, auteurs, titre, revue, annee, doi, pmid, url")
+          .eq("contenu_id", post.id)
+          .order("rang"),
       ]);
     const comments = check(commentsRes, { contexte: "blog_comments" });
     const related = (check(relatedRes, { contexte: "lire_ensuite" }) ?? []).map((r) => ({
@@ -307,7 +312,9 @@ export const getPost = createServerFn({ method: "GET" })
         auteur_mode: reglages.auteur_mode,
         avertissement: reglages.avertissement,
         type_page: reglages.type_page,
+        format_citation: reglages.format_citation,
       },
+      references: check(refsRes, { contexte: "references_contenu" }) ?? [],
       etiquettes: etiquettes.map((e) => ({ slug: e.slug, libelle: e.libelle })),
       fil: [parent, rubrique]
         .filter((r): r is NonNullable<typeof r> => r !== null)

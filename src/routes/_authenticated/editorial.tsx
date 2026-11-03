@@ -20,6 +20,7 @@ import {
   ajouterTerme,
   changerStatut,
   creerArticle,
+  enregistrerReferences,
   effacerRechercheSansResultat,
   enregistrerContenu,
   enregistrerReglages,
@@ -31,6 +32,7 @@ import {
   fetchEtatSources,
   fetchMaillage,
   fetchRecherche,
+  fetchReferences,
   fetchTaxonomie,
   fetchJournal,
   fetchReglages,
@@ -47,6 +49,7 @@ import {
   type EtatMaillage,
   type EtatSource,
   type RechercheSansResultat,
+  type ReferenceSaisie,
   type Synonyme,
   type Taxonomie,
   type LigneJournal,
@@ -57,6 +60,7 @@ import {
   REGLAGES_PAR_DEFAUT,
   STATUTS,
   actionsPossibles,
+  GENRES,
   dateSimple,
   lireSources,
   manquesSaisie,
@@ -599,7 +603,19 @@ function Edition({
     serie_id: contenu.serie_id ?? "",
     serie_ordre: contenu.serie_ordre ? String(contenu.serie_ordre) : "",
     pilier_id: contenu.pilier_id ?? "",
+    genre: contenu.genre,
+    evenement: contenu.evenement,
+    evenement_le: contenu.evenement_le ?? "",
+    liens_interets: contenu.liens_interets,
+    niveau_preuve: contenu.niveau_preuve,
+    relecteurs: contenu.relecteurs.join(", "),
   });
+  const [refs, setRefs] = useState<ReferenceSaisie[] | null>(null);
+  useEffect(() => {
+    fetchReferences(contenu.id)
+      .then(setRefs)
+      .catch(() => setRefs([]));
+  }, [contenu.id]);
   const [estPilier, setEstPilier] = useState(contenu.est_pilier);
   const [etiq, setEtiq] = useState<string[]>(contenu.etiquettes);
   const { taxo, contenus } = useContext(Contexte);
@@ -645,10 +661,27 @@ function Edition({
       date_prevue: v.date_prevue || null,
       public_vise: v.public_vise.trim(),
       requete_visee: v.requete_visee.trim(),
+      genre: v.genre,
+      evenement: v.genre === "compte_rendu" ? v.evenement.trim() : "",
+      evenement_le: v.genre === "compte_rendu" && v.evenement_le ? v.evenement_le : null,
+      liens_interets: v.liens_interets.trim(),
+      niveau_preuve: v.niveau_preuve,
+      relecteurs: v.relecteurs
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean)
+        .slice(0, 5),
     });
+    const erreurRefs =
+      erreur || refs === null
+        ? ""
+        : await enregistrerReferences(
+            contenu.id,
+            refs.filter((r) => r.titre.trim()),
+          );
     setEnvoi(false);
-    if (erreur) {
-      toast.error("Enregistrement impossible.", { description: erreur });
+    if (erreur || erreurRefs) {
+      toast.error("Enregistrement impossible.", { description: erreur || erreurRefs });
       return;
     }
     toast.success("Article enregistré.");
@@ -831,6 +864,169 @@ function Edition({
           <Input {...champ("image_alt")} maxLength={200} />
         </div>
       </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("genre")}>Genre</Label>
+          <select
+            id={id("genre")}
+            value={v.genre}
+            onChange={(e) => setV({ ...v, genre: e.target.value })}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {GENRES.map((g) => (
+              <option key={g.value} value={g.value}>
+                {g.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("niveau_preuve")}>Niveau de preuve</Label>
+          <select
+            id={id("niveau_preuve")}
+            value={v.niveau_preuve}
+            onChange={(e) => setV({ ...v, niveau_preuve: e.target.value })}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Non indiqué</option>
+            {[
+              ...new Set([
+                ...reglages.niveaux_preuve,
+                ...(v.niveau_preuve ? [v.niveau_preuve] : []),
+              ]),
+            ].map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {v.genre === "compte_rendu" ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor={id("evenement")}>Événement</Label>
+            <Input {...champ("evenement")} maxLength={160} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor={id("evenement_le")}>Date de l'événement</Label>
+            <Input {...champ("evenement_le")} type="date" />
+          </div>
+        </div>
+      ) : null}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("relecteurs")}>
+            Relecteurs (leur fonction, séparées par des virgules)
+          </Label>
+          <Input {...champ("relecteurs")} placeholder="Comité scientifique, Rédactrice en chef" />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("liens_interets")}>Liens d'intérêts</Label>
+          <Textarea {...champ("liens_interets")} rows={2} maxLength={600} placeholder="Aucun" />
+        </div>
+      </div>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-foreground">
+          Bibliographie (la référence n répond à l'appel [n] dans le texte)
+        </legend>
+        {refs === null ? (
+          <Skeleton className="h-10 w-full" />
+        ) : (
+          <ol className="space-y-3 rounded-md border border-border p-3">
+            {refs.map((r, i) => {
+              const maj = (k: keyof ReferenceSaisie, val: string) =>
+                setRefs(
+                  refs.map((x, j) =>
+                    j === i ? { ...x, [k]: k === "annee" ? (val ? Number(val) : null) : val } : x,
+                  ),
+                );
+              return (
+                <li key={i} className="grid gap-2 sm:grid-cols-6">
+                  <span className="pt-2 text-sm font-semibold text-foreground">[{i + 1}]</span>
+                  <Input
+                    aria-label={`Titre de la référence ${i + 1}`}
+                    placeholder="Titre"
+                    value={r.titre}
+                    onChange={(e) => maj("titre", e.target.value)}
+                    className="sm:col-span-5"
+                    maxLength={300}
+                  />
+                  <Input
+                    aria-label={`Auteurs de la référence ${i + 1}`}
+                    placeholder="Auteurs"
+                    value={r.auteurs}
+                    onChange={(e) => maj("auteurs", e.target.value)}
+                    className="sm:col-span-3"
+                    maxLength={300}
+                  />
+                  <Input
+                    aria-label={`Revue ou éditeur de la référence ${i + 1}`}
+                    placeholder="Revue ou éditeur"
+                    value={r.revue}
+                    onChange={(e) => maj("revue", e.target.value)}
+                    className="sm:col-span-2"
+                    maxLength={200}
+                  />
+                  <Input
+                    aria-label={`Année de la référence ${i + 1}`}
+                    placeholder="Année"
+                    type="number"
+                    value={r.annee ?? ""}
+                    onChange={(e) => maj("annee", e.target.value)}
+                  />
+                  <Input
+                    aria-label={`DOI de la référence ${i + 1}`}
+                    placeholder="DOI (10.xxxx/…)"
+                    value={r.doi}
+                    onChange={(e) => maj("doi", e.target.value)}
+                    className="sm:col-span-2"
+                  />
+                  <Input
+                    aria-label={`PMID de la référence ${i + 1}`}
+                    placeholder="PMID"
+                    value={r.pmid}
+                    onChange={(e) => maj("pmid", e.target.value)}
+                  />
+                  <Input
+                    aria-label={`Adresse de la référence ${i + 1}`}
+                    placeholder="https://…"
+                    value={r.url}
+                    onChange={(e) => maj("url", e.target.value)}
+                    className="sm:col-span-2"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="sm:col-span-6 sm:w-fit"
+                    title={`Retirer la référence ${i + 1}`}
+                    onClick={() => setRefs(refs.filter((_, j) => j !== i))}
+                  >
+                    Retirer la référence [{i + 1}]
+                  </Button>
+                </li>
+              );
+            })}
+            <li>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                title="Ajouter une référence"
+                onClick={() =>
+                  setRefs([
+                    ...refs,
+                    { auteurs: "", titre: "", revue: "", annee: null, doi: "", pmid: "", url: "" },
+                  ])
+                }
+              >
+                Ajouter une référence
+              </Button>
+            </li>
+          </ol>
+        )}
+      </fieldset>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor={id("date_prevue")}>Date prévue</Label>
@@ -892,7 +1088,12 @@ function Reglages({
   }
 
   const interrupteur = (
-    k: "exiger_sources" | "exiger_relecture" | "exiger_auteur" | "longueurs_seo",
+    k:
+      | "exiger_sources"
+      | "exiger_relecture"
+      | "exiger_auteur"
+      | "longueurs_seo"
+      | "exiger_liens_interets",
     libelle: string,
     aide: string,
   ) => (
@@ -964,6 +1165,45 @@ function Reglages({
         "Longueurs pour les moteurs de recherche",
         "Titre de 10 à 70 caractères, description de 70 à 160.",
       )}
+      {interrupteur(
+        "exiger_liens_interets",
+        "Liens d'intérêts exigés",
+        "Chaque article déclare ses liens d'intérêts, ou « Aucun ».",
+      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="reglage-niveaux">Niveaux de preuve (un par ligne)</Label>
+          <Textarea
+            id="reglage-niveaux"
+            rows={4}
+            value={r.niveaux_preuve.join("\n")}
+            onChange={(e) =>
+              setR({
+                ...r,
+                niveaux_preuve: e.target.value
+                  .split("\n")
+                  .map((x) => x.trim())
+                  .filter(Boolean)
+                  .slice(0, 12),
+              })
+            }
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="reglage-citation">Format des références et de la citation</Label>
+          <select
+            id="reglage-citation"
+            value={r.format_citation}
+            onChange={(e) =>
+              setR({ ...r, format_citation: e.target.value === "apa" ? "apa" : "vancouver" })
+            }
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="vancouver">Vancouver (sciences de la santé)</option>
+            <option value="apa">APA (sciences humaines)</option>
+          </select>
+        </div>
+      </div>
       <div className="space-y-1.5">
         <Label htmlFor="reglage-auteur">Auteur affiché sous les articles</Label>
         <select

@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.13.0**, migration
-  `20261103200000_v1_13_0_recherche`.
+  migrations de la plateforme. Version courante : **1.14.0**, migration
+  `20261103220000_v1_14_0_societe_savante`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -42,8 +42,10 @@ installation.
   encadré, questions-réponses) : un article écrit avant reste lisible, ses lignes `##` deviennent des
   intertitres. La 1.13.0 suit la règle générale ; elle installe l'extension `pg_trgm` (schéma
   `extensions`). La recherche de `/blog` passe par la base : les guillemets (phrase exacte) et le
-  tiret (mot exclu) sont désormais gardés dans l'adresse. Le `LISEZMOI.md` des blocs de chaque
-  version donne l'ordre.
+  tiret (mot exclu) sont désormais gardés dans l'adresse. La 1.14.0 suit la règle générale ; toutes
+  ses exigences sont facultatives ou éteintes par défaut, sauf une : un texte entre crochets d'un à
+  trois chiffres (« [1] ») est un appel de référence, et sa référence est exigée avant publication.
+  Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
   `site_settings` donne la version en un coup d'œil.

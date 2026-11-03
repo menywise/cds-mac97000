@@ -22,6 +22,10 @@ export type ArticlePourDonnees = {
   sources: string[];
   questions: { question: string; reponse: string }[];
   mots: number;
+  /** Socle 1.14.0 : genre (une actualité devient NewsArticle), relecteurs, références. */
+  genre?: string;
+  relecteurs?: string[];
+  references?: { titre: string; auteurs: string; lien: string }[];
 };
 
 export type SitePourDonnees = {
@@ -80,10 +84,13 @@ export function donneesStructureesArticle(a: ArticlePourDonnees, site: SitePourD
     isPartOf: { "@type": "WebSite", "@id": `${site.url}/#site`, url: site.url, name: site.nom },
   };
   if (a.relu_le) page["lastReviewed"] = a.relu_le;
-  if (a.relu_le && personne) page["reviewedBy"] = personne;
+  const relecteurs = (a.relecteurs ?? []).filter(Boolean);
+  if (a.relu_le && relecteurs.length) {
+    page["reviewedBy"] = relecteurs.map((f) => ({ "@type": "Person", jobTitle: f }));
+  } else if (a.relu_le && personne) page["reviewedBy"] = personne;
 
   const article: Record<string, unknown> = {
-    "@type": "BlogPosting",
+    "@type": a.genre === "actualite" ? "NewsArticle" : "BlogPosting",
     "@id": `${url}#article`,
     headline: a.titre.slice(0, 110),
     inLanguage: "fr-FR",
@@ -104,7 +111,16 @@ export function donneesStructureesArticle(a: ArticlePourDonnees, site: SitePourD
       url: `${site.url}/blog/serie/${a.serie.slug}`,
     };
   }
-  if (a.sources.length) article["citation"] = a.sources;
+  const citations: unknown[] = [
+    ...(a.references ?? []).map((r) => ({
+      "@type": "CreativeWork",
+      name: r.titre,
+      ...(r.auteurs ? { author: r.auteurs } : {}),
+      ...(r.lien ? { url: r.lien } : {}),
+    })),
+    ...a.sources,
+  ];
+  if (citations.length) article["citation"] = citations;
   if (a.mots > 0) article["wordCount"] = a.mots;
 
   const graphe: Record<string, unknown>[] = [page, article];

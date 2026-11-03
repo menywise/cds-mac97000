@@ -128,6 +128,18 @@ function enLigne(texte: string): ReactNode[] {
             {s.texte}
           </a>
         );
+      case "appel":
+        return (
+          <sup key={i}>
+            <a
+              href={`#ref-${s.rang}`}
+              aria-label={`Référence ${s.rang}`}
+              className="font-medium text-primary-text hover:underline"
+            >
+              [{s.rang}]
+            </a>
+          </sup>
+        );
       default:
         return <span key={i}>{s.texte}</span>;
     }

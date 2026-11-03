@@ -71,7 +71,7 @@ END $$;
 DO $$ BEGIN
   IF (SELECT modules FROM public.template_checks WHERE code = 'V1-MESSAGERIE-DIRECT') <> ARRAY['messaging']
   THEN RAISE EXCEPTION 'point de la grille'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.13.0' THEN RAISE EXCEPTION 'version'; END IF;
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.14.0' THEN RAISE EXCEPTION 'version'; END IF;
 END $$;
 SET client_min_messages = warning;
 \i supabase/migrations/20261018120000_v1_8_0_messagerie_direct.sql
