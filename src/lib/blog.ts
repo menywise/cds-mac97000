@@ -17,13 +17,14 @@ const TAG_MAX_LENGTH = 60;
 const PAGE_MAX = 100000;
 
 /**
- * Saisie de recherche nettoyée pour un motif `ilike` dans un filtre `or` de PostgREST :
- * les caractères qui y ont un sens (jokers % _ *, virgule, parenthèses, guillemets, barre
- * oblique inverse) deviennent des espaces, les espaces sont réduits, la longueur bornée.
+ * Saisie de recherche nettoyée. Depuis le socle 1.13.0, la recherche passe par recherche_articles
+ * (paramètre de fonction, jamais un filtre de PostgREST) : les guillemets (phrase exacte) et le
+ * tiret (mot exclu) sont gardés. Jokers, virgules, parenthèses et barre oblique inverse deviennent
+ * des espaces ; les espaces sont réduits, la longueur bornée.
  */
 export function cleanBlogSearch(q: unknown) {
   return String(q ?? "")
-    .replace(/[%_*,()"\\]/g, " ")
+    .replace(/[%_*,()\\]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, BLOG_SEARCH_MAX_LENGTH);
@@ -45,7 +46,14 @@ export function cleanBlogPage(page: unknown) {
 }
 
 /** Paramètres de la liste, tels que la base les reçoit. */
-export type BlogListInput = { page: number; q: string; tag: string };
+export type BlogListInput = {
+  page: number;
+  q: string;
+  tag: string;
+  /** Filtres de la recherche (socle 1.13.0), pris en compte avec une recherche seulement. */
+  rubrique: string;
+  serie: string;
+};
 
 /** Article tel qu'il est envoyé à la liste /blog : sans le texte, avec la durée de lecture. */
 export type BlogListPost = {
@@ -56,8 +64,10 @@ export type BlogListPost = {
   cover_url: string | null;
   published_at: string | null;
   tags: string[] | null;
-  /** Durée de lecture en minutes, calculée sur le serveur à partir du texte. */
+  /** Durée de lecture en minutes, calculée sur le serveur à partir du texte (0 : inconnue). */
   reading_minutes: number;
+  /** Extrait surligné d'un résultat de recherche (mots trouvés entre ⟦ et ⟧). */
+  extrait?: string;
 };
 
 /**
@@ -86,4 +96,27 @@ export function descriptionDepuis(chapo: string) {
 /** Adresse d'un article : celle de `slugify`, bornée à la longueur permise par la base. */
 export function borneSlug(slug: string) {
   return slug.slice(0, ARTICLE_LONGUEURS.slug).replace(/-+$/, "");
+}
+
+/** Morceau d'extrait de recherche : texte simple ou mot trouvé, à mettre en valeur (socle 1.13.0). */
+export type MorceauExtrait = { texte: string; trouve: boolean };
+
+/** Extrait renvoyé par recherche_articles : les mots trouvés sont entre ⟦ et ⟧. */
+export function decouperExtrait(extrait: string): MorceauExtrait[] {
+  return extrait
+    .split(/(⟦[^⟧]*⟧)/)
+    .filter(Boolean)
+    .map((m) =>
+      m.startsWith("⟦") && m.endsWith("⟧")
+        ? { texte: m.slice(1, -1), trouve: true }
+        : { texte: m.replace(/[⟦⟧]/g, ""), trouve: false },
+    );
+}
+
+/** Adresse de rubrique ou de série dans l'adresse de /blog : même forme que la base. */
+export function cleanBlogSlug(value: unknown) {
+  const v = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(v) && v.length <= 80 ? v : "";
 }

@@ -9,12 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { listBlogPage, listRubriquesBlog } from "@/lib/content.functions";
-import { BLOG_SEARCH_MAX_LENGTH, cleanBlogPage, cleanBlogSearch, cleanBlogTag } from "@/lib/blog";
+import {
+  BLOG_SEARCH_MAX_LENGTH,
+  cleanBlogPage,
+  cleanBlogSearch,
+  cleanBlogSlug,
+  cleanBlogTag,
+  decouperExtrait,
+} from "@/lib/blog";
 import { seo } from "@/lib/seo";
 import { requireFeature } from "@/config/features";
 
 /** Paramètres d'adresse de la liste : page, recherche, étiquette. Absents quand neutres. */
-type BlogSearch = { page?: number; q?: string; tag?: string };
+type BlogSearch = { page?: number; q?: string; tag?: string; rubrique?: string; serie?: string };
 
 /** Délai avant de relancer la liste pendant la saisie d'une recherche. */
 const SEARCH_DELAY_MS = 300;
@@ -24,10 +31,15 @@ export const Route = createFileRoute("/blog/")({
     const page = cleanBlogPage(search["page"]);
     const q = cleanBlogSearch(search["q"]);
     const tag = cleanBlogTag(search["tag"]);
+    // Rubrique et série filtrent une recherche (socle 1.13.0) : sans recherche, ignorées.
+    const rubrique = q ? cleanBlogSlug(search["rubrique"]) : "";
+    const serie = q ? cleanBlogSlug(search["serie"]) : "";
     return {
       ...(page > 1 ? { page } : {}),
       ...(q ? { q } : {}),
       ...(tag ? { tag } : {}),
+      ...(rubrique ? { rubrique } : {}),
+      ...(serie ? { serie } : {}),
     };
   },
   beforeLoad: () => requireFeature("blog"),
@@ -35,6 +47,8 @@ export const Route = createFileRoute("/blog/")({
     page: search.page ?? 1,
     q: search.q ?? "",
     tag: search.tag ?? "",
+    rubrique: search.rubrique ?? "",
+    serie: search.serie ?? "",
   }),
   // Liste filtrée et paginée en base (12 par page), sans le texte des articles.
   loader: async ({ deps }) => {
@@ -51,6 +65,8 @@ export const Route = createFileRoute("/blog/")({
           ...(data.pageCount > 1 ? { page: data.pageCount } : {}),
           ...(deps.q ? { q: deps.q } : {}),
           ...(deps.tag ? { tag: deps.tag } : {}),
+          ...(deps.rubrique ? { rubrique: deps.rubrique } : {}),
+          ...(deps.serie ? { serie: deps.serie } : {}),
         },
         replace: true,
       });
@@ -78,8 +94,16 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
-  const { posts, page, pageCount, tags, rubriques } = Route.useLoaderData();
-  const { q = "", tag = null } = Route.useSearch();
+  const { posts, page, pageCount, tags, rubriques, facettes, suggestion, total } =
+    Route.useLoaderData();
+  const {
+    q = "",
+    tag = null,
+    rubrique: rubriqueChoisie = "",
+    serie: serieChoisie = "",
+  } = Route.useSearch();
+  const facettesRubrique = facettes.filter((f) => f.facette === "rubrique");
+  const facettesSerie = facettes.filter((f) => f.facette === "serie");
   const navigate = useNavigate();
   const [query, setQuery] = useState(q);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -118,6 +142,8 @@ function BlogIndex() {
     ...(n > 1 ? { page: n } : {}),
     ...(q ? { q } : {}),
     ...(tag ? { tag } : {}),
+    ...(rubriqueChoisie ? { rubrique: rubriqueChoisie } : {}),
+    ...(serieChoisie ? { serie: serieChoisie } : {}),
   });
 
   return (
@@ -201,6 +227,73 @@ function BlogIndex() {
           ) : null}
         </div>
 
+        {q ? (
+          <div className="mt-6 space-y-3 text-sm text-foreground">
+            <p>
+              {total} article{total > 1 ? "s" : ""} pour « {q} ».
+              {suggestion ? (
+                <>
+                  {" "}
+                  Vouliez-vous dire{" "}
+                  <Link
+                    to="/blog"
+                    search={{ q: suggestion }}
+                    title={`Chercher « ${suggestion} »`}
+                    className="font-medium text-primary-text underline underline-offset-2"
+                  >
+                    {suggestion}
+                  </Link>{" "}
+                  ?
+                </>
+              ) : null}
+            </p>
+            {facettesRubrique.length > 0 || facettesSerie.length > 0 ? (
+              <ul
+                aria-label="Affiner la recherche"
+                className="flex flex-wrap gap-2 rounded-xl border border-border bg-card p-3"
+              >
+                {rubriqueChoisie || serieChoisie ? (
+                  <li>
+                    <Link
+                      to="/blog"
+                      search={{ q, ...(tag ? { tag } : {}) }}
+                      title="Retirer le filtre"
+                      className="inline-flex min-h-11 items-center rounded-md border border-primary bg-primary px-3 text-xs font-medium text-primary-foreground"
+                    >
+                      Tout voir
+                    </Link>
+                  </li>
+                ) : null}
+                {[...facettesRubrique, ...facettesSerie].map((f) => {
+                  const actif =
+                    f.facette === "rubrique" ? f.cle === rubriqueChoisie : f.cle === serieChoisie;
+                  return (
+                    <li key={`${f.facette}-${f.cle}`}>
+                      <Link
+                        to="/blog"
+                        search={{
+                          q,
+                          ...(tag ? { tag } : {}),
+                          ...(f.facette === "rubrique" ? { rubrique: f.cle } : { serie: f.cle }),
+                        }}
+                        title={`Limiter à : ${f.libelle}`}
+                        className={`inline-flex min-h-11 items-center rounded-md border px-3 text-xs font-medium ${
+                          actif
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-foreground"
+                        }`}
+                      >
+                        {f.facette === "serie" ? "Série : " : ""}
+                        {f.libelle} ({f.nombre})
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
+
         {posts.length === 0 ? (
           <p className="mt-10 rounded-lg border border-dashed border-border p-10 text-center text-sm text-foreground">
             Aucun article ne correspond à votre recherche. Essayez un mot plus large.
@@ -227,9 +320,23 @@ function BlogIndex() {
                         year: "numeric",
                       })
                     : "À paraître"}{" "}
-                  — {post.reading_minutes} min de lecture
+                  {post.reading_minutes > 0 ? ` — ${post.reading_minutes} min de lecture` : ""}
                 </p>
-                <p className="mt-2 text-sm text-foreground">{post.excerpt}</p>
+                {post.extrait ? (
+                  <p className="mt-2 text-sm text-foreground">
+                    {decouperExtrait(post.extrait).map((m, i) =>
+                      m.trouve ? (
+                        <mark key={i} className="rounded bg-warning-soft px-0.5 text-warning-text">
+                          {m.texte}
+                        </mark>
+                      ) : (
+                        <span key={i}>{m.texte}</span>
+                      ),
+                    )}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-foreground">{post.excerpt}</p>
+                )}
                 {(post.tags ?? []).length > 0 ? (
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {(post.tags ?? []).map((item) => (
