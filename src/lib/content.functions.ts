@@ -128,26 +128,58 @@ export const listBlogPage = createServerFn({ method: "GET" })
   });
 
 /** Flux RSS : titre, résumé, date et adresse des articles les plus récents, sans le texte. */
-export const listFeedPosts = createServerFn({ method: "GET" }).handler(async () => {
-  const data = check(
-    await publicClient()
+/**
+ * Flux RSS : titre, résumé, date, adresse et étiquettes des articles les plus récents, sans le
+ * texte. Filtre facultatif par rubrique (sous-rubriques comprises) ou par étiquette (socle 1.12.0) :
+ * `titre` nomme le filtre ; null si le filtre ne correspond à rien.
+ */
+export const listFeedPosts = createServerFn({ method: "GET" })
+  .inputValidator((input?: { rubrique?: string; etiquette?: string }) => ({
+    rubrique: String(input?.rubrique ?? "").slice(0, 80),
+    etiquette: String(input?.etiquette ?? "").slice(0, 80),
+  }))
+  .handler(async ({ data: input }) => {
+    const client = publicClient();
+    let query = client
       .from(ARTICLES)
-      .select("slug, title:titre, excerpt:chapo, published_at:publie_le")
+      .select("slug, title:titre, excerpt:chapo, published_at:publie_le, tags:etiquettes")
       .eq("type", "article")
-      .eq("publie", true)
-      .order("publie_le", { ascending: false })
-      .limit(FEED_LIMIT),
-    { contexte: ARTICLES },
-  );
-  return data ?? [];
-});
+      .eq("publie", true);
+    let titre = "";
+    if (input.rubrique) {
+      const rubriques =
+        check(await client.from("rubriques").select("id, slug, libelle, parent_id"), {
+          contexte: "rubriques",
+        }) ?? [];
+      const r = rubriques.find((x) => x.slug === input.rubrique);
+      if (!r) return null;
+      titre = r.libelle;
+      query = query.in("rubrique_id", [
+        r.id,
+        ...rubriques.filter((x) => x.parent_id === r.id).map((x) => x.id),
+      ]);
+    } else if (input.etiquette) {
+      const e = check(
+        await client.from("etiquettes").select("libelle").eq("slug", input.etiquette).maybeSingle(),
+        { contexte: "etiquettes" },
+      );
+      if (!e) return null;
+      titre = e.libelle;
+      query = query.contains("etiquettes", [e.libelle]);
+    }
+    const posts =
+      check(await query.order("publie_le", { ascending: false }).limit(FEED_LIMIT), {
+        contexte: ARTICLES,
+      }) ?? [];
+    return { titre, posts };
+  });
 
 /** Plan du site : adresse et date réelle de modification de chaque article publié. */
 export const listSitemapPosts = createServerFn({ method: "GET" }).handler(async () => {
   const data = check(
     await publicClient()
       .from(ARTICLES)
-      .select("slug, updated_at, published_at:publie_le")
+      .select("slug, titre, image_url, image_alt, updated_at, published_at:publie_le")
       .eq("type", "article")
       .eq("publie", true)
       .order("publie_le", { ascending: false })
@@ -165,7 +197,7 @@ export const getPost = createServerFn({ method: "GET" })
       await client
         .from(ARTICLES)
         .select(
-          `${COLONNES_ARTICLE}, content:corps, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre`,
+          `${COLONNES_ARTICLE}, content:corps, description, image_alt, updated_at, relu_le, sources, auteur_fonction, auteur_nom, rubrique_id, serie_id, serie_ordre`,
         )
         .eq("type", "article")
         .eq("publie", true)
@@ -221,7 +253,11 @@ export const getPost = createServerFn({ method: "GET" })
       post,
       comments: comments ?? [],
       related,
-      editorial: { auteur_mode: reglages.auteur_mode, avertissement: reglages.avertissement },
+      editorial: {
+        auteur_mode: reglages.auteur_mode,
+        avertissement: reglages.avertissement,
+        type_page: reglages.type_page,
+      },
       etiquettes: etiquettes.map((e) => ({ slug: e.slug, libelle: e.libelle })),
       fil: [parent, rubrique]
         .filter((r): r is NonNullable<typeof r> => r !== null)
@@ -486,4 +522,26 @@ export const listPublicPages = createServerFn({ method: "GET" }).handler(async (
     { contexte: "pages" },
   );
   return data ?? [];
+});
+
+/** Rubriques de premier niveau ayant au moins un article en ligne : navigation de /blog. */
+export const listRubriquesBlog = createServerFn({ method: "GET" }).handler(async () => {
+  const client = publicClient();
+  const [rubriquesRes, postsRes] = await Promise.all([
+    client.from("rubriques").select("id, slug, libelle, parent_id, ordre"),
+    client.from(ARTICLES).select("rubrique_id").eq("type", "article").eq("publie", true),
+  ]);
+  const rubriques = check(rubriquesRes, { contexte: "rubriques" }) ?? [];
+  const avecArticle = new Set(
+    (check(postsRes, { contexte: ARTICLES }) ?? []).map((p) => p.rubrique_id).filter(Boolean),
+  );
+  return rubriques
+    .filter(
+      (r) =>
+        !r.parent_id &&
+        (avecArticle.has(r.id) ||
+          rubriques.some((x) => x.parent_id === r.id && avecArticle.has(x.id))),
+    )
+    .sort((a, b) => a.ordre - b.ordre || a.libelle.localeCompare(b.libelle, "fr"))
+    .map((r) => ({ slug: r.slug, libelle: r.libelle }));
 });

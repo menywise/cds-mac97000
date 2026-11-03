@@ -16,15 +16,25 @@ export const Route = createFileRoute("/blog/rubrique/$slug")({
   },
   head: ({ loaderData, params }) => {
     const r = loaderData?.rubrique;
+    const seoBase = seo({
+      title: r ? `${r.libelle} — Blog` : "Rubrique",
+      description: clampText(r?.intro || `Les articles de la rubrique ${r?.libelle ?? ""}.`, 160),
+      path: `/blog/rubrique/${params.slug}`,
+      type: "website",
+      // Rubrique sans article en ligne : page pauvre, non indexée.
+      ...(loaderData && loaderData.posts.length === 0 ? { noindex: true } : {}),
+    });
     return {
-      ...seo({
-        title: r ? `${r.libelle} — Blog` : "Rubrique",
-        description: clampText(r?.intro || `Les articles de la rubrique ${r?.libelle ?? ""}.`, 160),
-        path: `/blog/rubrique/${params.slug}`,
-        type: "website",
-        // Rubrique sans article en ligne : page pauvre, non indexée.
-        ...(loaderData && loaderData.posts.length === 0 ? { noindex: true } : {}),
-      }),
+      ...seoBase,
+      links: [
+        ...seoBase.links,
+        {
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: `Flux RSS : ${r?.libelle ?? ""}`,
+          href: `/rss.xml?rubrique=${params.slug}`,
+        },
+      ],
       scripts: [
         breadcrumbJsonLd([
           { name: "Accueil", path: "/" },

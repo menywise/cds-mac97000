@@ -31,3 +31,25 @@ export function laterOf(a: string | null | undefined, b: string | null | undefin
 export function lastmodLine(lastmod: string | undefined) {
   return lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : "";
 }
+
+/** Échappe une valeur pour le XML (adresses, titres). */
+export function xmlEscape(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+/** Lignes `<image:image>` d'une adresse (plan du site des images), vides sans image. */
+export function imageLines(images: Array<{ loc: string; title?: string }> | undefined) {
+  return (images ?? [])
+    .map(
+      (img) =>
+        `    <image:image>\n      <image:loc>${xmlEscape(img.loc)}</image:loc>\n${
+          img.title ? `      <image:title>${xmlEscape(img.title)}</image:title>\n` : ""
+        }    </image:image>\n`,
+    )
+    .join("");
+}

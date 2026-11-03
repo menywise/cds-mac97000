@@ -330,3 +330,21 @@ export async function fetchMaillage(): Promise<Map<string, EtatMaillage>> {
   if (error) throw new Error(messageErreur(error));
   return new Map((data ?? []).map((e) => [e.id, e]));
 }
+
+/* ------------------------ Liens de sources (socle 1.12.0) ------------------------ */
+
+export type EtatSource = {
+  url: string;
+  ok: boolean;
+  code_http: number | null;
+  erreur: string;
+  verifie_le: string;
+};
+
+export async function fetchEtatSources(): Promise<Map<string, EtatSource>> {
+  const { data, error } = await supabase
+    .from("liens_sources_etat")
+    .select("url, ok, code_http, erreur, verifie_le");
+  if (error) throw new Error(messageErreur(error));
+  return new Map((data ?? []).map((e) => [e.url, e]));
+}

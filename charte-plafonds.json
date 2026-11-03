@@ -48,6 +48,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/components/cds/CorpsArticle.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/components/cds/CrmShell.tsx": {
     "gris": 2,
     "opacite": 0,
@@ -377,6 +384,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/lib/article-donnees.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/lib/auth-messages.ts": {
     "gris": 0,
     "opacite": 0,
@@ -419,6 +433,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/lib/corps.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/lib/couleurs.ts": {
     "gris": 0,
     "opacite": 0,
@@ -441,6 +462,13 @@
     "styles": 0
   },
   "src/lib/editorial-regles.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/lib/editorial.functions.ts": {
     "gris": 0,
     "opacite": 0,
     "listes": 0,
@@ -840,6 +868,13 @@
     "styles": 0
   },
   "src/lib/sitemap.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/lib/sources-verif.ts": {
     "gris": 0,
     "opacite": 0,
     "listes": 0,

@@ -1291,6 +1291,30 @@ export type Database = {
           },
         ]
       }
+      liens_sources_etat: {
+        Row: {
+          code_http: number | null
+          erreur: string
+          ok: boolean
+          url: string
+          verifie_le: string
+        }
+        Insert: {
+          code_http?: number | null
+          erreur?: string
+          ok: boolean
+          url: string
+          verifie_le?: string
+        }
+        Update: {
+          code_http?: number | null
+          erreur?: string
+          ok?: boolean
+          url?: string
+          verifie_le?: string
+        }
+        Relationships: []
+      }
       lms_courses: {
         Row: {
           cover_url: string | null
@@ -2719,6 +2743,7 @@ export type Database = {
         Args: { "": Database["public"]["Tables"]["template_checks"]["Row"] }
         Returns: boolean
       }
+      enregistrer_liens_sources: { Args: { _etats: Json }; Returns: number }
       extraire_liens: {
         Args: { _corps: string }
         Returns: {
@@ -2991,6 +3016,14 @@ export type Database = {
         }[]
       }
       slug_depuis: { Args: { _t: string }; Returns: string }
+      sources_a_verifier: {
+        Args: never
+        Returns: {
+          contenus: string[]
+          url: string
+          verifie_le: string
+        }[]
+      }
       sources_valides: { Args: { _sources: string }; Returns: boolean }
       starter_reset_demo: { Args: { _scope: string }; Returns: Json }
       starter_status: { Args: never; Returns: Json }

@@ -13,10 +13,12 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getPost, trouverRedirection } from "@/lib/content.functions";
-import { RichText } from "@/lib/richtext";
+import { CorpsArticle } from "@/components/cds/CorpsArticle";
+import { analyserCorps, nombreDeMots, questionsReponses } from "@/lib/corps";
+import { balisesArticle, donneesStructureesArticle, imageAbsolue } from "@/lib/article-donnees";
 import { readingMinutes } from "@/lib/reading";
 import { auteurAffiche, dateSimple, lireSources } from "@/lib/editorial-regles";
-import { absoluteUrl } from "@/lib/site-config";
+import { absoluteUrl, getSiteConfig } from "@/lib/site-config";
 import { breadcrumbJsonLd, jsonLdScript, seo } from "@/lib/seo";
 import { requireFeature } from "@/config/features";
 
@@ -34,14 +36,37 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   head: ({ loaderData, params }) => {
     const post = loaderData?.post;
+    const { brand } = getSiteConfig();
+    const site = {
+      url: absoluteUrl("/").replace(/\/$/, ""),
+      nom: brand.name,
+      image: absoluteUrl(brand.apparence.imagePartage || "/image-partage.png"),
+      auteurMode: loaderData?.editorial.auteur_mode ?? "fonction",
+      typePage: loaderData?.editorial.type_page ?? "WebPage",
+    } as const;
+    const rubrique = loaderData?.fil.at(-1)?.libelle ?? null;
+    const etiquettes = (loaderData?.etiquettes ?? []).map((e) => e.libelle);
     const base = seo({
       title: post?.title ?? "Article",
-      description: post?.excerpt ?? "Article du blog.",
+      description: post?.description || post?.excerpt || "Article du blog.",
       path: `/blog/${params.slug}`,
       type: "article",
+      ...(post?.cover_url ? { image: imageAbsolue(post.cover_url, site) } : {}),
     });
     return {
       ...base,
+      meta: [
+        ...base.meta,
+        ...(post
+          ? balisesArticle({
+              publie_le: post.published_at,
+              updated_at: post.updated_at,
+              relu_le: post.relu_le,
+              rubrique,
+              etiquettes,
+            })
+          : []),
+      ],
       scripts: [
         breadcrumbJsonLd([
           { name: "Accueil", path: "/" },
@@ -52,14 +77,34 @@ export const Route = createFileRoute("/blog/$slug")({
           })),
           { name: post?.title ?? "Article", path: `/blog/${params.slug}` },
         ]),
-        jsonLdScript({
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          headline: post?.title,
-          description: post?.excerpt,
-          datePublished: post?.published_at,
-          mainEntityOfPage: absoluteUrl(`/blog/${params.slug}`),
-        }),
+        ...(post && loaderData
+          ? [
+              jsonLdScript(
+                donneesStructureesArticle(
+                  {
+                    slug: post.slug,
+                    titre: post.title,
+                    description: post.description || post.excerpt,
+                    publie_le: post.published_at,
+                    updated_at: post.updated_at,
+                    relu_le: post.relu_le,
+                    auteur_fonction: post.auteur_fonction,
+                    auteur_nom: post.auteur_nom,
+                    image_url: post.cover_url,
+                    rubrique,
+                    etiquettes,
+                    serie: loaderData.serie
+                      ? { titre: loaderData.serie.titre, slug: loaderData.serie.slug }
+                      : null,
+                    sources: lireSources(post.sources).map((s) => s.url),
+                    questions: questionsReponses(analyserCorps(post.content)),
+                    mots: nombreDeMots(post.content),
+                  },
+                  site,
+                ),
+              ),
+            ]
+          : []),
       ],
     };
   },
@@ -191,7 +236,17 @@ function BlogPostPage() {
           </aside>
         ) : null}
 
-        <RichText value={post.content} className="mt-6" />
+        {post.cover_url ? (
+          <img
+            src={post.cover_url}
+            alt={post.image_alt}
+            className="mt-6 w-full rounded-xl border border-border"
+            loading="eager"
+            decoding="async"
+          />
+        ) : null}
+
+        <CorpsArticle texte={post.content} className="mt-6" />
 
         {serie && (serie.precedent || serie.suivant) ? (
           <nav

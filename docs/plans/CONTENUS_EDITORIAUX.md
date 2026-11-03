@@ -212,7 +212,25 @@ Retour vers C1 : rubriques, étiquettes, séries, `liens_internes`, redirections
 ensuite ». Copie exacte créée : `src/lib/maillage.ts` (extraction des liens, ancres pauvres,
 suggestions, ordre de « À lire ensuite »).
 
-### Lot 4 — Référencement technique (version 1.11.x, avec le lot 3)
+### Lot 4 — Référencement technique (version 1.12.0)
+
+**Fait le 03/11/2026** : migration `20261103180000_v1_12_0_seo_technique.sql`, blocs
+`supabase/seed/v1_12_0/`, test `tests/db/test_33`. Code : `src/lib/corps.ts` et
+`src/components/cds/CorpsArticle.tsx` (texte des articles), `src/lib/article-donnees.ts` (données
+structurées, balises d'article, lien Search Console), `src/lib/sources-verif.ts` et
+`src/lib/editorial.functions.ts` (liens de sources), plan du site des images, flux RSS filtrés,
+rubriques sur `/blog`. Écarts assumés par rapport au texte ci-dessous :
+
+- **moteur dédié aux articles** : `RichText` reste pour le forum, les fiches et les formations,
+  qui n'ont pas besoin d'intertitres ; `CorpsArticle` sert le blog. Les appels de référence `[1]`
+  attendent la bibliographie du lot 6 ;
+- **image générée à partir du titre** non faite : l'image de couverture, ou à défaut l'image de
+  partage du site, sert aux partages ;
+- **liens de sources** vérifiés par le serveur avec la session du rédacteur (aucune clé de
+  service) ; seules les adresses https publiques sont appelées ; une adresse qui refuse le
+  vérificateur (401, 403) est signalée « à contrôler à la main » ;
+- flux RSS filtrés par paramètre (`/rss.xml?rubrique=…`, `?etiquette=…`), annoncés par une balise
+  `alternate` sur la page de la rubrique ou de l'étiquette.
 
 - **Moteur de rendu unique** : `src/lib/corps.tsx` remplace `richtext.tsx` et `Corps.tsx`, copie
   exacte. Syntaxe commune : intertitres `##` et `###`, listes, gras, italique, liens, citations,
