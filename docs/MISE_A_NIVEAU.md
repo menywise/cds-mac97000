@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.9.0**, migration
-  `20261103120000_v1_9_0_contenus_publics`.
+  migrations de la plateforme. Version courante : **1.10.0**, migration
+  `20261103140000_v1_10_0_circuit_editorial`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -29,8 +29,13 @@ installation.
   base renomme `blog_posts` en `contenus_publics`, et la vue `blog_posts` garde l'ancien code en
   marche jusqu'à la fusion du code 1.9.0. Cette vue disparaît en 1.10.0 : fusionner le code 1.9.0
   avant. Une greffe qui lit `blog_posts` passe à `contenus_publics` (`type = 'article'`, colonnes
-  `titre`, `chapo`, `corps`, `image_url`, `publie`, `publie_le`, `etiquettes`). Le `LISEZMOI.md` des
-  blocs de chaque version donne l'ordre.
+  `titre`, `chapo`, `corps`, `image_url`, `publie`, `publie_le`, `etiquettes`). La 1.10.0 suppose le
+  code 1.9.0 fusionné (elle retire la vue) ; la base passe d'abord, le code suit aussitôt : entre les
+  deux, l'ancien bouton « Publier » est refusé par le circuit. Les articles déjà en ligne y
+  apparaissent « à actualiser » (aucune date de relecture avant la 1.10.0) : les relire, ou couper
+  « Relecture exigée » dans Éditorial → Réglages. Une installation qui bloque aussi des noms tirés
+  de ses propres tables écrit `public.greffe_termes_nominatifs(text) returns text[]` dans
+  `supabase/greffe/`. Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
   `site_settings` donne la version en un coup d'œil.

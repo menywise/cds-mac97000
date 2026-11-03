@@ -37,6 +37,12 @@ function buildAdminNav(): AdminNavItem[] {
       anyOf: ["faq", "pricing", "blog"],
     },
     {
+      to: "/editorial",
+      label: "Éditorial",
+      title: "Écrire, relire et publier les articles",
+      module: "blog",
+    },
+    {
       to: "/admin/pages",
       label: "Pages",
       title: "Composer les pages du site, accueil compris",

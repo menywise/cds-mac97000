@@ -1,9 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminShell, useIsAdmin } from "@/components/cds/AdminShell";
 import { ConfirmButton } from "@/components/cds/ConfirmButton";
-import { ImageField } from "@/components/cds/MediaPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { ARTICLE_LONGUEURS, borneSlug, descriptionDepuis } from "@/lib/blog";
-import { slugify } from "@/lib/format";
 import { lirePrix } from "@/lib/prix";
 import { seo } from "@/lib/seo";
 import { requireAnyFeature, withActiveModules } from "@/config/features";
@@ -53,29 +50,10 @@ type Plan = {
   position: number;
 };
 
-type Post = {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  cover_url: string | null;
-  tags: string[];
-  published: boolean;
-  published_at: string | null;
-};
-
 type Reload = () => Promise<void>;
 
 const cardClass =
   "rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card-tactile)] sm:p-6";
-
-function splitTags(value: string) {
-  return value
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-}
 
 /** Message d'erreur lisible pour les erreurs les plus courantes. */
 function explain(error: { code?: string; message?: string } | null) {
@@ -106,25 +84,16 @@ function AdminContenusPage() {
   const isAdmin = useIsAdmin();
   const [faqs, setFaqs] = useState<Faq[] | null>(null);
   const [plans, setPlans] = useState<Plan[] | null>(null);
-  const [posts, setPosts] = useState<Post[] | null>(null);
   const [loadError, setLoadError] = useState(false);
 
   const reload = useCallback(async () => {
-    const [faqRes, planRes, postRes] = await Promise.all([
+    const [faqRes, planRes] = await Promise.all([
       supabase.from("faq_items").select("*").order("position"),
       supabase.from("pricing_plans").select("*").order("position"),
-      supabase
-        .from("contenus_publics")
-        .select(
-          "id, slug, title:titre, excerpt:chapo, content:corps, cover_url:image_url, tags:etiquettes, published:publie, published_at:publie_le",
-        )
-        .eq("type", "article")
-        .order("created_at", { ascending: false }),
     ]);
-    setLoadError(Boolean(faqRes.error || planRes.error || postRes.error));
+    setLoadError(Boolean(faqRes.error || planRes.error));
     setFaqs((faqRes.data ?? []) as Faq[]);
     setPlans((planRes.data ?? []) as Plan[]);
-    setPosts((postRes.data ?? []) as Post[]);
   }, []);
 
   useEffect(() => {
@@ -171,7 +140,7 @@ function AdminContenusPage() {
           <PlanSection plans={plans} reload={reload} />
         </TabsContent>
         <TabsContent value="articles" className="space-y-4 pt-6">
-          <PostSection posts={posts} reload={reload} />
+          <PostSection />
         </TabsContent>
       </Tabs>
     </AdminShell>
@@ -625,261 +594,20 @@ function PlanEditor({ plan, reload }: { plan: Plan; reload: Reload }) {
 
 /* -------------------------------- Articles -------------------------------- */
 
-function PostSection({ posts, reload }: { posts: Post[] | null; reload: Reload }) {
-  const notify = useNotify(reload);
-
-  async function addPost(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const title = String(data.get("title") ?? "").trim();
-    const chapo = String(data.get("excerpt") ?? "").trim();
-    const { error } = await supabase.from("contenus_publics").insert({
-      type: "article",
-      titre: title,
-      slug: borneSlug(slugify(title)),
-      chapo,
-      description: descriptionDepuis(chapo),
-      corps: String(data.get("content") ?? "").trim(),
-      etiquettes: splitTags(String(data.get("tags") ?? "")),
-      publie: false,
-    });
-    if (notify(error, "Article créé en brouillon.")) form.reset();
-  }
-
+/** Les articles s'écrivent, se relisent et se publient dans le poste Éditorial (socle 1.10.0). */
+function PostSection() {
   return (
-    <>
-      <form onSubmit={addPost} className={`space-y-4 ${cardClass}`}>
-        <h2 className="text-base font-semibold text-foreground">Écrire un article</h2>
-        <div className="space-y-1.5">
-          <Label htmlFor="post-title">Titre</Label>
-          <Input
-            id="post-title"
-            name="title"
-            required
-            minLength={ARTICLE_LONGUEURS.titre.min}
-            maxLength={ARTICLE_LONGUEURS.titre.max}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="post-excerpt">Résumé</Label>
-          <Textarea
-            id="post-excerpt"
-            name="excerpt"
-            rows={2}
-            required
-            maxLength={ARTICLE_LONGUEURS.chapo}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="post-content">Contenu</Label>
-          <Textarea
-            id="post-content"
-            name="content"
-            rows={8}
-            required
-            maxLength={ARTICLE_LONGUEURS.corps}
-          />
-          <p className="text-xs text-muted-foreground">
-            Mise en forme : **gras**, *italique*, &gt; citation, - liste, [texte](adresse).
-          </p>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="post-tags">Étiquettes</Label>
-          <Input id="post-tags" name="tags" placeholder="référencement, conformité, tarifs" />
-          <p className="text-xs text-muted-foreground">
-            Séparées par des virgules : elles servent au filtre et aux articles liés.
-          </p>
-        </div>
-        <Button type="submit" title="Créer cet article en brouillon">
-          Créer le brouillon
-        </Button>
-      </form>
-
-      {posts === null ? (
-        <ListSkeleton />
-      ) : posts.length === 0 ? (
-        <EmptyState>Aucun article pour l'instant : écrivez le premier ci-dessus.</EmptyState>
-      ) : (
-        posts.map((post) => <PostRow key={post.id} post={post} reload={reload} />)
-      )}
-    </>
-  );
-}
-
-function postDraft(post: Post) {
-  return {
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    content: post.content,
-    tags: (post.tags ?? []).join(", "),
-    cover_url: post.cover_url ?? "",
-  };
-}
-
-function PostRow({ post, reload }: { post: Post; reload: Reload }) {
-  const notify = useNotify(reload);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(() => postDraft(post));
-
-  const postKey = JSON.stringify(post);
-  useEffect(() => setDraft(postDraft(post)), [postKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const id = (field: string) => `post-${field}-${post.id}`;
-
-  async function save(e: React.FormEvent) {
-    e.preventDefault();
-    const slug = borneSlug(slugify(draft.slug || draft.title));
-    if (!slug) {
-      toast.error("Adresse invalide.", { description: "Donnez un titre ou une adresse." });
-      return;
-    }
-    const { error } = await supabase
-      .from("contenus_publics")
-      .update({
-        titre: draft.title.trim(),
-        slug,
-        chapo: draft.excerpt.trim(),
-        description: descriptionDepuis(draft.excerpt),
-        corps: draft.content.trim(),
-        etiquettes: splitTags(draft.tags),
-        image_url: draft.cover_url.trim() || null,
-      })
-      .eq("id", post.id);
-    if (notify(error, "Article enregistré.")) setEditing(false);
-  }
-
-  async function toggle() {
-    const publishing = !post.published;
-    const { error } = await supabase
-      .from("contenus_publics")
-      .update({
-        publie: publishing,
-        publie_le: publishing ? (post.published_at ?? new Date().toISOString()) : post.published_at,
-      })
-      .eq("id", post.id);
-    notify(error, publishing ? "Article publié." : "Article repassé en brouillon.");
-  }
-
-  async function remove() {
-    const { error } = await supabase.from("contenus_publics").delete().eq("id", post.id);
-    notify(error, "Article supprimé.");
-  }
-
-  if (editing) {
-    return (
-      <form onSubmit={save} className={`space-y-3 ${cardClass}`}>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor={id("title")}>Titre</Label>
-            <Input
-              id={id("title")}
-              maxLength={ARTICLE_LONGUEURS.titre.max}
-              value={draft.title}
-              onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor={id("slug")}>Adresse (/blog/…)</Label>
-            <Input
-              id={id("slug")}
-              maxLength={ARTICLE_LONGUEURS.slug}
-              value={draft.slug}
-              onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
-            />
-            {post.published && slugify(draft.slug) !== post.slug ? (
-              <p className="text-xs text-destructive-text">
-                Article publié : changer l'adresse casse les liens déjà partagés.
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={id("excerpt")}>Résumé</Label>
-          <Textarea
-            id={id("excerpt")}
-            maxLength={ARTICLE_LONGUEURS.chapo}
-            rows={2}
-            value={draft.excerpt}
-            onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })}
-            required
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={id("content")}>Contenu</Label>
-          <Textarea
-            id={id("content")}
-            maxLength={ARTICLE_LONGUEURS.corps}
-            rows={12}
-            value={draft.content}
-            onChange={(e) => setDraft({ ...draft, content: e.target.value })}
-            required
-          />
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor={id("tags")}>Étiquettes</Label>
-            <Input
-              id={id("tags")}
-              value={draft.tags}
-              onChange={(e) => setDraft({ ...draft, tags: e.target.value })}
-            />
-          </div>
-          <ImageField
-            id={id("cover")}
-            label="Image de couverture"
-            value={draft.cover_url}
-            onChange={(cover_url) => setDraft({ ...draft, cover_url })}
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" size="sm">
-            Enregistrer
-          </Button>
-          <Button type="button" size="sm" variant="outline" onClick={() => setEditing(false)}>
-            Annuler
-          </Button>
-        </div>
-      </form>
-    );
-  }
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground">{post.title}</p>
-          <p className="mt-1 break-all text-xs text-muted-foreground">/blog/{post.slug}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex min-h-11 items-center gap-2 text-xs">
-            <Switch
-              checked={post.published}
-              onCheckedChange={() => void toggle()}
-              aria-label="Publier cet article"
-            />
-            {post.published ? "Publié" : "Brouillon"}
-          </label>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => setEditing(true)}
-            title="Modifier cet article"
-          >
-            Modifier
-          </Button>
-          <ConfirmButton
-            title="Supprimer cet article"
-            question={`Supprimer l'article « ${post.title} » ?`}
-            detail="L'article et ses commentaires sont supprimés définitivement."
-            onConfirm={remove}
-          />
-        </div>
-      </div>
-      <p className="mt-2 text-sm text-muted-foreground">{post.excerpt}</p>
+    <div className={`space-y-3 ${cardClass}`}>
+      <h2 className="text-base font-semibold text-foreground">Articles du blog</h2>
+      <p className="text-sm text-foreground">
+        Les articles passent par la relecture avant d'aller en ligne. Écriture, relecture,
+        publication et règles de publication se trouvent dans le poste Éditorial.
+      </p>
+      <Button asChild>
+        <Link to="/editorial" title="Ouvrir le poste Éditorial">
+          Ouvrir le poste Éditorial
+        </Link>
+      </Button>
     </div>
   );
 }

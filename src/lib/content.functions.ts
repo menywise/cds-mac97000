@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { publicClient } from "@/lib/supabase-public";
 import { check } from "@/lib/check";
 import { readingMinutes } from "@/lib/reading";
+import { lireReglages } from "@/lib/editorial-regles";
 import {
   BLOG_PAGE_SIZE,
   cleanBlogPage,
@@ -162,7 +163,7 @@ export const getPost = createServerFn({ method: "GET" })
     const post = check(
       await client
         .from(ARTICLES)
-        .select(`${COLONNES_ARTICLE}, content:corps`)
+        .select(`${COLONNES_ARTICLE}, content:corps, relu_le, sources, auteur_fonction, auteur_nom`)
         .eq("type", "article")
         .eq("publie", true)
         .eq("slug", input.slug)
@@ -170,8 +171,8 @@ export const getPost = createServerFn({ method: "GET" })
       { contexte: ARTICLES },
     );
     if (!post) return null;
-    // Commentaires et articles voisins ne dépendent que de l'article : en parallèle.
-    const [commentsRes, othersRes] = await Promise.all([
+    // Commentaires, articles voisins et réglages éditoriaux : en parallèle.
+    const [commentsRes, othersRes, reglagesRes] = await Promise.all([
       client
         .from("blog_comments")
         .select("id, author_name, content, created_at, moderation_note, moderated_at")
@@ -186,6 +187,7 @@ export const getPost = createServerFn({ method: "GET" })
         .neq("id", post.id)
         .order("publie_le", { ascending: false })
         .limit(12),
+      client.from("site_settings").select("value").eq("key", "editorial").maybeSingle(),
     ]);
     const comments = check(commentsRes, { contexte: "blog_comments" });
     const others = check(othersRes, { contexte: ARTICLES });
@@ -198,7 +200,13 @@ export const getPost = createServerFn({ method: "GET" })
       .sort((a, b) => b.shared - a.shared)
       .slice(0, 3)
       .map((entry) => entry.item);
-    return { post, comments: comments ?? [], related };
+    const reglages = lireReglages(check(reglagesRes, { contexte: "site_settings" })?.value);
+    return {
+      post,
+      comments: comments ?? [],
+      related,
+      editorial: { auteur_mode: reglages.auteur_mode, avertissement: reglages.avertissement },
+    };
   });
 
 /** Grille de conformité du modèle : sert au pilotage et aux audits. */

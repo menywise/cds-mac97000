@@ -51,6 +51,7 @@ function AdminUsersPage() {
   const { user } = useAuth();
   const [users, setUsers] = useState<UserRow[] | null>(null);
   const [studio, setStudio] = useState<StudioAdmin[] | null>(null);
+  const [editors, setEditors] = useState<Set<string>>(new Set());
   const [loadError, setLoadError] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -58,11 +59,12 @@ function AdminUsersPage() {
 
   const load = useCallback(async () => {
     setLoadError(false);
-    const [usersRes, studioRes] = await Promise.all([
+    const [usersRes, studioRes, editorsRes] = await Promise.all([
       supabase.rpc("admin_list_users"),
       supabase.from("studio_admins").select("email, created_at").order("email"),
+      supabase.from("user_roles").select("user_id").eq("role", "editor"),
     ]);
-    if (usersRes.error || studioRes.error) {
+    if (usersRes.error || studioRes.error || editorsRes.error) {
       setLoadError(true);
       setUsers([]);
       setStudio([]);
@@ -70,7 +72,23 @@ function AdminUsersPage() {
     }
     setUsers((usersRes.data ?? []) as UserRow[]);
     setStudio((studioRes.data ?? []) as StudioAdmin[]);
+    setEditors(new Set((editorsRes.data ?? []).map((r) => r.user_id)));
   }, []);
+
+  /** Rôle rédacteur (socle 1.10.0) : écrit et propose des articles dans le poste Éditorial. */
+  async function setEditor(row: UserRow, editor: boolean) {
+    setBusy(row.id);
+    const { error } = await supabase.rpc("admin_set_editor", { _user_id: row.id, _editor: editor });
+    setBusy(null);
+    if (error) {
+      toast.error("Modification refusée.", { description: error.message });
+      return;
+    }
+    toast.success(editor ? "Rédacteur ajouté." : "Rôle rédacteur retiré.", {
+      description: row.email,
+    });
+    void load();
+  }
 
   useEffect(() => {
     if (isAdmin) void load();
@@ -269,6 +287,7 @@ function AdminUsersPage() {
                             {row.is_admin ? "Administrateur" : "Membre"}
                           </Badge>
                           {row.is_studio_admin ? <Badge variant="outline">Studio</Badge> : null}
+                          {editors.has(row.id) ? <Badge variant="outline">Rédacteur</Badge> : null}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -298,15 +317,31 @@ function AdminUsersPage() {
                             />
                           )
                         ) : (
-                          <Button
-                            type="button"
-                            size="sm"
-                            disabled={busy === row.id}
-                            onClick={() => void setAdmin(row, true)}
-                            title={`Nommer ${row.email} administrateur`}
-                          >
-                            Nommer admin
-                          </Button>
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={busy === row.id}
+                              onClick={() => void setEditor(row, !editors.has(row.id))}
+                              title={
+                                editors.has(row.id)
+                                  ? `Retirer le rôle rédacteur de ${row.email}`
+                                  : `Nommer ${row.email} rédacteur : il écrit et propose des articles`
+                              }
+                            >
+                              {editors.has(row.id) ? "Retirer rédacteur" : "Nommer rédacteur"}
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              disabled={busy === row.id}
+                              onClick={() => void setAdmin(row, true)}
+                              title={`Nommer ${row.email} administrateur`}
+                            >
+                              Nommer admin
+                            </Button>
+                          </div>
                         )}
                       </TableCell>
                     </TableRow>

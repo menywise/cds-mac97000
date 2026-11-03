@@ -1,0 +1,945 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { PageShell } from "@/components/cds/SiteHeader";
+import { ConfirmButton } from "@/components/cds/ConfirmButton";
+import { ImageField } from "@/components/cds/MediaPicker";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { requireFeature } from "@/config/features";
+import { ARTICLE_LONGUEURS, borneSlug } from "@/lib/blog";
+import {
+  CATEGORIES_TERMES,
+  ajouterTerme,
+  changerStatut,
+  creerArticle,
+  enregistrerContenu,
+  enregistrerReglages,
+  fetchARevoir,
+  fetchEditorial,
+  fetchJournal,
+  fetchReglages,
+  fetchTermes,
+  supprimerContenu,
+  supprimerTerme,
+  useDroitsEditorial,
+  type ContenuARevoir,
+  type ContenuEditorial,
+  type LigneJournal,
+  type TermeInterdit,
+} from "@/lib/editorial";
+import {
+  LONGUEURS,
+  REGLAGES_PAR_DEFAUT,
+  STATUTS,
+  actionsPossibles,
+  dateSimple,
+  manquesSaisie,
+  prochaineAction,
+  statutInfo,
+  type Action,
+  type ReglagesEditoriaux,
+  type Statut,
+} from "@/lib/editorial-regles";
+import { slugify } from "@/lib/format";
+import { seo } from "@/lib/seo";
+
+export const Route = createFileRoute("/_authenticated/editorial")({
+  beforeLoad: () => requireFeature("blog"),
+  head: () =>
+    seo({
+      title: "Éditorial",
+      description: "Écrire, relire et publier les articles du blog.",
+      path: "/editorial",
+      noindex: true,
+    }),
+  component: EditorialPage,
+});
+
+const cardClass =
+  "rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card-tactile)] sm:p-6";
+
+/** Couleur d'état par statut : couleurs nommées de la charte, fond pâle et texte foncé. */
+const TON: Record<Statut, string> = {
+  idee: "border-neutral-border bg-neutral-soft text-neutral-text",
+  redaction: "border-info-border bg-info-soft text-info-text",
+  a_relire: "border-violet-border bg-violet-soft text-violet-text",
+  pret: "border-success-border bg-success-soft text-success-text",
+  programme: "border-info-border bg-info-soft text-info-text",
+  publie: "border-success-border bg-success-soft text-success-text",
+  a_actualiser: "border-warning-border bg-warning-soft text-warning-text",
+};
+
+function Pastille({ statut }: { statut: Statut }) {
+  const info = statutInfo(statut);
+  return (
+    <span
+      title={info.aide}
+      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${TON[statut]}`}
+    >
+      {info.label}
+    </span>
+  );
+}
+
+function EditorialPage() {
+  const droits = useDroitsEditorial();
+
+  if (droits && !droits.ecrit) {
+    return (
+      <PageShell>
+        <Alert variant="destructive" className="mx-auto max-w-[640px]">
+          <AlertTitle>Accès réservé</AlertTitle>
+          <AlertDescription>
+            Cet espace est réservé aux rédacteurs et aux administrateurs.{" "}
+            <Link to="/tableau-de-bord" title="Revenir à mon tableau de bord" className="underline">
+              Revenir à mon tableau de bord
+            </Link>
+          </AlertDescription>
+        </Alert>
+      </PageShell>
+    );
+  }
+
+  return (
+    <PageShell>
+      <div className="mx-auto max-w-[900px]">
+        <p className="text-xs font-medium uppercase tracking-wide text-primary-text">Éditorial</p>
+        <h1 className="mt-2 text-3xl font-bold text-foreground">Écrire, relire, publier</h1>
+        <p className="mt-2 text-sm text-foreground">
+          Chaque article passe par la relecture avant d'aller en ligne. La base vérifie ce qui
+          manque à chaque étape : rien ne part incomplet.
+        </p>
+        {droits === null ? (
+          <div className="mt-8 space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        ) : (
+          <Poste admin={droits.admin} />
+        )}
+      </div>
+    </PageShell>
+  );
+}
+
+function Poste({ admin }: { admin: boolean }) {
+  const [contenus, setContenus] = useState<ContenuEditorial[] | null>(null);
+  const [reglages, setReglages] = useState<ReglagesEditoriaux>(REGLAGES_PAR_DEFAUT);
+  const [echec, setEchec] = useState(false);
+
+  const recharger = useCallback(async () => {
+    try {
+      const [c, r] = await Promise.all([fetchEditorial(), fetchReglages()]);
+      setContenus(c);
+      setReglages(r);
+      setEchec(false);
+    } catch {
+      setEchec(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    void recharger();
+  }, [recharger]);
+
+  return (
+    <Tabs defaultValue="articles" className="mt-8">
+      <TabsList>
+        <TabsTrigger value="articles">Articles</TabsTrigger>
+        {admin ? <TabsTrigger value="reglages">Réglages</TabsTrigger> : null}
+      </TabsList>
+      <TabsContent value="articles" className="mt-6 space-y-4">
+        {echec ? (
+          <Alert variant="destructive">
+            <AlertTitle>Chargement impossible</AlertTitle>
+            <AlertDescription>
+              Les articles n'ont pas pu être chargés.{" "}
+              <button type="button" className="underline" onClick={() => void recharger()}>
+                Réessayer
+              </button>
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        <NouvelArticle recharger={recharger} />
+        {contenus === null ? (
+          <Skeleton className="h-40 w-full" />
+        ) : (
+          <ListeParStatut
+            contenus={contenus.filter((c) => c.type === "article")}
+            admin={admin}
+            reglages={reglages}
+            recharger={recharger}
+          />
+        )}
+      </TabsContent>
+      {admin ? (
+        <TabsContent value="reglages" className="mt-6 space-y-4">
+          <Reglages initial={reglages} recharger={recharger} />
+          <Termes />
+        </TabsContent>
+      ) : null}
+    </Tabs>
+  );
+}
+
+function NouvelArticle({ recharger }: { recharger: () => Promise<void> }) {
+  const [titre, setTitre] = useState("");
+  const [envoi, setEnvoi] = useState(false);
+
+  async function creer(e: React.FormEvent) {
+    e.preventDefault();
+    const slug = borneSlug(slugify(titre));
+    if (!slug) {
+      toast.error("Titre trop court pour faire une adresse.");
+      return;
+    }
+    setEnvoi(true);
+    const erreur = await creerArticle(titre.trim(), slug);
+    setEnvoi(false);
+    if (erreur) {
+      toast.error("Article non créé.", { description: erreur });
+      return;
+    }
+    setTitre("");
+    toast.success("Article créé en rédaction.");
+    await recharger();
+  }
+
+  return (
+    <form onSubmit={creer} className={`flex flex-col gap-3 sm:flex-row sm:items-end ${cardClass}`}>
+      <div className="flex-1 space-y-1.5">
+        <Label htmlFor="nouvel-article">Nouvel article</Label>
+        <Input
+          id="nouvel-article"
+          value={titre}
+          onChange={(e) => setTitre(e.target.value)}
+          placeholder="Titre de travail"
+          required
+          minLength={ARTICLE_LONGUEURS.titre.min}
+          maxLength={ARTICLE_LONGUEURS.titre.max}
+        />
+      </div>
+      <Button type="submit" disabled={envoi} title="Créer cet article en rédaction">
+        Créer
+      </Button>
+    </form>
+  );
+}
+
+function ListeParStatut({
+  contenus,
+  admin,
+  reglages,
+  recharger,
+}: {
+  contenus: ContenuEditorial[];
+  admin: boolean;
+  reglages: ReglagesEditoriaux;
+  recharger: () => Promise<void>;
+}) {
+  if (contenus.length === 0) {
+    return (
+      <p className={`text-sm text-foreground ${cardClass}`}>
+        Aucun article pour l'instant : donnez un titre de travail ci-dessus pour commencer.
+      </p>
+    );
+  }
+  return (
+    <>
+      {STATUTS.map((s) => {
+        const liste = contenus.filter((c) => c.statut_lu === s.value);
+        if (liste.length === 0) return null;
+        return (
+          <section key={s.value} aria-labelledby={`statut-${s.value}`} className="space-y-3">
+            <h2 id={`statut-${s.value}`} className="text-base font-semibold text-foreground">
+              {s.label} ({liste.length})
+            </h2>
+            {liste.map((c) => (
+              <Fiche
+                key={c.id}
+                contenu={c}
+                admin={admin}
+                reglages={reglages}
+                recharger={recharger}
+              />
+            ))}
+          </section>
+        );
+      })}
+    </>
+  );
+}
+
+function Fiche({
+  contenu,
+  admin,
+  reglages,
+  recharger,
+}: {
+  contenu: ContenuEditorial;
+  admin: boolean;
+  reglages: ReglagesEditoriaux;
+  recharger: () => Promise<void>;
+}) {
+  const [edition, setEdition] = useState(false);
+  const [journal, setJournal] = useState<LigneJournal[] | null>(null);
+  const actions = actionsPossibles(contenu, reglages.circuit).filter((a) => admin || !a.admin);
+
+  async function voirJournal() {
+    if (journal) {
+      setJournal(null);
+      return;
+    }
+    try {
+      setJournal(await fetchJournal(contenu.id));
+    } catch {
+      toast.error("Journal indisponible.");
+    }
+  }
+
+  return (
+    <article className={cardClass}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">{contenu.titre}</h3>
+          <p className="mt-1 text-xs text-foreground">
+            /blog/{contenu.slug}
+            {contenu.relu_le ? ` · relu le ${dateSimple(contenu.relu_le)}` : ""}
+            {contenu.date_prevue ? ` · prévu le ${dateSimple(contenu.date_prevue)}` : ""}
+          </p>
+        </div>
+        <Pastille statut={contenu.statut_lu} />
+      </div>
+      <p className="mt-3 text-sm text-foreground">{prochaineAction(contenu.statut_lu)}</p>
+      {contenu.manques.length > 0 ? (
+        <ul className="mt-3 space-y-1 rounded-md border border-warning-border bg-warning-soft p-3 text-sm text-warning-text">
+          {contenu.manques.map((m) => (
+            <li key={m}>{m}</li>
+          ))}
+        </ul>
+      ) : null}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {actions.map((a) => (
+          <Passage key={a.vers + a.label} contenu={contenu} action={a} recharger={recharger} />
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setEdition((v) => !v)}
+          title="Modifier le texte et les champs de cet article"
+        >
+          {edition ? "Fermer" : "Modifier"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => void voirJournal()}
+          title="Voir les derniers changements de statut"
+        >
+          {journal ? "Masquer le journal" : "Journal"}
+        </Button>
+        {admin ? (
+          <ConfirmButton
+            title="Supprimer cet article"
+            question={`Supprimer « ${contenu.titre} » ?`}
+            onConfirm={async () => {
+              const erreur = await supprimerContenu(contenu.id);
+              if (erreur) toast.error("Suppression impossible.", { description: erreur });
+              else {
+                toast.success("Article supprimé.");
+                await recharger();
+              }
+            }}
+          />
+        ) : null}
+      </div>
+      {journal ? <Journal lignes={journal} /> : null}
+      {edition ? (
+        <Edition
+          contenu={contenu}
+          reglages={reglages}
+          fermer={() => setEdition(false)}
+          recharger={recharger}
+        />
+      ) : null}
+    </article>
+  );
+}
+
+function Passage({
+  contenu,
+  action,
+  recharger,
+}: {
+  contenu: ContenuEditorial;
+  action: Action;
+  recharger: () => Promise<void>;
+}) {
+  const [ouvert, setOuvert] = useState(false);
+  const [motif, setMotif] = useState("");
+  const [quand, setQuand] = useState("");
+  const [envoi, setEnvoi] = useState(false);
+  const besoin = action.motif || action.date;
+
+  async function lancer() {
+    setEnvoi(true);
+    const erreur = await changerStatut(
+      contenu.id,
+      action.vers,
+      motif.trim(),
+      action.date && quand ? new Date(quand).toISOString() : null,
+    );
+    setEnvoi(false);
+    if (erreur) {
+      toast.error("Passage refusé.", { description: erreur });
+      return;
+    }
+    toast.success(`${action.label} : fait.`);
+    setOuvert(false);
+    await recharger();
+  }
+
+  if (!besoin) {
+    return (
+      <Button
+        type="button"
+        size="sm"
+        variant={action.principal ? "default" : "outline"}
+        disabled={envoi}
+        onClick={() => void lancer()}
+        title={action.label}
+      >
+        {action.label}
+      </Button>
+    );
+  }
+  if (!ouvert) {
+    return (
+      <Button
+        type="button"
+        size="sm"
+        variant={action.principal ? "default" : "outline"}
+        onClick={() => setOuvert(true)}
+        title={action.label}
+      >
+        {action.label}…
+      </Button>
+    );
+  }
+  const id = `${action.vers}-${contenu.id}`;
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void lancer();
+      }}
+      className="flex w-full flex-col gap-2 rounded-md border border-border p-3 sm:flex-row sm:items-end"
+    >
+      {action.motif ? (
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor={`motif-${id}`}>Motif</Label>
+          <Input
+            id={`motif-${id}`}
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+            maxLength={300}
+            required
+          />
+        </div>
+      ) : null}
+      {action.date ? (
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor={`date-${id}`}>Date et heure de publication</Label>
+          <Input
+            id={`date-${id}`}
+            type="datetime-local"
+            value={quand}
+            onChange={(e) => setQuand(e.target.value)}
+            required
+          />
+        </div>
+      ) : null}
+      <Button type="submit" size="sm" disabled={envoi} title={action.label}>
+        {action.label}
+      </Button>
+      <Button type="button" size="sm" variant="outline" onClick={() => setOuvert(false)}>
+        Annuler
+      </Button>
+    </form>
+  );
+}
+
+function Journal({ lignes }: { lignes: LigneJournal[] }) {
+  if (lignes.length === 0) return <p className="mt-4 text-sm text-foreground">Journal vide.</p>;
+  return (
+    <ol className="mt-4 space-y-2 border-l-2 border-border pl-4 text-sm text-foreground">
+      {lignes.map((l) => (
+        <li key={l.id}>
+          <span className="font-medium">
+            {new Date(l.created_at).toLocaleString("fr-FR", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
+          </span>{" "}
+          — {l.de ? `${statutInfo(l.de as Statut).label} → ` : ""}
+          {statutInfo(l.vers as Statut).label}
+          {l.auto ? " (par la base)" : ""}
+          {l.motif ? ` : ${l.motif}` : ""}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function Compteur({ n, min, max }: { n: number; min?: number; max: number }) {
+  const ok = n <= max && (min === undefined || n >= min);
+  return (
+    <span className={`text-xs ${ok ? "text-foreground" : "text-warning-text"}`}>
+      {n} caractères{min !== undefined ? ` (de ${min} à ${max})` : ` (${max} au plus)`}
+    </span>
+  );
+}
+
+function Edition({
+  contenu,
+  reglages,
+  fermer,
+  recharger,
+}: {
+  contenu: ContenuEditorial;
+  reglages: ReglagesEditoriaux;
+  fermer: () => void;
+  recharger: () => Promise<void>;
+}) {
+  const [v, setV] = useState({
+    titre: contenu.titre,
+    slug: contenu.slug,
+    description: contenu.description,
+    chapo: contenu.chapo,
+    corps: contenu.corps,
+    sources: contenu.sources,
+    auteur_fonction: contenu.auteur_fonction,
+    auteur_nom: contenu.auteur_nom,
+    etiquettes: contenu.etiquettes.join(", "),
+    image_url: contenu.image_url ?? "",
+    image_alt: contenu.image_alt,
+    date_prevue: contenu.date_prevue ?? "",
+    public_vise: contenu.public_vise,
+    requete_visee: contenu.requete_visee,
+  });
+  const [envoi, setEnvoi] = useState(false);
+  const id = (champ: string) => `ed-${champ}-${contenu.id}`;
+  const enLigneOuRelu = ["pret", "programme", "publie", "a_actualiser"].includes(contenu.statut_lu);
+  const manques = useMemo(
+    () =>
+      manquesSaisie({ type: contenu.type, relu_le: contenu.relu_le, ...v }, reglages).filter(
+        (m) => m.code !== "relecture",
+      ),
+    [contenu.type, contenu.relu_le, v, reglages],
+  );
+
+  async function enregistrer(e: React.FormEvent) {
+    e.preventDefault();
+    const slug = borneSlug(slugify(v.slug || v.titre));
+    if (!slug) {
+      toast.error("Adresse invalide.", { description: "Donnez un titre ou une adresse." });
+      return;
+    }
+    setEnvoi(true);
+    const erreur = await enregistrerContenu(contenu.id, {
+      titre: v.titre.trim(),
+      slug,
+      description: v.description.trim(),
+      chapo: v.chapo.trim(),
+      corps: v.corps.trim(),
+      sources: v.sources.trim(),
+      auteur_fonction: v.auteur_fonction.trim(),
+      auteur_nom: v.auteur_nom.trim(),
+      etiquettes: v.etiquettes
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      image_url: v.image_url.trim() || null,
+      image_alt: v.image_alt.trim(),
+      date_prevue: v.date_prevue || null,
+      public_vise: v.public_vise.trim(),
+      requete_visee: v.requete_visee.trim(),
+    });
+    setEnvoi(false);
+    if (erreur) {
+      toast.error("Enregistrement impossible.", { description: erreur });
+      return;
+    }
+    toast.success("Article enregistré.");
+    fermer();
+    await recharger();
+  }
+
+  const champ = (k: keyof typeof v) => ({
+    id: id(k),
+    value: v[k],
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setV({ ...v, [k]: e.target.value }),
+  });
+
+  return (
+    <form onSubmit={enregistrer} className="mt-5 space-y-4 border-t border-border pt-5">
+      {enLigneOuRelu ? (
+        <p className="rounded-md border border-info-border bg-info-soft p-3 text-sm text-info-text">
+          Ce texte a déjà été relu. Le modifier le renvoie en relecture ; un article en ligne y
+          reste, marqué « à actualiser ».
+        </p>
+      ) : null}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("titre")}>Titre</Label>
+          <Input {...champ("titre")} required maxLength={ARTICLE_LONGUEURS.titre.max} />
+          <Compteur n={v.titre.trim().length} min={LONGUEURS.titre.min} max={LONGUEURS.titre.max} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("slug")}>Adresse (/blog/…)</Label>
+          <Input {...champ("slug")} maxLength={ARTICLE_LONGUEURS.slug} />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={id("description")}>Description pour les moteurs de recherche</Label>
+        <Textarea {...champ("description")} rows={2} maxLength={ARTICLE_LONGUEURS.description} />
+        <Compteur
+          n={v.description.trim().length}
+          min={LONGUEURS.description.min}
+          max={LONGUEURS.description.max}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={id("chapo")}>Chapô</Label>
+        <Textarea {...champ("chapo")} rows={3} maxLength={ARTICLE_LONGUEURS.chapo} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={id("corps")}>Texte</Label>
+        <Textarea {...champ("corps")} rows={14} maxLength={ARTICLE_LONGUEURS.corps} />
+        <p className="text-xs text-foreground">
+          Mise en forme : **gras**, *italique*, &gt; citation, - liste, [texte](adresse).
+        </p>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={id("sources")}>
+          Sources (une par ligne : « Libellé — https://adresse »)
+        </Label>
+        <Textarea {...champ("sources")} rows={3} maxLength={4000} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("auteur_fonction")}>Fonction de l'auteur</Label>
+          <Input {...champ("auteur_fonction")} maxLength={80} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("auteur_nom")}>Nom de l'auteur</Label>
+          <Input {...champ("auteur_nom")} maxLength={80} />
+          <p className="text-xs text-foreground">
+            Affiché seulement si le site montre le nom des auteurs (réglage).
+          </p>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={id("etiquettes")}>Étiquettes</Label>
+        <Input {...champ("etiquettes")} placeholder="référencement, conformité, tarifs" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ImageField
+          id={id("image")}
+          label="Image de couverture"
+          value={v.image_url}
+          onChange={(image_url) => setV({ ...v, image_url })}
+        />
+        <div className="space-y-1.5">
+          <Label htmlFor={id("image_alt")}>Texte alternatif de l'image</Label>
+          <Input {...champ("image_alt")} maxLength={200} />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="space-y-1.5">
+          <Label htmlFor={id("date_prevue")}>Date prévue</Label>
+          <Input {...champ("date_prevue")} type="date" />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("public_vise")}>Public visé</Label>
+          <Input {...champ("public_vise")} maxLength={120} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={id("requete_visee")}>Requête visée</Label>
+          <Input {...champ("requete_visee")} maxLength={120} />
+        </div>
+      </div>
+      {manques.length > 0 ? (
+        <div className="rounded-md border border-warning-border bg-warning-soft p-3 text-sm text-warning-text">
+          <p className="font-medium">Avant publication :</p>
+          <ul className="mt-1 list-disc pl-5">
+            {manques.map((m) => (
+              <li key={m.code}>{m.message}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      <div className="flex gap-2">
+        <Button type="submit" disabled={envoi} title="Enregistrer cet article">
+          Enregistrer
+        </Button>
+        <Button type="button" variant="outline" onClick={fermer}>
+          Annuler
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function Reglages({
+  initial,
+  recharger,
+}: {
+  initial: ReglagesEditoriaux;
+  recharger: () => Promise<void>;
+}) {
+  const [r, setR] = useState(initial);
+  const [envoi, setEnvoi] = useState(false);
+  useEffect(() => setR(initial), [initial]);
+
+  async function enregistrer(e: React.FormEvent) {
+    e.preventDefault();
+    setEnvoi(true);
+    const erreur = await enregistrerReglages(r);
+    setEnvoi(false);
+    if (erreur) {
+      toast.error("Réglages non enregistrés.", { description: erreur });
+      return;
+    }
+    toast.success("Réglages enregistrés.");
+    await recharger();
+  }
+
+  const interrupteur = (
+    k: "exiger_sources" | "exiger_relecture" | "exiger_auteur" | "longueurs_seo",
+    libelle: string,
+    aide: string,
+  ) => (
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <Label htmlFor={`reglage-${k}`}>{libelle}</Label>
+        <p className="text-xs text-foreground">{aide}</p>
+      </div>
+      <Switch
+        id={`reglage-${k}`}
+        checked={r[k]}
+        onCheckedChange={(checked) => setR({ ...r, [k]: checked })}
+      />
+    </div>
+  );
+
+  return (
+    <form onSubmit={enregistrer} className={`space-y-5 ${cardClass}`}>
+      <h2 className="text-base font-semibold text-foreground">Règles de publication</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="reglage-circuit">Circuit</Label>
+          <select
+            id="reglage-circuit"
+            value={r.circuit}
+            onChange={(e) =>
+              setR({ ...r, circuit: e.target.value === "simple" ? "simple" : "complet" })
+            }
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="complet">Complet : relecture avant publication</option>
+            <option value="simple">Simple : un administrateur publie directement</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="reglage-delai">Relecture à refaire après (mois)</Label>
+          <Input
+            id="reglage-delai"
+            type="number"
+            min={1}
+            max={60}
+            value={r.delai_relecture_mois}
+            onChange={(e) =>
+              setR({
+                ...r,
+                delai_relecture_mois: Math.min(60, Math.max(1, Number(e.target.value) || 12)),
+              })
+            }
+          />
+        </div>
+      </div>
+      {interrupteur(
+        "exiger_relecture",
+        "Relecture exigée",
+        "Un article se publie relu ; il redevient « à actualiser » après le délai.",
+      )}
+      {interrupteur(
+        "exiger_sources",
+        "Source exigée",
+        "Au moins une adresse https:// dans les sources d'un article.",
+      )}
+      {interrupteur(
+        "exiger_auteur",
+        "Auteur exigé",
+        "Fonction ou nom de l'auteur, selon l'affichage choisi.",
+      )}
+      {interrupteur(
+        "longueurs_seo",
+        "Longueurs pour les moteurs de recherche",
+        "Titre de 10 à 70 caractères, description de 70 à 160.",
+      )}
+      <div className="space-y-1.5">
+        <Label htmlFor="reglage-auteur">Auteur affiché sous les articles</Label>
+        <select
+          id="reglage-auteur"
+          value={r.auteur_mode}
+          onChange={(e) =>
+            setR({ ...r, auteur_mode: e.target.value === "nomme" ? "nomme" : "fonction" })
+          }
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="fonction">Sa fonction (par exemple « Rédactrice spécialisée »)</option>
+          <option value="nomme">Son nom</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="reglage-avertissement">Avertissement sous chaque article</Label>
+        <Textarea
+          id="reglage-avertissement"
+          rows={3}
+          maxLength={400}
+          value={r.avertissement}
+          onChange={(e) => setR({ ...r, avertissement: e.target.value })}
+          placeholder="Par exemple : ces articles informent, ils ne remplacent pas l'avis d'un professionnel."
+        />
+      </div>
+      <Button type="submit" disabled={envoi} title="Enregistrer les règles de publication">
+        Enregistrer
+      </Button>
+    </form>
+  );
+}
+
+function Termes() {
+  const [termes, setTermes] = useState<TermeInterdit[] | null>(null);
+  const [aRevoir, setARevoir] = useState<ContenuARevoir[]>([]);
+  const [terme, setTerme] = useState("");
+  const [categorie, setCategorie] = useState<string>("marque");
+
+  const charger = useCallback(async () => {
+    try {
+      const [t, a] = await Promise.all([fetchTermes(), fetchARevoir()]);
+      setTermes(t);
+      setARevoir(a);
+    } catch {
+      toast.error("Termes interdits indisponibles.");
+    }
+  }, []);
+
+  useEffect(() => {
+    void charger();
+  }, [charger]);
+
+  async function ajouter(e: React.FormEvent) {
+    e.preventDefault();
+    const erreur = await ajouterTerme(terme, categorie);
+    if (erreur) {
+      toast.error("Terme non ajouté.", { description: erreur });
+      return;
+    }
+    setTerme("");
+    await charger();
+  }
+
+  return (
+    <section className={`space-y-4 ${cardClass}`} aria-labelledby="termes-titre">
+      <h2 id="termes-titre" className="text-base font-semibold text-foreground">
+        Termes interdits
+      </h2>
+      <p className="text-sm text-foreground">
+        Un contenu qui contient un de ces termes ne se publie pas. La liste vit en base, jamais dans
+        le code du site.
+      </p>
+      <form onSubmit={ajouter} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor="terme">Terme</Label>
+          <Input
+            id="terme"
+            value={terme}
+            onChange={(e) => setTerme(e.target.value)}
+            minLength={3}
+            maxLength={120}
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="terme-categorie">Catégorie</Label>
+          <select
+            id="terme-categorie"
+            value={categorie}
+            onChange={(e) => setCategorie(e.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {CATEGORIES_TERMES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Button type="submit" title="Ajouter ce terme à la liste">
+          Ajouter
+        </Button>
+      </form>
+      {termes === null ? (
+        <Skeleton className="h-16 w-full" />
+      ) : termes.length === 0 ? (
+        <p className="text-sm text-foreground">Aucun terme pour l'instant.</p>
+      ) : (
+        <ul className="divide-y divide-border rounded-md border border-border">
+          {termes.map((t) => (
+            <li key={t.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+              <span className="text-foreground">
+                {t.terme} ·{" "}
+                {CATEGORIES_TERMES.find((c) => c.value === t.categorie)?.label ?? t.categorie}
+              </span>
+              <ConfirmButton
+                title={`Retirer « ${t.terme} »`}
+                question={`Retirer « ${t.terme} » de la liste ?`}
+                label="Retirer"
+                confirmLabel="Retirer"
+                onConfirm={async () => {
+                  const erreur = await supprimerTerme(t.id);
+                  if (erreur) toast.error("Terme non retiré.", { description: erreur });
+                  else await charger();
+                }}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {aRevoir.length > 0 ? (
+        <div className="rounded-md border border-warning-border bg-warning-soft p-3 text-sm text-warning-text">
+          <p className="font-medium">Contenus en ligne à revoir :</p>
+          <ul className="mt-1 list-disc pl-5">
+            {aRevoir.map((c) => (
+              <li key={c.id}>
+                {c.titre} : {c.termes.join(", ")}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </section>
+  );
+}
