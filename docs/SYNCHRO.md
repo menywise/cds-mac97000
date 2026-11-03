@@ -94,14 +94,14 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Colonnes du socle absentes de C1 | S | portée | écart | S→C1 | `image_url`, `image_alt`, `etiquettes`, `auteur_id` | 03/11/2026 |
 | Circuit de rédaction | C1 | portée | aligné | C1→S | Socle 1.10.0 : statuts, passages, journal, versions. Le socle ajoute le circuit simple (S→C1 à décider) | 03/11/2026 |
 | Manques avant publication | C1 | portée | aligné | C1→S | Socle 1.10.0, exigences réglables | 03/11/2026 |
-| Règles d'écran du circuit | S | copie | écart | S→C1 | `src/lib/editorial-regles.ts`, sans dépendance : à copier tel quel dans C1 (remplace une partie de son `editorial.ts`) | 03/11/2026 |
+| Règles d'écran du circuit | S | copie | écart | S→C1 | `src/lib/editorial-regles.ts` copié dans C1 le 03/11/2026, pas encore branché : son poste éditorial lit encore son `editorial.ts` (API différente : `STATUTS` avec ton et icône, `actionsPossibles`, `prochaineAction`) | 03/11/2026 |
 | Termes interdits | C1 | portée | aligné | C1→S | Socle 1.10.0 ; noms d'une installation par `greffe_termes_nominatifs`. C1 garde sa version à expressions régulières (personnes, chirurgiens) | 03/11/2026 |
 | Sources, relecture, auteur | C1 | portée | aligné | C1→S | Socle 1.10.0 ; le socle ajoute `auteur_nom` et l'affichage par réglage (D3) | 03/11/2026 |
-| Liens de sources morts | ⇄ | portée | aligné | ⇄ | Socle 1.12.0 : même table ; le socle vérifie avec la session du rédacteur et refuse les adresses privées (`sources-verif.ts`, candidat copie) | 03/11/2026 |
+| Liens de sources morts | ⇄ | portée | aligné | ⇄ | Socle 1.12.0 : même table ; le socle vérifie avec la session du rédacteur et refuse les adresses privées (`sources-verif.ts`, copié dans C1 le 03/11/2026, pas encore branché) | 03/11/2026 |
 | Pilier et satellites | C1 | portée | aligné | C1→S | Socle 1.11.0 : contrôle en base (manque « pilier ») et satellites absents du pilier | 03/11/2026 |
 | Taxonomie | S | portée | écart | S→C1 | Socle 1.11.0 : rubriques, étiquettes contrôlées, séries, pages publiques | 03/11/2026 |
 | Contrôles de maillage | S | portée | écart | S→C1 | Socle 1.11.0 : liens cassés ou redirigés, orphelins, ancres pauvres, requête en double (`maillage_etat`) | 03/11/2026 |
-| Règles d'écran du maillage | S | copie | écart | S→C1 | `src/lib/maillage.ts`, sans dépendance : à copier tel quel dans C1 | 03/11/2026 |
+| Règles d'écran du maillage | S | copie | écart | S→C1 | `src/lib/maillage.ts` copié dans C1 le 03/11/2026, branché avec la taxonomie (migration à porter) | 03/11/2026 |
 | Redirections | S | portée | écart | S→C1 | Socle 1.11.0 : redirection 301 automatique au changement d'adresse | 03/11/2026 |
 | Liste du blog | S | portée | écart | S→C1 | Recherche, étiquettes, pagination, durée de lecture (`src/lib/blog.ts` → copie) | 03/11/2026 |
 | Image de couverture | S | portée | écart | S→C1 | `cover_url` absent de C1 | 03/11/2026 |
@@ -110,13 +110,13 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Partage, signalement | S | portée | écart | S→C1 | `ShareButtons`, `ReportButton` | 03/11/2026 |
 | Commentaires d'articles | S | portée | propre | — | C1 ne les reprend pas (site anonymisé) | 03/11/2026 |
 | Publicité dans le blog | S | portée | propre | — | `AdSlot` : C1 ne le reprend pas | 03/11/2026 |
-| Appel à l'action en fin d'article | S | portée | écart | S→C1 | Socle 1.15.0 : `appels_action`, réglable par article ou pour le site ; C1 peut y ranger son `AppelDemo` | 03/11/2026 |
-| Données structurées article | S | copie | écart | S→C1 | Socle 1.12.0 : `src/lib/article-donnees.ts` sans dépendance (relecture, sources, auteur, rubrique, étiquettes, série, questions-réponses, type de page) : à copier dans C1 | 03/11/2026 |
-| Rendu du texte | S | copie | écart | S→C1 | Socle 1.12.0 : `src/lib/corps.ts` (analyse, copie exacte) et `CorpsArticle` ; reprend la syntaxe de C1 et ajoute sommaire, encadré, questions-réponses, listes numérotées | 03/11/2026 |
+| Appel à l'action en fin d'article | S | portée | écart | S→C1 | Socle 1.15.0 : `appels_action`, réglable par article ou pour le site ; C1 peut y ranger son `AppelDemo` ; `pilotage.ts` copié dans C1 le 03/11/2026, pas encore branché | 03/11/2026 |
+| Données structurées article | S | copie | aligné | S→C1 | `src/lib/article-donnees.ts` copié et branché dans C1 le 03/11/2026 par un pont propre à C1 (auteur par fonction, `MedicalWebPage`, ni rubrique ni questions-réponses tant que sa table ne les a pas) | 03/11/2026 |
+| Rendu du texte | S | copie | écart | S→C1 | `src/lib/corps.ts` copié dans C1 le 03/11/2026 (seul `nombreDeMots` sert) ; `CorpsArticle` reste à porter : il remplace le rendu de C1 et ouvre les questions-réponses en données structurées | 03/11/2026 |
 | Recherche plein texte | S | portée | écart | S→C1 | Socle 1.13.0 : `recherche_articles` (opérateurs, synonymes, facettes, extrait surligné, pondération), suggestion de mot proche, recherches sans résultat. C1 garde sa configuration sans racine (candidat C1→S) | 03/11/2026 |
 | Plan du site XML | S | portée | écart | ⇄ | S : `lastmod` réel par page ; C1 : programmation respectée | 03/11/2026 |
 | Lexique public | C1 | portée | à décider | C1→S | `/lexique`, `DefinedTerm` : base du lien automatique vers les définitions | 03/11/2026 |
-| Exigences d'une société savante | S | portée | écart | S→C1 | Socle 1.14.0 : `references_contenu`, liens d'intérêts, niveau de preuve, genres, relecteurs ; `bibliographie.ts` candidat copie exacte | 03/11/2026 |
+| Exigences d'une société savante | S | portée | écart | S→C1 | Socle 1.14.0 : `references_contenu`, liens d'intérêts, niveau de preuve, genres, relecteurs ; `bibliographie.ts` copié dans C1 le 03/11/2026, branché avec la migration | 03/11/2026 |
 | Lien Search Console | C1 | portée | aligné | C1→S | Socle 1.12.0 : dans `article-donnees.ts` | 03/11/2026 |
 | Pages construites (sections) | S | propre | propre | — | Table `pages` du socle : pages d'atterrissage, distinctes des contenus éditoriaux | 03/11/2026 |
 
@@ -142,3 +142,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Socle 1.13.0 | Lot 5 : recherche avancée. Nouvel écart S→C1 : recherche des articles en base, synonymes (C1 peut les remplir depuis son glossaire), recherches sans résultat |
 | 03/11/2026 | Socle 1.14.0 | Lot 6 : société savante. Nouveaux écarts S→C1 : bibliographie (`bibliographie.ts` en copie exacte), liens d'intérêts, niveau de preuve, genres, relecteurs ; accès membres reporté |
 | 03/11/2026 | Socle 1.15.0 | Lot 7 : pilotage. Nouveaux écarts S→C1 : appels à l'action (C1 : `AppelDemo` devient un encart réglable), intention, `pilotage.ts`, santé du contenu |
+| 03/11/2026 | Recette et retour vers C1 | Base du socle passée de 1.8.0 à 1.15.0, recette des lots 2 à 7 (plan, « Recette du 03/11/2026 »). Sept copies exactes ajoutées à `verifier-socle.mjs` de C1 ; `article-donnees.ts` branché, les six autres en attente de leur migration ou de leur écran |

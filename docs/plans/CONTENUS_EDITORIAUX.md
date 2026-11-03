@@ -360,6 +360,34 @@ Pilotage (santé du contenu, calendrier par semaine), brief et appels à l'actio
 - **Santé du contenu** : tableau dans `/editorial` (orphelins, liens cassés, sources mortes,
   relectures dues, cannibalisation, recherches sans réponse).
 
+### Recette du 03/11/2026 (lots 2 à 7, vraie base)
+
+Base de l'aperçu du socle passée de 1.8.0 à 1.15.0 par les blocs de `supabase/seed/` (contrôles
+des sept versions conformes). Code de `main` lancé sur le poste, branché sur cette base.
+
+- **Visiteur, à l'écran** : `/blog`, article, recherche (début de mot, phrase exacte, zéro
+  résultat), `/recherche`, RSS, plan du site, pages introuvables (article, rubrique, étiquette,
+  série) en 404, `/editorial` et `/admin/contenus` renvoyés vers la connexion. Aucune erreur de
+  console hors les 404 attendus.
+- **Rédacteur et admin, en base** : 36 points joués avec le rôle simulé, dans une transaction
+  annulée (aucune trace). Tous conformes : étiquette libre refusée, rubrique et appel à l'action
+  réservés aux admins, publication directe refusée, passage « prêt » réservé aux admins, motif
+  exigé, manques (auteur, sources, relecture, référence [1]), relecture datée au passage « prêt »,
+  texte modifié en ligne → « à actualiser », lien cassé et terme interdit refusés, redirection au
+  changement d'adresse, programmation invisible du visiteur, recherche et facettes, suggestion,
+  « À lire ensuite », journal et tables internes fermés au visiteur.
+- **Non couvert** : les écrans `/editorial` et `/admin/contenus` en rédacteur et en admin (aucun
+  compte de recette du socle dans l'environnement). Règles vérifiées en base seulement.
+
+Écarts :
+
+| N° | Gravité | Écart | Suite |
+|---|---|---|---|
+| R1 | Bloquant, hors code | Le site publié tourne sur un code antérieur à 1.9.0 : `/blog` et les articles répondent 500 depuis le retrait de la vue `blog_posts` (1.10.0) | Republier le projet (code de `main`) |
+| R2 | Mineur | Pages introuvables (article, rubrique, étiquette, série) : statut 404 correct, mais balise `robots` à « index, follow » | `noindex` sur ces pages |
+| R3 | Mineur | Suggestion muette sur une faute d'une lettre dans un mot court : « sokle » ne propose rien (similarité 0,33, seuil 0,35) ; « methde » propose « méthode » | Décider : seuil à 0,3 ou statu quo |
+| R4 | Attendu | L'article existant passe « à actualiser » (aucune relecture avant 1.10.0) ; sans fonction de l'auteur ni source, une republication après correction sera refusée | Le relire et le compléter, ou couper les exigences dans Éditorial → Réglages |
+
 ## 5. Retour vers le premier clone, lot par lot
 
 | Lot du socle | Ce que C1 reprend | Ce que C1 garde à lui |
@@ -374,6 +402,12 @@ Pilotage (santé du contenu, calendrier par semaine), brief et appels à l'actio
 
 À chaque copie exacte créée, ajouter le fichier à la liste `FICHIERS` de
 `scripts/verifier-socle.mjs` dans C1, puis `node scripts/verifier-socle.mjs --copier`.
+
+**Fait le 03/11/2026** : les sept copies (`editorial-regles.ts`, `maillage.ts`, `corps.ts`,
+`article-donnees.ts`, `bibliographie.ts`, `pilotage.ts`, `sources-verif.ts`) sont dans C1, au
+commit `af4d68f`. Seul `article-donnees.ts` y sert déjà, par un pont propre à C1. Les autres
+attendent leur branchement : le poste éditorial de C1 a sa propre API (`editorial.ts`), la
+taxonomie, la bibliographie et les appels à l'action attendent leur migration portée.
 
 ## 6. Risques et parades
 
