@@ -5,8 +5,8 @@ Date : 03/11/2026. Ligne du registre : `docs/SYNCHRO.md`, section « Contenus é
 
 ## 1. Décision de départ
 
-Le 03/11/2026, le propriétaire choisit le modèle `contenus_publics` de Bloc Notes comme référence
-commune. Le socle abandonne `blog_posts` et reprend ce modèle. Bloc Notes reprend en retour ce que
+Le 03/11/2026, le propriétaire choisit le modèle `contenus_publics` du premier clone comme référence
+commune. Le socle abandonne `blog_posts` et reprend ce modèle. le premier clone reprend en retour ce que
 le socle fait mieux : recherche, étiquettes, pagination, RSS, couverture, suggestions de lecture.
 
 But final : **un seul modèle de données, un seul moteur de rendu, des règles pures partagées en
@@ -18,7 +18,7 @@ les exigences fortes (sources, relecture, anonymisation) sont des réglages, all
 
 ## 2. État des lieux (mesuré le 03/11/2026)
 
-| Sujet | Socle | Bloc Notes |
+| Sujet | Socle | le premier clone |
 |---|---|---|
 | Table | `blog_posts`, `blog_comments` | `contenus_publics` (types `page` et `article`) |
 | Rôles | `admin`, `user` | membre, rédacteur, modérateur, admin, démo |
@@ -41,8 +41,8 @@ dossiers piliers).
 | # | Question | Recommandation |
 |---|---|---|
 | D1 | Rôle « rédacteur » dans le socle ? Le circuit en a besoin. | Oui : ajouter `editor` à `app_role`, fonction `private.can_write_content()` commune. |
-| D2 | Noms français (`contenus_publics`, `titre`) dans un socle aux noms anglais ? | Oui, garder les noms de Bloc Notes. Renommer côté BN coûterait plus cher et casserait sa production. Noté comme écart assumé. |
-| D3 | Auteur : fonction seule (BN) ou personne nommée ? | Les deux, par réglage. `auteur_mode` : `fonction` (défaut santé) ou `nomme` (page auteur). |
+| D2 | Noms français (`contenus_publics`, `titre`) dans un socle aux noms anglais ? | Oui, garder les noms du premier clone. Renommer côté C1 coûterait plus cher et casserait sa production. Noté comme écart assumé. |
+| D3 | Auteur : fonction seule (C1) ou personne nommée ? | Les deux, par réglage. `auteur_mode` : `fonction` (défaut santé) ou `nomme` (page auteur). |
 | D4 | Commentaires d'articles | Module à part, éteint par défaut. Rattachés à `contenus_publics.id`. |
 | D5 | Une version du socle par lot, ou tout d'un coup ? | Un lot = une version. La reprise des données (lot 1) passe seule, sans changement visible. |
 
@@ -57,7 +57,7 @@ unitaires, recette `tests/e2e/plan.ts`, ligne dans `docs/MISE_A_NIVEAU.md`.
 But : le socle lit et écrit `contenus_publics`. Les adresses `/blog/<slug>` ne bougent pas : aucune
 perte de référencement.
 
-1. **Table** `contenus_publics`, reprise colonne par colonne de BN (contraintes de longueur
+1. **Table** `contenus_publics`, reprise colonne par colonne de C1 (contraintes de longueur
    comprises), plus ce que le socle apporte :
    - `image_url`, `image_alt` (couverture, texte alternatif obligatoire si image) ;
    - `etiquettes text[]` (index GIN) ;
@@ -86,11 +86,11 @@ perte de référencement.
 6. **Contrôle** : même nombre d'articles publiés avant et après, mêmes adresses dans le plan du
    site, RSS identique.
 
-Retour vers BN : rien à ce lot. BN a déjà la table ; il ajoutera les colonnes du socle au lot 3.
+Retour vers C1 : rien à ce lot. C1 a déjà la table ; il ajoutera les colonnes du socle au lot 3.
 
 ### Lot 2 — Circuit de rédaction et garde-fous (version 1.10.0)
 
-Repris de BN (`20270226120000_editorial_pilotage.sql`, `docs/editorial/circuit.md`).
+Repris de C1 (`20270226120000_editorial_pilotage.sql`, `docs/editorial/circuit.md`).
 
 - 7 statuts (idée, en rédaction, à relire, prêt, programmé, publié, à actualiser), passages
   imposés par déclencheur, journal (`contenus_publics_journal`), versions du texte
@@ -100,7 +100,7 @@ Repris de BN (`20270226120000_editorial_pilotage.sql`, `docs/editorial/circuit.m
   réglable par installation.
 - **Termes interdits** : `termes_interdits_publics` (établissements, marques, villes…), saisie en
   base par un admin, jamais dans le dépôt. Les noms propres à une installation (personnes,
-  chirurgiens dans BN) passent par une **accroche** : `private.termes_nominatifs_greffe(texte)`,
+  noms propres au métier dans C1) passent par une **accroche** : `private.termes_nominatifs_greffe(texte)`,
   vide dans le socle, remplie par l'installation.
 - `contenus_publics_a_revoir()` : contenus en ligne qui contiennent un terme ajouté depuis.
 - Sources (une par ligne), relecture (`relu_le`, `relu_par`), délai de relecture réglable,
@@ -110,7 +110,7 @@ Repris de BN (`20270226120000_editorial_pilotage.sql`, `docs/editorial/circuit.m
 - Rôle `editor` (D1).
 
 Copie exacte créée à ce lot : `src/lib/editorial-regles.ts` (statuts, passages possibles,
-`manquesSaisie`, `LONGUEURS`, `lireSources`, `dateSimple`), sans dépendance. BN remplace sa propre
+`manquesSaisie`, `LONGUEURS`, `lireSources`, `dateSimple`), sans dépendance. C1 remplace sa propre
 version par la copie.
 
 ### Lot 3 — Taxonomie et maillage interne (version 1.11.0)
@@ -125,7 +125,7 @@ ensemble. Aujourd'hui il dépend de la mémoire du rédacteur. Ce lot le rend vi
 - **Étiquettes** : vocabulaire contrôlé (`etiquettes`, avec définition), plus de texte libre. Une
   page par étiquette, **non indexée tant qu'elle compte moins de N articles** (N réglable) : pas
   de pages pauvres.
-- **Pilier et satellites** (repris de BN) : `est_pilier`, `pilier_id`. Le pilier est un guide de
+- **Pilier et satellites** (repris de C1) : `est_pilier`, `pilier_id`. Le pilier est un guide de
   fond, les satellites traitent un point précis.
 - **Séries** : suite ordonnée d'articles (« partie 2 sur 5 »), liens précédent et suivant.
 
@@ -148,7 +148,7 @@ sortants de chaque contenu.
 étiquettes, proximité plein texte), et les termes du lexique présents dans le texte. Le rédacteur
 choisit : rien n'est inséré sans lui.
 
-**Lien automatique vers le lexique** (repris de BN, réglable) : la première occurrence d'un terme
+**Lien automatique vers le lexique** (repris de C1, réglable) : la première occurrence d'un terme
 défini devient un lien vers sa définition. Limite par article réglable, pour ne pas noyer le texte.
 
 **« À lire ensuite »** : d'abord le pilier et les satellites frères, puis les étiquettes communes,
@@ -158,7 +158,7 @@ puis la rubrique. Plus seulement les derniers parus.
 slug d'un contenu publié crée la redirection tout seul. Sans elle, chaque renommage casse les liens
 entrants et les positions acquises.
 
-Retour vers BN : rubriques, étiquettes, séries, `liens_internes`, redirections, « À lire
+Retour vers C1 : rubriques, étiquettes, séries, `liens_internes`, redirections, « À lire
 ensuite ». Copie exacte créée : `src/lib/maillage.ts` (extraction des liens, ancres pauvres,
 suggestions, ordre de « À lire ensuite »).
 
@@ -176,24 +176,24 @@ suggestions, ordre de « À lire ensuite »).
   moteurs est aujourd'hui réservé à certains sites : à vérifier au moment du lot, sans promesse.
 - **Balises** : `canonical` systématique, `og:image` (couverture ou image générée à partir du
   titre), `article:modified_time`, `article:section`, `article:tag`, `robots` piloté par le statut.
-- **Plan du site** : `lastmod` réel (déjà dans le socle), programmation respectée (BN), plan des
+- **Plan du site** : `lastmod` réel (déjà dans le socle), programmation respectée (C1), plan des
   images, rubriques et étiquettes indexables seulement.
 - **RSS** : global, par rubrique, par étiquette.
 - **Pagination** : adresses stables `?page=N`, recherches et filtres en `noindex` (déjà dans le
   socle).
-- **Lien Search Console** par contenu (repris de BN). Aucun chiffre importé.
+- **Lien Search Console** par contenu (repris de C1). Aucun chiffre importé.
 
 ### Lot 5 — Recherche avancée (version 1.12.0)
 
 La recherche sert le lecteur, et elle dit au rédacteur ce qui manque.
 
-- **Moteur** : la configuration double de BN (racines françaises + sans racine), plus la recherche
+- **Moteur** : la configuration double de C1 (racines françaises + sans racine), plus la recherche
   par début de mot (`:*`). Opérateurs de `websearch_to_tsquery` : phrase entre guillemets, mot
   exclu `-mot`, `OU`.
 - **Fautes de frappe** : `pg_trgm` sur les titres et les termes du lexique. « Vouliez-vous
   dire… » quand la recherche ne trouve rien.
 - **Synonymes** : table `synonymes` (terme ↔ variantes). Une installation la remplit depuis son
-  glossaire (BN : les variantes du glossaire, « trois noms pour le même objet »).
+  glossaire (C1 : les variantes du glossaire, « trois noms pour le même objet »).
 - **Pondération** : titre > chapô et étiquettes > corps > sources. Bonus pilier, malus ancien
   contenu à actualiser.
 - **Facettes** : type, rubrique, étiquette, période, série. Compteurs par facette.
@@ -218,7 +218,7 @@ d'artisan ne les allume pas.
 - **Liens d'intérêts** : déclaration par contenu (aucun / texte libre), affichée sous l'article.
   Exigée avant publication si le réglage est allumé.
 - **Relecture par un comité** : plusieurs relecteurs possibles, chacun désigné par sa fonction.
-  BN garde « relecture par le propriétaire seul » par réglage.
+  C1 garde « relecture par le propriétaire seul » par réglage.
 - **Niveau de preuve** : champ optionnel (recommandation officielle, consensus d'experts, retour
   de terrain), affiché en pastille. Liste réglable par installation.
 - **Types de contenus** : article, guide (pilier), actualité, compte rendu de congrès, entretien,
@@ -228,15 +228,15 @@ d'artisan ne les allume pas.
 - **Version imprimable** propre, sans menus.
 - **Accès réservé aux membres** : chapô public, texte réservé, balisage `isAccessibleForFree`
   pour rester honnête avec les moteurs.
-- **Lexique** (repris de BN) : définitions publiques, `DefinedTerm`, lien depuis les articles.
+- **Lexique** (repris de C1) : définitions publiques, `DefinedTerm`, lien depuis les articles.
 
 ### Lot 7 — Pilotage du contenu (version 1.14.0)
 
-- **Calendrier** : `date_prevue`, vue par semaine et par mois (BN l'a en base).
-- **Brief** par contenu : `public_vise`, `requete_visee` (BN), intention (comprendre, comparer,
+- **Calendrier** : `date_prevue`, vue par semaine et par mois (C1 l'a en base).
+- **Brief** par contenu : `public_vise`, `requete_visee` (C1), intention (comprendre, comparer,
   agir), appel à l'action visé.
-- **Actualisation** : délai de relecture réglable (BN), liste des contenus dus, motif obligatoire.
-- **Appel à l'action réglable** en fin d'article : démonstration (BN `AppelDemo`), lettre
+- **Actualisation** : délai de relecture réglable (C1), liste des contenus dus, motif obligatoire.
+- **Appel à l'action réglable** en fin d'article : démonstration (C1 `AppelDemo`), lettre
   d'information, adhésion, contact. Un par rubrique au plus.
 - **Lettre d'information** : envoi des nouveaux articles par le module existant du socle.
 - **Mesure** : liens marqués (UTM) sur les partages et la lettre ; aucun traceur ajouté sans
@@ -244,20 +244,20 @@ d'artisan ne les allume pas.
 - **Santé du contenu** : tableau dans `/editorial` (orphelins, liens cassés, sources mortes,
   relectures dues, cannibalisation, recherches sans réponse).
 
-## 5. Retour vers Bloc Notes, lot par lot
+## 5. Retour vers le premier clone, lot par lot
 
-| Lot du socle | Ce que BN reprend | Ce que BN garde à lui |
+| Lot du socle | Ce que C1 reprend | Ce que C1 garde à lui |
 |---|---|---|
 | 1 | Colonnes `image_url`, `image_alt`, `etiquettes`, `auteur_id`, `temps_lecture` | Ses données, sa table |
-| 2 | `editorial-regles.ts` en copie exacte | Accroche des noms (`personnes`, `chirurgiens`), relecture par le propriétaire seul |
-| 3 | Rubriques, étiquettes, séries, `liens_internes`, redirections, `maillage.ts` | Périmètre du blog (orthopédie et traumatologie jusqu'au 31/12/2026) |
+| 2 | `editorial-regles.ts` en copie exacte | Accroche des noms (tables de personnes propres à C1), relecture par le propriétaire seul |
+| 3 | Rubriques, étiquettes, séries, `liens_internes`, redirections, `maillage.ts` | Périmètre éditorial de son blog |
 | 4 | Moteur `corps.tsx`, `article-donnees.ts`, RSS, liste paginée avec recherche | Avertissement santé, `MedicalWebPage` allumé |
 | 5 | `recherche-requete.ts`, facettes, journal des recherches sans résultat | Synonymes issus du glossaire |
 | 6 | Bibliographie, liens d'intérêts, niveau de preuve | Auteur en mode `fonction` seulement |
 | 7 | Calendrier, brief, santé du contenu | `AppelDemo` comme appel à l'action |
 
 À chaque copie exacte créée, ajouter le fichier à la liste `FICHIERS` de
-`scripts/verifier-socle.mjs` dans BN, puis `node scripts/verifier-socle.mjs --copier`.
+`scripts/verifier-socle.mjs` dans C1, puis `node scripts/verifier-socle.mjs --copier`.
 
 ## 6. Risques et parades
 
@@ -274,5 +274,5 @@ d'artisan ne les allume pas.
 
 - `npm run verifier`, `tests/db/run.sh`, `npm run build`.
 - Recette `tests/e2e/plan.ts` : visiteur, membre, rédacteur, admin.
-- Dans BN : `node scripts/verifier-socle.mjs --verifier`, puis la recette locale.
+- Dans C1 : `node scripts/verifier-socle.mjs --verifier`, puis la recette locale.
 - Une ligne au journal de `docs/SYNCHRO.md`.
