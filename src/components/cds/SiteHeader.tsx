@@ -391,7 +391,7 @@ export function SiteHeader() {
   return (
     <header
       ref={entete}
-      className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur"
+      className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur print:hidden"
     >
       {/* La navigation passe à la ligne plutôt que de déborder : sa largeur dépend du nombre de
           modules allumés et de la police du système (bien plus large sous Linux). */}
@@ -503,7 +503,7 @@ export function SiteFooter() {
   const footerColumns = buildFooterColumns();
 
   return (
-    <footer className="border-t border-border bg-card">
+    <footer className="border-t border-border bg-card print:hidden">
       <div className="mx-auto max-w-[1200px] px-6 py-10">
         <AdSlot placement="pied-de-page" className="mb-8" />
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

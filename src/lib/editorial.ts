@@ -38,6 +38,12 @@ export type ContenuEditorial = {
   serie_ordre: number | null;
   est_pilier: boolean;
   pilier_id: string | null;
+  genre: string;
+  evenement: string;
+  evenement_le: string | null;
+  liens_interets: string;
+  niveau_preuve: string;
+  relecteurs: string[];
   /** Calculés par editorial_etat(). */
   statut_lu: Statut;
   manques: string[];
@@ -45,7 +51,7 @@ export type ContenuEditorial = {
 };
 
 const COLONNES =
-  "id, type, slug, titre, description, chapo, corps, sources, auteur_fonction, auteur_nom, etiquettes, image_url, image_alt, relu_le, publie_le, updated_at, date_prevue, public_vise, requete_visee, rubrique_id, serie_id, serie_ordre, est_pilier, pilier_id";
+  "id, type, slug, titre, description, chapo, corps, sources, auteur_fonction, auteur_nom, etiquettes, image_url, image_alt, relu_le, publie_le, updated_at, date_prevue, public_vise, requete_visee, rubrique_id, serie_id, serie_ordre, est_pilier, pilier_id, genre, evenement, evenement_le, liens_interets, niveau_preuve, relecteurs";
 
 /** Message lisible d'une erreur de la base : les refus de la base sont déjà en français. */
 export function messageErreur(error: { code?: string; message?: string } | null): string {
@@ -115,6 +121,12 @@ export type Champs = Pick<
   | "serie_ordre"
   | "est_pilier"
   | "pilier_id"
+  | "genre"
+  | "evenement"
+  | "evenement_le"
+  | "liens_interets"
+  | "niveau_preuve"
+  | "relecteurs"
 >;
 
 export async function creerArticle(titre: string, slug: string): Promise<string> {
@@ -387,5 +399,60 @@ export async function supprimerSynonyme(id: string): Promise<string> {
 
 export async function effacerRechercheSansResultat(terme: string): Promise<string> {
   const { error } = await supabase.from("recherches_sans_resultat").delete().eq("terme", terme);
+  return messageErreur(error);
+}
+
+/* ------------------------ Bibliographie (socle 1.14.0) ------------------------ */
+
+export type ReferenceSaisie = {
+  auteurs: string;
+  titre: string;
+  revue: string;
+  annee: number | null;
+  doi: string;
+  pmid: string;
+  url: string;
+};
+
+export async function fetchReferences(contenuId: string): Promise<ReferenceSaisie[]> {
+  const { data, error } = await supabase
+    .from("references_contenu")
+    .select("rang, auteurs, titre, revue, annee, doi, pmid, url")
+    .eq("contenu_id", contenuId)
+    .order("rang");
+  if (error) throw new Error(messageErreur(error));
+  return (data ?? []).map(({ rang: _rang, ...r }) => r);
+}
+
+/** Enregistre la bibliographie dans l'ordre donné : la référence i devient l'appel [i + 1]. */
+export async function enregistrerReferences(
+  contenuId: string,
+  refs: ReferenceSaisie[],
+): Promise<string> {
+  const lignes = refs.map((r, i) => ({
+    contenu_id: contenuId,
+    rang: i + 1,
+    auteurs: r.auteurs.trim(),
+    titre: r.titre.trim(),
+    revue: r.revue.trim(),
+    annee: r.annee,
+    doi: r.doi.trim().replace(/^https:\/\/doi\.org\//, ""),
+    pmid: r.pmid.trim(),
+    url: r.url.trim(),
+  }));
+  if (lignes.length) {
+    const { error } = await supabase
+      .from("references_contenu")
+      .upsert(lignes, { onConflict: "contenu_id,rang" });
+    if (error?.code === "23514") {
+      return "Une référence a une valeur refusée : titre de 3 caractères au moins, DOI « 10.xxxx/… », PMID en chiffres, adresse https://.";
+    }
+    if (error) return messageErreur(error);
+  }
+  const { error } = await supabase
+    .from("references_contenu")
+    .delete()
+    .eq("contenu_id", contenuId)
+    .gt("rang", lignes.length);
   return messageErreur(error);
 }

@@ -349,15 +349,21 @@ export type Database = {
           description: string
           est_pilier: boolean
           etiquettes: string[]
+          evenement: string
+          evenement_le: string | null
+          genre: string
           id: string
           image_alt: string
           image_url: string | null
           libelle_menu: string
+          liens_interets: string
+          niveau_preuve: string
           ordre: number
           pilier_id: string | null
           public_vise: string
           publie: boolean
           publie_le: string | null
+          relecteurs: string[]
           relu_le: string | null
           relu_par: string | null
           requete_visee: string
@@ -384,15 +390,21 @@ export type Database = {
           description?: string
           est_pilier?: boolean
           etiquettes?: string[]
+          evenement?: string
+          evenement_le?: string | null
+          genre?: string
           id?: string
           image_alt?: string
           image_url?: string | null
           libelle_menu?: string
+          liens_interets?: string
+          niveau_preuve?: string
           ordre?: number
           pilier_id?: string | null
           public_vise?: string
           publie?: boolean
           publie_le?: string | null
+          relecteurs?: string[]
           relu_le?: string | null
           relu_par?: string | null
           requete_visee?: string
@@ -419,15 +431,21 @@ export type Database = {
           description?: string
           est_pilier?: boolean
           etiquettes?: string[]
+          evenement?: string
+          evenement_le?: string | null
+          genre?: string
           id?: string
           image_alt?: string
           image_url?: string | null
           libelle_menu?: string
+          liens_interets?: string
+          niveau_preuve?: string
           ordre?: number
           pilier_id?: string | null
           public_vise?: string
           publie?: boolean
           publie_le?: string | null
+          relecteurs?: string[]
           relu_le?: string | null
           relu_par?: string | null
           requete_visee?: string
@@ -2036,6 +2054,48 @@ export type Database = {
           created_at?: string
           de?: string
           vers?: string
+        }
+        Relationships: []
+      }
+      references_contenu: {
+        Row: {
+          annee: number | null
+          auteurs: string
+          contenu_id: string
+          created_at: string
+          doi: string
+          id: string
+          pmid: string
+          rang: number
+          revue: string
+          titre: string
+          url: string
+        }
+        Insert: {
+          annee?: number | null
+          auteurs?: string
+          contenu_id: string
+          created_at?: string
+          doi?: string
+          id?: string
+          pmid?: string
+          rang: number
+          revue?: string
+          titre: string
+          url?: string
+        }
+        Update: {
+          annee?: number | null
+          auteurs?: string
+          contenu_id?: string
+          created_at?: string
+          doi?: string
+          id?: string
+          pmid?: string
+          rang?: number
+          revue?: string
+          titre?: string
+          url?: string
         }
         Relationships: []
       }

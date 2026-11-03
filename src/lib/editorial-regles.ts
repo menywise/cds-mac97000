@@ -40,7 +40,23 @@ export type ReglagesEditoriaux = {
   seuil_etiquette: number;
   /** Type de page des articles dans les données structurées (socle 1.12.0). */
   type_page: "WebPage" | "MedicalWebPage";
+  /** Société savante (socle 1.14.0). */
+  exiger_liens_interets: boolean;
+  niveaux_preuve: string[];
+  format_citation: "vancouver" | "apa";
 };
+
+/** Genres de contenu (socle 1.14.0). */
+export const GENRES = [
+  { value: "article", label: "Article" },
+  { value: "guide", label: "Guide" },
+  { value: "actualite", label: "Actualité" },
+  { value: "compte_rendu", label: "Compte rendu" },
+  { value: "entretien", label: "Entretien" },
+  { value: "fiche_pratique", label: "Fiche pratique" },
+] as const;
+export type Genre = (typeof GENRES)[number]["value"];
+export const libelleGenre = (g: string) => GENRES.find((x) => x.value === g)?.label ?? "Article";
 
 export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
   circuit: "complet",
@@ -53,6 +69,14 @@ export const REGLAGES_PAR_DEFAUT: ReglagesEditoriaux = {
   avertissement: "",
   seuil_etiquette: 3,
   type_page: "WebPage",
+  exiger_liens_interets: false,
+  niveaux_preuve: [
+    "Recommandation officielle",
+    "Consensus d'experts",
+    "Étude publiée",
+    "Retour de terrain",
+  ],
+  format_citation: "vancouver",
 };
 
 /** Réglages lus en base, complétés par les valeurs par défaut (valeur absente ou d'un autre type). */
@@ -79,6 +103,14 @@ export function lireReglages(valeur: unknown): ReglagesEditoriaux {
         ? seuil
         : REGLAGES_PAR_DEFAUT.seuil_etiquette,
     type_page: v["type_page"] === "MedicalWebPage" ? "MedicalWebPage" : "WebPage",
+    exiger_liens_interets:
+      typeof v["exiger_liens_interets"] === "boolean" ? v["exiger_liens_interets"] : false,
+    niveaux_preuve: Array.isArray(v["niveaux_preuve"])
+      ? (v["niveaux_preuve"] as unknown[])
+          .filter((x): x is string => typeof x === "string" && x.trim() !== "")
+          .slice(0, 12)
+      : REGLAGES_PAR_DEFAUT.niveaux_preuve,
+    format_citation: v["format_citation"] === "apa" ? "apa" : "vancouver",
   };
 }
 
@@ -204,6 +236,10 @@ export function manquesSaisie(
     auteur_nom: string;
     sources: string;
     relu_le: string | null;
+    genre?: string;
+    evenement?: string;
+    evenement_le?: string | null;
+    liens_interets?: string;
   },
   r: ReglagesEditoriaux,
 ): Manque[] {
@@ -238,6 +274,18 @@ export function manquesSaisie(
     }
     if (r.exiger_relecture && !v.relu_le) {
       manques.push({ code: "relecture", message: "Relecture à valider." });
+    }
+    if (r.exiger_liens_interets && !(v.liens_interets ?? "").trim()) {
+      manques.push({
+        code: "liens_interets",
+        message: "Déclaration de liens d'intérêts manquante (écrire « Aucun » s'il n'y en a pas).",
+      });
+    }
+    if (v.genre === "compte_rendu" && (!(v.evenement ?? "").trim() || !v.evenement_le)) {
+      manques.push({
+        code: "evenement",
+        message: "Compte rendu : nom et date de l'événement attendus.",
+      });
     }
   }
   return manques;

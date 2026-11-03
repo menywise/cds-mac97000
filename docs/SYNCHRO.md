@@ -116,6 +116,7 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Recherche plein texte | S | portée | écart | S→C1 | Socle 1.13.0 : `recherche_articles` (opérateurs, synonymes, facettes, extrait surligné, pondération), suggestion de mot proche, recherches sans résultat. C1 garde sa configuration sans racine (candidat C1→S) | 03/11/2026 |
 | Plan du site XML | S | portée | écart | ⇄ | S : `lastmod` réel par page ; C1 : programmation respectée | 03/11/2026 |
 | Lexique public | C1 | portée | à décider | C1→S | `/lexique`, `DefinedTerm` : base du lien automatique vers les définitions | 03/11/2026 |
+| Exigences d'une société savante | S | portée | écart | S→C1 | Socle 1.14.0 : `references_contenu`, liens d'intérêts, niveau de preuve, genres, relecteurs ; `bibliographie.ts` candidat copie exacte | 03/11/2026 |
 | Lien Search Console | C1 | portée | aligné | C1→S | Socle 1.12.0 : dans `article-donnees.ts` | 03/11/2026 |
 | Pages construites (sections) | S | propre | propre | — | Table `pages` du socle : pages d'atterrissage, distinctes des contenus éditoriaux | 03/11/2026 |
 
@@ -139,3 +140,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Socle 1.11.0 | Lot 3 : taxonomie et maillage. Nouveaux écarts S→C1 : taxonomie, contrôles de maillage, `maillage.ts`, redirections, « À lire ensuite » |
 | 03/11/2026 | Socle 1.12.0 | Lot 4 : référencement technique. Nouvelles copies exactes S→C1 : `corps.ts`, `article-donnees.ts` ; flux filtrés, plan du site des images |
 | 03/11/2026 | Socle 1.13.0 | Lot 5 : recherche avancée. Nouvel écart S→C1 : recherche des articles en base, synonymes (C1 peut les remplir depuis son glossaire), recherches sans résultat |
+| 03/11/2026 | Socle 1.14.0 | Lot 6 : société savante. Nouveaux écarts S→C1 : bibliographie (`bibliographie.ts` en copie exacte), liens d'intérêts, niveau de preuve, genres, relecteurs ; accès membres reporté |

@@ -289,7 +289,24 @@ La recherche sert le lecteur, et elle dit au rédacteur ce qui manque.
 Copie exacte créée : `src/lib/recherche-requete.ts` (nettoyage, opérateurs, facettes dans
 l'adresse).
 
-### Lot 6 — Exigences d'une société savante (version 1.13.0)
+### Lot 6 — Exigences d'une société savante (version 1.14.0)
+
+**Fait le 03/11/2026** : migration `20261103220000_v1_14_0_societe_savante.sql`, blocs
+`supabase/seed/v1_14_0/`, test `tests/db/test_35`, `src/lib/bibliographie.ts` (sans dépendance),
+champs et bibliographie dans le poste Éditorial, affichage sur l'article. Écarts assumés par
+rapport au texte ci-dessous :
+
+- **accès réservé aux membres reporté à un lot dédié** : masquer le texte à un visiteur sans
+  fuite par la recherche, les extraits surlignés, le maillage et les données structurées demande
+  une conception à part (colonne protégée, lecture par fonction) ; un rafistolage risquerait une
+  fuite ;
+- **contrôle du DOI** : pas d'appel réseau dédié ; le DOI est vérifié dans sa forme, et son lien
+  `https://doi.org/…` peut être cité en source pour passer par la vérification des liens (lot 4) ;
+- **relecture par un comité** : les relecteurs sont désignés par leur fonction (cinq au plus),
+  affichés et repris dans les données structurées ; la relecture reste validée par un admin ;
+- niveaux de preuve et format de citation (Vancouver, APA) réglables ; une actualité est balisée
+  `NewsArticle` ;
+- **impression** : en-tête, pied de page, publicité, partage, suggestions et commentaires masqués.
 
 Ce lot transforme le blog en lieu de publication crédible. Chaque point est un réglage : un site
 d'artisan ne les allume pas.

@@ -16,6 +16,8 @@ import { getPost, trouverRedirection } from "@/lib/content.functions";
 import { CorpsArticle } from "@/components/cds/CorpsArticle";
 import { analyserCorps, nombreDeMots, questionsReponses } from "@/lib/corps";
 import { balisesArticle, donneesStructureesArticle, imageAbsolue } from "@/lib/article-donnees";
+import { citerContenu, formaterReference, lienReference } from "@/lib/bibliographie";
+import { libelleGenre } from "@/lib/editorial-regles";
 import { readingMinutes } from "@/lib/reading";
 import { auteurAffiche, dateSimple, lireSources } from "@/lib/editorial-regles";
 import { absoluteUrl, getSiteConfig } from "@/lib/site-config";
@@ -99,6 +101,13 @@ export const Route = createFileRoute("/blog/$slug")({
                     sources: lireSources(post.sources).map((s) => s.url),
                     questions: questionsReponses(analyserCorps(post.content)),
                     mots: nombreDeMots(post.content),
+                    genre: post.genre,
+                    relecteurs: post.relecteurs,
+                    references: loaderData.references.map((r) => ({
+                      titre: r.titre,
+                      auteurs: r.auteurs,
+                      lien: lienReference(r),
+                    })),
                   },
                   site,
                 ),
@@ -128,7 +137,9 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { post, comments, related, editorial, etiquettes, fil, serie } = Route.useLoaderData();
+  const { post, comments, related, editorial, etiquettes, fil, serie, references } =
+    Route.useLoaderData();
+  const [citation, setCitation] = useState<string | null>(null);
   const auteur = auteurAffiche(post, editorial.auteur_mode);
   const sources = lireSources(post.sources);
   const { user } = useAuth();
@@ -196,7 +207,28 @@ function BlogPostPage() {
           {readingMinutes(post.content)} min de lecture
           {post.relu_le ? ` · relu le ${dateSimple(post.relu_le)}` : ""}
           {auteur ? ` · ${auteur}` : ""}
+          {post.relecteurs.length ? ` · relu par : ${post.relecteurs.join(", ")}` : ""}
         </p>
+        {post.genre !== "article" || post.niveau_preuve ? (
+          <p className="mt-2 flex flex-wrap gap-2 text-xs">
+            {post.genre !== "article" ? (
+              <span className="rounded-md border border-info-border bg-info-soft px-2 py-0.5 font-semibold text-info-text">
+                {libelleGenre(post.genre)}
+              </span>
+            ) : null}
+            {post.niveau_preuve ? (
+              <span className="rounded-md border border-success-border bg-success-soft px-2 py-0.5 font-semibold text-success-text">
+                Niveau de preuve : {post.niveau_preuve}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+        {post.genre === "compte_rendu" && post.evenement ? (
+          <p className="mt-2 text-sm text-foreground">
+            Compte rendu de : {post.evenement}
+            {post.evenement_le ? `, ${dateSimple(post.evenement_le)}` : ""}.
+          </p>
+        ) : null}
         <p className="mt-4 text-sm font-medium text-foreground">{post.excerpt}</p>
 
         {etiquettes.length > 0 ? (
@@ -301,6 +333,92 @@ function BlogPostPage() {
           </section>
         ) : null}
 
+        {references.length > 0 ? (
+          <section aria-labelledby="references-titre" className="mt-8">
+            <h2 id="references-titre" className="text-base font-semibold text-foreground">
+              Références
+            </h2>
+            <ol className="mt-2 list-decimal space-y-2 rounded-xl border border-border bg-card py-3 pl-8 pr-4 text-sm text-foreground">
+              {references.map((r) => (
+                <li key={r.rang} id={`ref-${r.rang}`} className="scroll-mt-24">
+                  {formaterReference(r, editorial.format_citation)}{" "}
+                  {lienReference(r) ? (
+                    <a
+                      href={lienReference(r)}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      title={`Ouvrir la référence ${r.rang}`}
+                      className="text-primary-text underline underline-offset-2"
+                    >
+                      Lire
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
+
+        {post.liens_interets ? (
+          <p className="mt-6 text-sm text-foreground">
+            <span className="font-semibold">Liens d'intérêts : </span>
+            {post.liens_interets}
+          </p>
+        ) : null}
+
+        <div className="mt-6 flex flex-wrap gap-2 print:hidden">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            title="Préparer la formule pour citer cet article"
+            onClick={() =>
+              setCitation(
+                citerContenu(
+                  {
+                    titre: post.title,
+                    auteur: auteur,
+                    site: getSiteConfig().brand.name,
+                    url: absoluteUrl(`/blog/${post.slug}`),
+                    publie_le: post.published_at,
+                  },
+                  editorial.format_citation,
+                  new Date(),
+                ),
+              )
+            }
+          >
+            Citer cet article
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            title="Imprimer cet article"
+            onClick={() => window.print()}
+          >
+            Imprimer
+          </Button>
+        </div>
+        {citation ? (
+          <div className="mt-3 rounded-xl border border-border bg-card p-4 text-sm text-foreground print:hidden">
+            <p>{citation}</p>
+            <Button
+              type="button"
+              size="sm"
+              className="mt-2"
+              title="Copier la formule de citation"
+              onClick={() =>
+                void navigator.clipboard
+                  .writeText(citation)
+                  .then(() => toast.success("Citation copiée."))
+              }
+            >
+              Copier
+            </Button>
+          </div>
+        ) : null}
+
         {editorial.avertissement ? (
           <p
             role="note"
@@ -310,15 +428,15 @@ function BlogPostPage() {
           </p>
         ) : null}
 
-        <AdSlot placement="blog-article" className="mt-8" />
+        <AdSlot placement="blog-article" className="mt-8 print:hidden" />
 
-        <div className="mt-8 border-t border-border pt-6">
+        <div className="mt-8 border-t border-border pt-6 print:hidden">
           <ShareButtons path={`/blog/${post.slug}`} title={post.title} />
           <ReportButton contentType="article" contentId={post.id} className="mt-2" />
         </div>
 
         {related.length > 0 ? (
-          <section className="mt-10">
+          <section className="mt-10 print:hidden">
             <h2 className="text-lg font-semibold text-foreground">À lire ensuite</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-3">
               {related.map((item) => (
@@ -340,7 +458,7 @@ function BlogPostPage() {
           </section>
         ) : null}
 
-        <section className="mt-10">
+        <section className="mt-10 print:hidden">
           <h2 className="text-lg font-semibold text-foreground">
             Commentaires ({comments.length})
           </h2>

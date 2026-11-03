@@ -183,9 +183,11 @@ export function nombreDeMots(texte: string): number {
 
 export type Segment =
   | { type: "texte" | "gras" | "italique" | "code"; texte: string }
-  | { type: "lien"; texte: string; href: string; externe: boolean };
+  | { type: "lien"; texte: string; href: string; externe: boolean }
+  | { type: "appel"; rang: number };
 
-const EN_LIGNE = /\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)/g;
+const EN_LIGNE =
+  /\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|\[(\d{1,3})\](?!\()/g;
 
 /** Mise en forme en ligne. Un lien vers autre chose que « /… », « https://… » ou « mailto: » reste du texte. */
 export function segmentsEnLigne(texte: string): Segment[] {
@@ -197,6 +199,7 @@ export function segmentsEnLigne(texte: string): Segment[] {
     if (m[1] !== undefined) out.push({ type: "gras", texte: m[1] });
     else if (m[2] !== undefined) out.push({ type: "italique", texte: m[2] });
     else if (m[3] !== undefined) out.push({ type: "code", texte: m[3] });
+    else if (m[6] !== undefined) out.push({ type: "appel", rang: Number(m[6]) });
     else if (m[5] !== undefined && /^(\/(?!\/)|https:\/\/|mailto:)/.test(m[5])) {
       out.push({ type: "lien", texte: m[4]!, href: m[5], externe: !m[5].startsWith("/") });
     } else out.push({ type: "texte", texte: m[0] });
