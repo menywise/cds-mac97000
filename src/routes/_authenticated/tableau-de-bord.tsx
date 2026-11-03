@@ -132,12 +132,19 @@ function DashboardPage() {
           | "newsletter_subscribers"
           | "reviews"
           | "forum_topics"
-          | "blog_posts"
           | "blog_comments",
       ) => {
         const { count: value } = await supabase
           .from(table)
           .select("id", { count: "exact", head: true });
+        return value ?? null;
+      };
+      // Articles du blog : lignes « article » de contenus_publics (socle 1.9.0).
+      const countPosts = async () => {
+        const { count: value } = await supabase
+          .from("contenus_publics")
+          .select("id", { count: "exact", head: true })
+          .eq("type", "article");
         return value ?? null;
       };
 
@@ -146,7 +153,7 @@ function DashboardPage() {
         nextRole === "admin" ? count("newsletter_subscribers") : Promise.resolve(null),
         count("reviews"),
         count("forum_topics"),
-        count("blog_posts"),
+        countPosts(),
         count("blog_comments"),
       ]);
       if (!cancelled) setStats({ messages, subscribers, reviews, topics, posts, comments });

@@ -79,5 +79,5 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.blog_comments (id, post_id, author_id, author_name, content, approved)
 SELECT 'e7000000-0000-4000-8000-000000000050', p.id, 'e7000000-0000-4000-8000-000000000001',
        'Membre exemple', 'Exemple — Commentaire fictif servant à la recette du site.', true
-FROM public.blog_posts p WHERE p.published ORDER BY p.published_at DESC NULLS LAST LIMIT 1
+FROM public.contenus_publics p WHERE p.type = 'article' AND p.publie ORDER BY p.publie_le DESC NULLS LAST LIMIT 1
 ON CONFLICT (id) DO NOTHING;

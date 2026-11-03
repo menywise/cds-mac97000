@@ -11,7 +11,7 @@ UPDATE public.site_settings SET value = value || '{"blog": true, "faq": true, "f
   "marketplace": true, "pages": true}'
   WHERE key = 'modules';
 
-INSERT INTO public.blog_posts (id, slug, title, excerpt, content, published, published_at) VALUES
+INSERT INTO public.contenus_publics (id, slug, titre, chapo, corps, publie, publie_le) VALUES
   ('00000000-0000-0000-0000-0000000000b1', 'electricite', 'Rénover son électricité', 'Les étapes', 'Un électricien qualifié intervient.', true, now()),
   ('00000000-0000-0000-0000-0000000000b2', 'brouillon', 'Brouillon électricien', '', 'Pas encore publié', false, NULL),
   ('00000000-0000-0000-0000-0000000000b3', 'plomberie', 'Plomberie', '', 'Un article qui cite une fois électricien en passant.', true, now());

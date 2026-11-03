@@ -11,7 +11,7 @@ SELECT public.bootstrap_current_user('Administrateur');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a2', 'membre@test.fr');
 SELECT public.bootstrap_current_user('Membre');
 RESET ROLE;
-INSERT INTO public.blog_posts (id, title, slug, published) VALUES ('00000000-0000-0000-0000-0000000000b1', 'Article', 'article', true);
+INSERT INTO public.contenus_publics (id, titre, slug, publie) VALUES ('00000000-0000-0000-0000-0000000000b1', 'Article', 'article', true);
 
 -- 1. Modération : un membre ne publie pas directement ------------------------------------
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a2', 'membre@test.fr');

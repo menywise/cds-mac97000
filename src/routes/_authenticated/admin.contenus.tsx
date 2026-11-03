@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { ARTICLE_LONGUEURS, borneSlug, descriptionDepuis } from "@/lib/blog";
 import { slugify } from "@/lib/format";
 import { lirePrix } from "@/lib/prix";
 import { seo } from "@/lib/seo";
@@ -80,6 +81,8 @@ function splitTags(value: string) {
 function explain(error: { code?: string; message?: string } | null) {
   if (error?.code === "23505")
     return "Cette adresse (slug) est déjà utilisée par un autre article.";
+  if (error?.code === "23514")
+    return "Une valeur sort des longueurs permises : titre de 3 à 120 caractères, résumé de 600 au plus, adresse en minuscules, chiffres et tirets.";
   return "Réessayez dans un instant.";
 }
 
@@ -110,7 +113,13 @@ function AdminContenusPage() {
     const [faqRes, planRes, postRes] = await Promise.all([
       supabase.from("faq_items").select("*").order("position"),
       supabase.from("pricing_plans").select("*").order("position"),
-      supabase.from("blog_posts").select("*").order("created_at", { ascending: false }),
+      supabase
+        .from("contenus_publics")
+        .select(
+          "id, slug, title:titre, excerpt:chapo, content:corps, cover_url:image_url, tags:etiquettes, published:publie, published_at:publie_le",
+        )
+        .eq("type", "article")
+        .order("created_at", { ascending: false }),
     ]);
     setLoadError(Boolean(faqRes.error || planRes.error || postRes.error));
     setFaqs((faqRes.data ?? []) as Faq[]);
@@ -624,13 +633,16 @@ function PostSection({ posts, reload }: { posts: Post[] | null; reload: Reload }
     const form = e.currentTarget;
     const data = new FormData(form);
     const title = String(data.get("title") ?? "").trim();
-    const { error } = await supabase.from("blog_posts").insert({
-      title,
-      slug: slugify(title),
-      excerpt: String(data.get("excerpt") ?? "").trim(),
-      content: String(data.get("content") ?? "").trim(),
-      tags: splitTags(String(data.get("tags") ?? "")),
-      published: false,
+    const chapo = String(data.get("excerpt") ?? "").trim();
+    const { error } = await supabase.from("contenus_publics").insert({
+      type: "article",
+      titre: title,
+      slug: borneSlug(slugify(title)),
+      chapo,
+      description: descriptionDepuis(chapo),
+      corps: String(data.get("content") ?? "").trim(),
+      etiquettes: splitTags(String(data.get("tags") ?? "")),
+      publie: false,
     });
     if (notify(error, "Article créé en brouillon.")) form.reset();
   }
@@ -641,15 +653,33 @@ function PostSection({ posts, reload }: { posts: Post[] | null; reload: Reload }
         <h2 className="text-base font-semibold text-foreground">Écrire un article</h2>
         <div className="space-y-1.5">
           <Label htmlFor="post-title">Titre</Label>
-          <Input id="post-title" name="title" required />
+          <Input
+            id="post-title"
+            name="title"
+            required
+            minLength={ARTICLE_LONGUEURS.titre.min}
+            maxLength={ARTICLE_LONGUEURS.titre.max}
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="post-excerpt">Résumé</Label>
-          <Textarea id="post-excerpt" name="excerpt" rows={2} required />
+          <Textarea
+            id="post-excerpt"
+            name="excerpt"
+            rows={2}
+            required
+            maxLength={ARTICLE_LONGUEURS.chapo}
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="post-content">Contenu</Label>
-          <Textarea id="post-content" name="content" rows={8} required />
+          <Textarea
+            id="post-content"
+            name="content"
+            rows={8}
+            required
+            maxLength={ARTICLE_LONGUEURS.corps}
+          />
           <p className="text-xs text-muted-foreground">
             Mise en forme : **gras**, *italique*, &gt; citation, - liste, [texte](adresse).
           </p>
@@ -700,20 +730,21 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    const slug = slugify(draft.slug || draft.title);
+    const slug = borneSlug(slugify(draft.slug || draft.title));
     if (!slug) {
       toast.error("Adresse invalide.", { description: "Donnez un titre ou une adresse." });
       return;
     }
     const { error } = await supabase
-      .from("blog_posts")
+      .from("contenus_publics")
       .update({
-        title: draft.title.trim(),
+        titre: draft.title.trim(),
         slug,
-        excerpt: draft.excerpt.trim(),
-        content: draft.content.trim(),
-        tags: splitTags(draft.tags),
-        cover_url: draft.cover_url.trim() || null,
+        chapo: draft.excerpt.trim(),
+        description: descriptionDepuis(draft.excerpt),
+        corps: draft.content.trim(),
+        etiquettes: splitTags(draft.tags),
+        image_url: draft.cover_url.trim() || null,
       })
       .eq("id", post.id);
     if (notify(error, "Article enregistré.")) setEditing(false);
@@ -722,19 +753,17 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
   async function toggle() {
     const publishing = !post.published;
     const { error } = await supabase
-      .from("blog_posts")
+      .from("contenus_publics")
       .update({
-        published: publishing,
-        published_at: publishing
-          ? (post.published_at ?? new Date().toISOString())
-          : post.published_at,
+        publie: publishing,
+        publie_le: publishing ? (post.published_at ?? new Date().toISOString()) : post.published_at,
       })
       .eq("id", post.id);
     notify(error, publishing ? "Article publié." : "Article repassé en brouillon.");
   }
 
   async function remove() {
-    const { error } = await supabase.from("blog_posts").delete().eq("id", post.id);
+    const { error } = await supabase.from("contenus_publics").delete().eq("id", post.id);
     notify(error, "Article supprimé.");
   }
 
@@ -746,6 +775,7 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
             <Label htmlFor={id("title")}>Titre</Label>
             <Input
               id={id("title")}
+              maxLength={ARTICLE_LONGUEURS.titre.max}
               value={draft.title}
               onChange={(e) => setDraft({ ...draft, title: e.target.value })}
               required
@@ -755,6 +785,7 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
             <Label htmlFor={id("slug")}>Adresse (/blog/…)</Label>
             <Input
               id={id("slug")}
+              maxLength={ARTICLE_LONGUEURS.slug}
               value={draft.slug}
               onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
             />
@@ -769,6 +800,7 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
           <Label htmlFor={id("excerpt")}>Résumé</Label>
           <Textarea
             id={id("excerpt")}
+            maxLength={ARTICLE_LONGUEURS.chapo}
             rows={2}
             value={draft.excerpt}
             onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })}
@@ -779,6 +811,7 @@ function PostRow({ post, reload }: { post: Post; reload: Reload }) {
           <Label htmlFor={id("content")}>Contenu</Label>
           <Textarea
             id={id("content")}
+            maxLength={ARTICLE_LONGUEURS.corps}
             rows={12}
             value={draft.content}
             onChange={(e) => setDraft({ ...draft, content: e.target.value })}

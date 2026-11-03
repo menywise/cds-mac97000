@@ -89,7 +89,9 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 
 | Fonction | Réf. | Niveau | État | Sens | Fichiers / remarque | Dernière passe |
 |---|---|---|---|---|---|---|
-| Modèle des articles | C1 | portée | écart | C1→S | `contenus_publics` remplace `blog_posts` dans le socle (lot 1) | 03/11/2026 |
+| Modèle des articles | C1 | portée | aligné | C1→S | Socle 1.9.0 : `contenus_publics` remplace `blog_posts`. Restent au lot 2 : `statut` et les champs du circuit | 03/11/2026 |
+| Longueur du corps | S | portée | écart | S→C1 | Socle : 100 000 caractères (guides piliers) ; C1 : 30 000 | 03/11/2026 |
+| Colonnes du socle absentes de C1 | S | portée | écart | S→C1 | `image_url`, `image_alt`, `etiquettes`, `auteur_id` | 03/11/2026 |
 | Circuit de rédaction | C1 | portée | écart | C1→S | Statuts, passages, journal, versions (lot 2) | 03/11/2026 |
 | Manques avant publication | C1 | portée | écart | C1→S | `manques_publication()` ; miroir écran `manquesSaisie()` → copie exacte | 03/11/2026 |
 | Termes interdits | C1 | portée | écart | C1→S | `termes_interdits_publics`, `contenus_publics_a_revoir()` ; liste des noms par une accroche | 03/11/2026 |
@@ -127,3 +129,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Date | Passe | Fait |
 |---|---|---|
 | 03/11/2026 | Création | Mesure des deux dépôts, première version du registre, décision « modèle `contenus_publics` » |
+| 03/11/2026 | Socle 1.9.0 | Lot 1 : articles du socle dans `contenus_publics`. Nouveaux écarts S→C1 : longueur du corps, colonnes du socle |

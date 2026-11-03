@@ -37,6 +37,14 @@ export const listPlans = createServerFn({ method: "GET" }).handler(async () => {
   return data ?? [];
 });
 
+/**
+ * Articles du blog : lignes « article » de contenus_publics (modèle commun, socle 1.9.0). Les
+ * colonnes sont renommées à la lecture (title, excerpt…) : les pages gardent leurs noms.
+ */
+const ARTICLES = "contenus_publics";
+const COLONNES_ARTICLE =
+  "id, slug, title:titre, excerpt:chapo, cover_url:image_url, published_at:publie_le, tags:etiquettes";
+
 /** Articles au plus dans le flux RSS : les plus récents. */
 const FEED_LIMIT = 50;
 /** Adresses d'articles au plus dans le plan du site. */
@@ -57,15 +65,15 @@ export const listBlogPage = createServerFn({ method: "GET" })
     const client = publicClient();
     /** Mêmes filtres pour le décompte et pour la page : publié, étiquette, recherche. */
     const filtered = <
-      T extends { contains(column: "tags", value: string[]): T; or(filters: string): T },
+      T extends { contains(column: "etiquettes", value: string[]): T; or(filters: string): T },
     >(
       query: T,
     ): T => {
       let result = query;
-      if (input.tag) result = result.contains("tags", [input.tag]);
+      if (input.tag) result = result.contains("etiquettes", [input.tag]);
       if (input.q) {
         const motif = `%${input.q}%`;
-        result = result.or(`title.ilike.${motif},excerpt.ilike.${motif},content.ilike.${motif}`);
+        result = result.or(`titre.ilike.${motif},chapo.ilike.${motif},corps.ilike.${motif}`);
       }
       return result;
     };
@@ -74,14 +82,15 @@ export const listBlogPage = createServerFn({ method: "GET" })
     const [countRes, tagsRes] = await Promise.all([
       filtered(
         client
-          .from("blog_posts")
+          .from(ARTICLES)
           .select("id", { count: "exact", head: true })
-          .eq("published", true),
+          .eq("type", "article")
+          .eq("publie", true),
       ),
-      client.from("blog_posts").select("tags").eq("published", true),
+      client.from(ARTICLES).select("tags:etiquettes").eq("type", "article").eq("publie", true),
     ]);
-    check(countRes, { contexte: "blog_posts" });
-    const tagRows = check(tagsRes, { contexte: "blog_posts" }) ?? [];
+    check(countRes, { contexte: ARTICLES });
+    const tagRows = check(tagsRes, { contexte: ARTICLES }) ?? [];
     const total = countRes.count ?? 0;
     const pageCount = Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE));
     const page = Math.min(input.page, pageCount);
@@ -92,13 +101,14 @@ export const listBlogPage = createServerFn({ method: "GET" })
         : (check(
             await filtered(
               client
-                .from("blog_posts")
-                .select("id, slug, title, excerpt, content, cover_url, published_at, tags")
-                .eq("published", true),
+                .from(ARTICLES)
+                .select(`${COLONNES_ARTICLE}, content:corps`)
+                .eq("type", "article")
+                .eq("publie", true),
             )
-              .order("published_at", { ascending: false })
+              .order("publie_le", { ascending: false })
               .range(from, from + BLOG_PAGE_SIZE - 1),
-            { contexte: "blog_posts" },
+            { contexte: ARTICLES },
           ) ?? []);
     const posts: BlogListPost[] = rows.map(({ content, ...post }) => ({
       ...post,
@@ -119,12 +129,13 @@ export const listBlogPage = createServerFn({ method: "GET" })
 export const listFeedPosts = createServerFn({ method: "GET" }).handler(async () => {
   const data = check(
     await publicClient()
-      .from("blog_posts")
-      .select("slug, title, excerpt, published_at")
-      .eq("published", true)
-      .order("published_at", { ascending: false })
+      .from(ARTICLES)
+      .select("slug, title:titre, excerpt:chapo, published_at:publie_le")
+      .eq("type", "article")
+      .eq("publie", true)
+      .order("publie_le", { ascending: false })
       .limit(FEED_LIMIT),
-    { contexte: "blog_posts" },
+    { contexte: ARTICLES },
   );
   return data ?? [];
 });
@@ -133,12 +144,13 @@ export const listFeedPosts = createServerFn({ method: "GET" }).handler(async () 
 export const listSitemapPosts = createServerFn({ method: "GET" }).handler(async () => {
   const data = check(
     await publicClient()
-      .from("blog_posts")
-      .select("slug, updated_at, published_at")
-      .eq("published", true)
-      .order("published_at", { ascending: false })
+      .from(ARTICLES)
+      .select("slug, updated_at, published_at:publie_le")
+      .eq("type", "article")
+      .eq("publie", true)
+      .order("publie_le", { ascending: false })
       .limit(SITEMAP_POSTS_LIMIT),
-    { contexte: "blog_posts" },
+    { contexte: ARTICLES },
   );
   return data ?? [];
 });
@@ -149,12 +161,13 @@ export const getPost = createServerFn({ method: "GET" })
     const client = publicClient();
     const post = check(
       await client
-        .from("blog_posts")
-        .select("id, slug, title, excerpt, content, cover_url, published_at, tags")
-        .eq("published", true)
+        .from(ARTICLES)
+        .select(`${COLONNES_ARTICLE}, content:corps`)
+        .eq("type", "article")
+        .eq("publie", true)
         .eq("slug", input.slug)
         .maybeSingle(),
-      { contexte: "blog_posts" },
+      { contexte: ARTICLES },
     );
     if (!post) return null;
     // Commentaires et articles voisins ne dépendent que de l'article : en parallèle.
@@ -166,15 +179,16 @@ export const getPost = createServerFn({ method: "GET" })
         .eq("approved", true)
         .order("created_at", { ascending: true }),
       client
-        .from("blog_posts")
-        .select("id, slug, title, excerpt, published_at, tags")
-        .eq("published", true)
+        .from(ARTICLES)
+        .select("id, slug, title:titre, excerpt:chapo, published_at:publie_le, tags:etiquettes")
+        .eq("type", "article")
+        .eq("publie", true)
         .neq("id", post.id)
-        .order("published_at", { ascending: false })
+        .order("publie_le", { ascending: false })
         .limit(12),
     ]);
     const comments = check(commentsRes, { contexte: "blog_comments" });
-    const others = check(othersRes, { contexte: "blog_posts" });
+    const others = check(othersRes, { contexte: ARTICLES });
     const tags = post.tags ?? [];
     const related = (others ?? [])
       .map((item) => ({

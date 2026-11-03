@@ -41,8 +41,8 @@ dossiers piliers).
 | # | Question | Recommandation |
 |---|---|---|
 | D1 | Rôle « rédacteur » dans le socle ? Le circuit en a besoin. | Oui : ajouter `editor` à `app_role`, fonction `private.can_write_content()` commune. |
-| D2 | Noms français (`contenus_publics`, `titre`) dans un socle aux noms anglais ? | Oui, garder les noms du premier clone. Renommer côté C1 coûterait plus cher et casserait sa production. Noté comme écart assumé. |
-| D3 | Auteur : fonction seule (C1) ou personne nommée ? | Les deux, par réglage. `auteur_mode` : `fonction` (défaut santé) ou `nomme` (page auteur). |
+| D2 | Noms français (`contenus_publics`, `titre`) dans un socle aux noms anglais ? **Appliqué au lot 1.** | Oui, garder les noms du premier clone. Renommer côté C1 coûterait plus cher et casserait sa production. Noté comme écart assumé. |
+| D3 | Auteur : fonction seule (C1) ou personne nommée ? | **Tranché le 03/11/2026 : les deux, par réglage.** `auteur_mode` : `fonction` ou `nomme` (page auteur). Affichage au lot 2. |
 | D4 | Commentaires d'articles | Module à part, éteint par défaut. Rattachés à `contenus_publics.id`. |
 | D5 | Une version du socle par lot, ou tout d'un coup ? | Un lot = une version. La reprise des données (lot 1) passe seule, sans changement visible. |
 
@@ -53,6 +53,19 @@ dans `supabase/seed/vX_Y_Z/` avec `LISEZMOI.md` et bloc de contrôle, tests `tes
 unitaires, recette `tests/e2e/plan.ts`, ligne dans `docs/MISE_A_NIVEAU.md`.
 
 ### Lot 1 — Modèle commun et reprise (version 1.9.0, aucun changement visible)
+
+**Fait le 03/11/2026** : migration `20261103120000_v1_9_0_contenus_publics.sql`, blocs
+`supabase/seed/v1_9_0/`, test `tests/db/test_30`. Écarts assumés par rapport au texte ci-dessous :
+
+- la table est **renommée** (`ALTER TABLE … RENAME`), pas recopiée : identifiants, clé des
+  commentaires, droits et index suivent sans réécriture ;
+- `statut` attend le lot 2 : le lot 1 garde `publie` et `publie_le`, comme C1 avant son circuit ;
+- `temps_lecture` n'est pas une colonne : le code le calcule déjà (`readingMinutes`) ;
+- `corps` borné à 100 000 caractères (C1 : 30 000), pour les guides piliers ; écart noté au registre ;
+- `sources_valides()` dans le schéma `public` (le socle n'a pas de schéma `private`) ;
+- `type` vaut `article` par défaut, pour que la vue de compatibilité puisse écrire ;
+- une longueur qu'un contenu existant dépasse reste une règle non validée, nommée par le bloc de
+  contrôle : l'article n'est jamais tronqué.
 
 But : le socle lit et écrit `contenus_publics`. Les adresses `/blog/<slug>` ne bougent pas : aucune
 perte de référencement.
