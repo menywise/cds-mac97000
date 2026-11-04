@@ -98,6 +98,7 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Termes interdits | C1 | portée | aligné | C1→S | Socle 1.10.0 ; noms d'une installation par `greffe_termes_nominatifs`. C1 garde sa version à expressions régulières (personnes, chirurgiens) | 03/11/2026 |
 | Sources, relecture, auteur | C1 | portée | aligné | C1→S | Socle 1.10.0 ; le socle ajoute `auteur_nom` et l'affichage par réglage (D3) | 03/11/2026 |
 | Liens de sources morts | ⇄ | portée | aligné | ⇄ | Socle 1.12.0 : même table ; le socle vérifie avec la session du rédacteur et refuse les adresses privées (`sources-verif.ts`, copié dans C1 le 03/11/2026, pas encore branché) | 03/11/2026 |
+| Protection des adresses externes | C1 | portée | à décider | C1→S | `src/lib/adresse-externe.server.ts` de C1 : https obligatoire, hôte local ou privé refusé tel qu'écrit puis après résolution DNS de chaque adresse IP, contrôle refait à chaque redirection. Plus solide que `sources-verif.ts` du socle | 03/11/2026 |
 | Pilier et satellites | C1 | portée | aligné | C1→S | Socle 1.11.0 : contrôle en base (manque « pilier ») et satellites absents du pilier | 03/11/2026 |
 | Taxonomie | S | portée | écart | S→C1 | Socle 1.11.0 : rubriques, étiquettes contrôlées, séries, pages publiques | 03/11/2026 |
 | Contrôles de maillage | S | portée | écart | S→C1 | Socle 1.11.0 : liens cassés ou redirigés, orphelins, ancres pauvres, requête en double (`maillage_etat`) | 03/11/2026 |
@@ -116,7 +117,8 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | Recherche plein texte | S | portée | écart | S→C1 | Socle 1.13.0 : `recherche_articles` (opérateurs, synonymes, facettes, extrait surligné, pondération), suggestion de mot proche, recherches sans résultat. C1 garde sa configuration sans racine (candidat C1→S) | 03/11/2026 |
 | Plan du site XML | S | portée | écart | ⇄ | S : `lastmod` réel par page ; C1 : programmation respectée | 03/11/2026 |
 | Lexique public | C1 | portée | à décider | C1→S | `/lexique`, `DefinedTerm` : base du lien automatique vers les définitions | 03/11/2026 |
-| Exigences d'une société savante | S | portée | écart | S→C1 | Socle 1.14.0 : `references_contenu`, liens d'intérêts, niveau de preuve, genres, relecteurs ; `bibliographie.ts` copié dans C1 le 03/11/2026, branché avec la migration | 03/11/2026 |
+| Bibliographie (société savante) | S | portée | aligné | S→C1 | Socle 1.14.0 : `references_contenu`, manque « references », appels [n] liés, liste Vancouver. C1 : migration `20270303120000`, test 117, panneau « Références » de l'écran éditorial (demande de fusion #317 de C1). Correctif C1→S candidat : la regex du manque `[[]([0-9]{1,3})[]]([^(]|$)` consomme le caractère suivant et ne voit pas [2] dans « [1][2] » ; C1 lit par anticipation `(?![(])`, comme `bibliographie.ts` | 03/11/2026 |
+| Exigences d'une société savante (hors bibliographie) | S | portée | écart | S→C1 | Socle 1.14.0 : liens d'intérêts, niveau de preuve, genres, relecteurs. Non repris dans C1 : seulement sur demande du propriétaire | 03/11/2026 |
 | Lien Search Console | C1 | portée | aligné | C1→S | Socle 1.12.0 : dans `article-donnees.ts` | 03/11/2026 |
 | Pages construites (sections) | S | propre | propre | — | Table `pages` du socle : pages d'atterrissage, distinctes des contenus éditoriaux | 03/11/2026 |
 
@@ -145,3 +147,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Recette et retour vers C1 | Base du socle passée de 1.8.0 à 1.15.0, recette des lots 2 à 7 (plan, « Recette du 03/11/2026 »). Sept copies exactes ajoutées à `verifier-socle.mjs` de C1 ; `article-donnees.ts` branché, les six autres en attente de leur migration ou de leur écran |
 | 04/11/2026 | Socle 1.15.1 | Correctifs de la recette : seuil de la suggestion à 0,3, pages introuvables du blog en `noindex`. Rien à copier pour C1 (fonction portée, sa recherche diffère) |
 | 05/11/2026 | Socle 1.15.2 | Audit : `search_tags`, `search_excerpt`, `geo_distance_km` fixent `search_path` ; test 37 refuse toute fonction de `public` sans. Rien à copier pour C1 (sa migration `20270301120000` fait de même, test 115) |
+| 03/11/2026 | Bibliographie portée dans C1 | Ligne « Société savante » scindée : bibliographie alignée (C1 #317), le reste en écart. Remontées C1→S notées : protection des adresses externes, regex des appels « [1][2] » du manque « references » |
