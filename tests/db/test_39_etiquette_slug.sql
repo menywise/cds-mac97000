@@ -20,7 +20,7 @@ DO $$ BEGIN
     RAISE EXCEPTION 'slug fourni non recalculé'; END IF;
   IF (SELECT label FROM public.template_checks WHERE code = 'DES-1') <> 'Police du système uniquement' THEN
     RAISE EXCEPTION 'grille DES-1'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.15.5' THEN
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.15.7' THEN
     RAISE EXCEPTION 'réglage socle'; END IF;
 END $$;
 ROLLBACK;

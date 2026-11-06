@@ -3,12 +3,16 @@
  * règle son nom, son adresse et son domaine d'envoi dans l'administration ; ni le code, ni les
  * documents, ni le SQL, ni les tests n'en gardent de trace : aucun domaine, aucun dépôt, aucun prénom,
  * aucun nom de projet réel, aucun chemin de disque.
+ * Socle 1.15.7 : le même test tourne dans chaque clone (le remix le copie). Un clone se reconnaît à
+ * sa prise de greffe remplie. Ses emplacements de greffe (docs/greffe/ compris) lui appartiennent :
+ * ils peuvent nommer le projet, ils sont exclus. Un clone n'a pas non plus de supabase/migrations.
+ * Dans le socle, rien ne change : tout est lu, migrations comprises.
  * Lancer : node --test tests/unit/*.test.ts
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative, sep } from "node:path";
 
 const DEPOT = join(import.meta.dirname, "..", "..");
 const SRC = join(DEPOT, "src");
@@ -58,6 +62,27 @@ const EXEMPTES = new Set([
 ]);
 const BINAIRES = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|ttf|pdf|zip)$/i;
 
+// Emplacements de greffe (docs/CLONER.md, « Écrire une greffe ») : propres à un clone.
+const EMPLACEMENTS_GREFFE = [
+  "src/greffe",
+  "src/routes/(greffe)",
+  "supabase/greffe",
+  "tests/greffe",
+  "docs/greffe",
+];
+
+/** Le socle livre sa prise vide ; un clone la remplit (règle de AGENTS.md). */
+export function estUnClone(prise: string): boolean {
+  return !/export const GREFFE: GreffeDeclaration = \{\};/.test(prise);
+}
+
+export function dansUneGreffe(rel: string): boolean {
+  const chemin = rel.split(sep).join("/");
+  return EMPLACEMENTS_GREFFE.some((e) => chemin === e || chemin.startsWith(`${e}/`));
+}
+
+const CLONE = estUnClone(readFileSync(join(SRC, "greffe", "index.ts"), "utf8"));
+
 function fichiers(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
@@ -70,9 +95,12 @@ function fichiersDuSocle(): string[] {
   const racine = readdirSync(DEPOT)
     .map((name) => join(DEPOT, name))
     .filter((path) => !statSync(path).isDirectory());
-  const dossiers = DOSSIERS.flatMap((d) => fichiers(join(DEPOT, d)));
+  const dossiers = DOSSIERS.filter((d) => existsSync(join(DEPOT, d))).flatMap((d) =>
+    fichiers(join(DEPOT, d)),
+  );
   return [...racine, ...dossiers].filter((path) => {
     const rel = relative(DEPOT, path);
+    if (CLONE && dansUneGreffe(rel)) return false;
     return !EXEMPTES.has(rel) && !BINAIRES.test(rel);
   });
 }
@@ -94,10 +122,13 @@ test("aucune identité de projet réel dans le socle (racine, src/, docs/, supab
     paths.some((p) => p.endsWith(join("docs", "CLONER.md"))),
     "docs/ est bien parcouru",
   );
-  assert.ok(
-    paths.some((p) => p.includes(join("supabase", "migrations"))),
-    "supabase/migrations/ est bien parcouru",
-  );
+  // Le remix retire supabase/migrations : seul le socle doit le porter.
+  if (!CLONE) {
+    assert.ok(
+      paths.some((p) => p.includes(join("supabase", "migrations"))),
+      "supabase/migrations/ est bien parcouru",
+    );
+  }
   assert.ok(
     paths.some((p) => p.endsWith("README.md")),
     "la racine est bien parcourue",
@@ -130,6 +161,23 @@ test("les motifs interdits détectent bien une identité glissée dans un texte"
     "Manuel d'utilisation",
   ]) {
     assert.ok(!FORBIDDEN.some(({ motif }) => motif.test(texte)), `faux positif : ${texte}`);
+  }
+});
+
+test("clone : prise remplie, emplacements de greffe hors du contrôle d'identité", () => {
+  assert.equal(estUnClone("export const GREFFE: GreffeDeclaration = {};"), false);
+  assert.equal(estUnClone("export const GREFFE: GreffeDeclaration = {\n  modules: [],\n};"), true);
+  for (const rel of [
+    "docs/greffe/cadrage/D11.md",
+    "src/routes/(greffe)/_connecte/x.tsx",
+    "tests/greffe/db/run.sh",
+    "supabase/greffe/001.sql",
+    "src/greffe/index.ts",
+  ]) {
+    assert.ok(dansUneGreffe(rel.split("/").join(sep)), `greffe non reconnue : ${rel}`);
+  }
+  for (const rel of ["docs/CLONER.md", "docs/greffes.md", "src/greffes/x.ts", "README.md"]) {
+    assert.ok(!dansUneGreffe(rel.split("/").join(sep)), `faux emplacement de greffe : ${rel}`);
   }
 });
 

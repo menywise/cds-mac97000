@@ -19,7 +19,9 @@ prise de greffe vide : `export const GREFFE: GreffeDeclaration = {};` dans `src/
 Dans un projet cloné (prise remplie, ou dossier `src/routes/(greffe)/` présent) :
 
 - Ne jamais modifier un fichier du socle ni une table du socle (colonne, contrainte, politique).
-- Ajouter uniquement dans `src/greffe/`, `src/routes/(greffe)/`, `supabase/greffe/`, `tests/greffe/`.
+- Ajouter uniquement dans `src/greffe/`, `src/routes/(greffe)/`, `supabase/greffe/`, `tests/greffe/`,
+  `docs/greffe/` (documents du projet).
+- Lire d'abord `docs/greffe/CLAUDE.md` s'il existe : consignes propres au projet.
 - Nommer tout objet SQL `greffe_<nom>` ; déclarer modules, menus et pages dans `src/greffe/index.ts`.
 - Étendre une fiche du socle par une table liée par id (voir `docs/CLONER.md`, « Écrire une greffe »).
 - Ne jamais importer depuis `src/design-system/` : c'est une copie figée, pas le code du socle.
