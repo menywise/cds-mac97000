@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.15.6**, migration
-  `20261109120000_v1_15_6_termes_references`.
+  migrations de la plateforme. Version courante : **1.15.7**, migration
+  `20261110120000_v1_15_7_clones_sans_migrations`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -53,6 +53,8 @@ installation.
   régénérés d'un clone compilent ; le point DES-1 de la grille parle de la police du système. La
   1.15.5 (correctif) : ordre indifférent ; une référence modifiée renvoie l'article en relecture. La
   1.15.6 (correctif) : ordre indifférent ; les termes interdits sont aussi cherchés dans les références.
+  La 1.15.7 (correctif, code seul) : ordre indifférent ; les tests `modules-sql` et `socle-neutre`
+  passent dans un clone sans `supabase/migrations`, et `docs/greffe/` reçoit les documents du projet.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
@@ -72,8 +74,8 @@ installation.
   ou à défaut on y rajoute à la main les tables `greffe_…`. Ne jamais résoudre ce conflit ligne à
   ligne.
 - **Greffes (depuis 1.3.0).** Ce qui est propre à l'installation vit dans `src/greffe/`,
-  `src/routes/(greffe)/`, `supabase/greffe/` et `tests/greffe/` : la fusion du socle n'y touche
-  pas. Mode d'emploi : `docs/CLONER.md`, « Écrire une greffe ».
+  `src/routes/(greffe)/`, `supabase/greffe/`, `tests/greffe/` et `docs/greffe/` (1.15.7) : la fusion
+  du socle n'y touche pas. Mode d'emploi : `docs/CLONER.md`, « Écrire une greffe ».
 - **Une migration du socle qui réécrit le réglage « modules »** garde toujours les modules des
   installations : `value = nouvelles_valeurs || public.module_greffe_values(value)`.
 - **Release de design system Lovable.** Si le socle est publié comme design system dans Lovable,

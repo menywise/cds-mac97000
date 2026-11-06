@@ -150,3 +150,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 03/11/2026 | Bibliographie portée dans C1 | Ligne « Société savante » scindée : bibliographie alignée (C1 #317), le reste en écart. Remontées C1→S notées : protection des adresses externes, regex des appels « [1][2] » du manque « references » |
 | 08/11/2026 | Socle 1.15.5 | Remontée C1 : une référence modifiée renvoie l'article en relecture, comme un texte modifié (même mécanique que C1). Rien à copier pour C1 : il l'a déjà, dans sa propre garde |
 | 09/11/2026 | Socle 1.15.6 | Remontée C1 : les termes interdits (et les noms de greffe_termes_nominatifs) sont aussi cherchés dans les références. C1 a la même règle dans sa propre anonymisation |
+| 10/11/2026 | Socle 1.15.7 | Remontée d'un clone par remix : `modules-sql` et `socle-neutre` passent sans `supabase/migrations` ; `docs/greffe/` pour les documents d'un projet. Sans objet pour C1 (pas de remix, pas de greffe) |
