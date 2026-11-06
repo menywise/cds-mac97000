@@ -92,6 +92,13 @@ pas. Depuis le socle 1.3.0, le socle lit ces ajouts lui-même.
 | Tables, fonctions, politiques SQL | `supabase/greffe/` | objets nommés `greffe_<nom>`, blocs rejouables |
 | Modules | dans la prise | clé `greffe_<nom>` (minuscules, chiffres, soulignés) |
 | Tests | `tests/greffe/` | libre |
+| Documents du projet (cadrage, décisions, reprises) | `docs/greffe/` | libre ; consignes d'agent dans `docs/greffe/CLAUDE.md` (socle 1.15.7) |
+
+Les emplacements de greffe appartiennent au projet : ils peuvent nommer le projet, son dépôt, son
+propriétaire. Le test d'identité du socle (`tests/unit/socle-neutre.test.ts`) les laisse de côté dès
+que la prise est remplie ; il lit tout le reste. Un document du projet ne va donc jamais dans `docs/`
+hors de `docs/greffe/`, ni à la racine : le `README.md` et le `CLAUDE.md` de la racine restent ceux
+du socle.
 
 ### La prise : `src/greffe/index.ts`
 
