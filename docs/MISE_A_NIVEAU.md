@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.15.3**, migration
-  `20261106120000_v1_15_3_appels_colles`.
+  migrations de la plateforme. Version courante : **1.15.4**, migration
+  `20261107120000_v1_15_4_etiquette_slug`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -48,7 +48,9 @@ installation.
   La 1.15.1 (correctif) : ordre indifférent ; la suggestion de mot proche devient plus tolérante
   (seuil 0,3) et les pages introuvables du blog passent en `noindex`. La 1.15.2 (correctif) : ordre
   indifférent ; trois fonctions fixent leur `search_path`, aucun changement de comportement. La 1.15.3
-  (correctif) : ordre indifférent ; le manque « references » voit les deux appels de « [1][2] ».
+  (correctif) : ordre indifférent ; le manque « references » voit les deux appels de « [1][2] ». La 1.15.4
+  (correctif) : ordre indifférent ; `etiquettes.slug` prend une valeur par défaut, et les types
+  régénérés d'un clone compilent ; le point DES-1 de la grille parle de la police du système.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
