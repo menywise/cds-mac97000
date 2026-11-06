@@ -148,3 +148,4 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 04/11/2026 | Socle 1.15.1 | Correctifs de la recette : seuil de la suggestion à 0,3, pages introuvables du blog en `noindex`. Rien à copier pour C1 (fonction portée, sa recherche diffère) |
 | 05/11/2026 | Socle 1.15.2 | Audit : `search_tags`, `search_excerpt`, `geo_distance_km` fixent `search_path` ; test 37 refuse toute fonction de `public` sans. Rien à copier pour C1 (sa migration `20270301120000` fait de même, test 115) |
 | 03/11/2026 | Bibliographie portée dans C1 | Ligne « Société savante » scindée : bibliographie alignée (C1 #317), le reste en écart. Remontées C1→S notées : protection des adresses externes, regex des appels « [1][2] » du manque « references » |
+| 08/11/2026 | Socle 1.15.5 | Remontée C1 : une référence modifiée renvoie l'article en relecture, comme un texte modifié (même mécanique que C1). Rien à copier pour C1 : il l'a déjà, dans sa propre garde |

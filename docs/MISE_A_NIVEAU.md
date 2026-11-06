@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.15.4**, migration
-  `20261107120000_v1_15_4_etiquette_slug`.
+  migrations de la plateforme. Version courante : **1.15.5**, migration
+  `20261108120000_v1_15_5_relecture_references`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -50,7 +50,8 @@ installation.
   indifférent ; trois fonctions fixent leur `search_path`, aucun changement de comportement. La 1.15.3
   (correctif) : ordre indifférent ; le manque « references » voit les deux appels de « [1][2] ». La 1.15.4
   (correctif) : ordre indifférent ; `etiquettes.slug` prend une valeur par défaut, et les types
-  régénérés d'un clone compilent ; le point DES-1 de la grille parle de la police du système.
+  régénérés d'un clone compilent ; le point DES-1 de la grille parle de la police du système. La
+  1.15.5 (correctif) : ordre indifférent ; une référence modifiée renvoie l'article en relecture.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
