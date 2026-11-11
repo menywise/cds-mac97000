@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.15.7**, migration
-  `20261110120000_v1_15_7_clones_sans_migrations`.
+  migrations de la plateforme. Version courante : **1.16.0**, migration
+  `20261111120000_v1_16_0_registre`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -55,6 +55,10 @@ installation.
   1.15.6 (correctif) : ordre indifférent ; les termes interdits sont aussi cherchés dans les références.
   La 1.15.7 (correctif, code seul) : ordre indifférent ; les tests `modules-sql` et `socle-neutre`
   passent dans un clone sans `supabase/migrations`, et `docs/greffe/` reçoit les documents du projet.
+  La 1.16.0 (brique) : la base d'abord ; l'écran Admin → Registre lit la table `registre`. Une
+  installation inscrit ses propres éléments (`registre_inscrire` dans `supabase/greffe/`) et déclare
+  ceux que la base doit contrôler dans `public.greffe_registre_attendus()` ; chaque nouveau script de
+  `scripts/` a sa ligne, sinon `tests/unit/registre.test.ts` refuse.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de

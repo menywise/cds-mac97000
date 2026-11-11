@@ -2138,6 +2138,48 @@ export type Database = {
         }
         Relationships: []
       }
+      registre: {
+        Row: {
+          a_revoir_le: string | null
+          created_at: string
+          decision: string | null
+          etat: string
+          id: string
+          identifiant: string
+          type: string
+          updated_at: string
+          updated_by: string | null
+          usage: string
+          utilisateur: string
+        }
+        Insert: {
+          a_revoir_le?: string | null
+          created_at?: string
+          decision?: string | null
+          etat?: string
+          id?: string
+          identifiant: string
+          type: string
+          updated_at?: string
+          updated_by?: string | null
+          usage: string
+          utilisateur: string
+        }
+        Update: {
+          a_revoir_le?: string | null
+          created_at?: string
+          decision?: string | null
+          etat?: string
+          id?: string
+          identifiant?: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+          usage?: string
+          utilisateur?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           admin_note: string | null
@@ -3107,6 +3149,26 @@ export type Database = {
           libelle: string
           nombre: number
         }[]
+      }
+      registre_attendus: {
+        Args: never
+        Returns: { identifiant: string; type: string }[]
+      }
+      registre_inscrire: {
+        Args: {
+          _a_revoir_le: string
+          _decision?: string
+          _etat: string
+          _identifiant: string
+          _type: string
+          _usage: string
+          _utilisateur: string
+        }
+        Returns: undefined
+      }
+      registre_manquants: {
+        Args: never
+        Returns: { identifiant: string; type: string }[]
       }
       report_improvements: {
         Args: { _limit?: number }

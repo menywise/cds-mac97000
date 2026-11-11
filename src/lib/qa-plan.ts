@@ -252,6 +252,7 @@ export const QA_PAGES: QaPage[] = [
   { path: "/admin/pilotage", label: "Pilotage", role: "admin", module: "studio" },
   { path: "/admin/conformite", label: "Conformité", role: "admin", module: "studio" },
   { path: "/admin/recettage", label: "Recette", role: "admin", module: "studio" },
+  { path: "/admin/registre", label: "Registre", role: "admin", module: "studio" },
   { path: "/admin/abonnes", label: "Abonnés", role: "admin", module: "newsletter" },
   { path: "/admin/messages", label: "Messages", role: "admin", module: "contact" },
   // Pages du projet (prise de greffe)

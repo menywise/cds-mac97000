@@ -93,6 +93,7 @@ pas. Depuis le socle 1.3.0, le socle lit ces ajouts lui-même.
 | Modules | dans la prise | clé `greffe_<nom>` (minuscules, chiffres, soulignés) |
 | Tests | `tests/greffe/` | libre |
 | Documents du projet (cadrage, décisions, reprises) | `docs/greffe/` | libre ; consignes d'agent dans `docs/greffe/CLAUDE.md` (socle 1.15.7) |
+| Registre (modules, scripts, tâches du projet) | `supabase/greffe/` | `registre_inscrire(...)` par élément ; `greffe_registre_attendus()` pour ce que la base contrôle (socle 1.16.0) |
 
 Les emplacements de greffe appartiennent au projet : ils peuvent nommer le projet, son dépôt, son
 propriétaire. Le test d'identité du socle (`tests/unit/socle-neutre.test.ts`) les laisse de côté dès
