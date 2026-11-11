@@ -145,6 +145,12 @@ function buildAdminNav(): AdminNavItem[] {
       module: "studio",
     },
     {
+      to: "/admin/registre",
+      label: "Registre",
+      title: "Chaque élément construit : à quoi il sert, qui s'en sert, jusqu'à quand",
+      module: "studio",
+    },
+    {
       to: "/admin/abonnes",
       label: "Abonnés",
       title: "Consulter et exporter la liste d'abonnés",

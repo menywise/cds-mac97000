@@ -49,3 +49,17 @@ Audits de la charte : `docs/audits/` (méthode, mesures, suites). Garde-fous ép
   couleur de données (saisie en base) passe par `couleurLisible()` (`src/lib/couleurs.ts`).
 - Contrôles : hook `pre-commit` (actif au démarrage de chaque session Claude Code par
   `.claude/settings.json`), `npm run verifier`, test `tests/unit/charte.test.ts`.
+
+## Registre de l'application (socle 1.16.0)
+
+Chaque élément construit a sa ligne dans la table `registre` : à quoi il sert, qui s'en sert, son
+état, la date à laquelle le revoir, la décision qui le justifie. Écran : Admin → Registre, éléments à
+revoir en tête.
+
+- Un module, une tâche planifiée, un script de `scripts/`, un automatisme (hook, action GitHub), une
+  adresse publique ou un compte technique ajoutés : leur ligne part dans le même commit, par
+  `public.registre_inscrire(...)` dans le SQL versionné.
+- Usage inconnu : état « à confirmer », date du jour. Ne rien inventer.
+- Garde-fous : `registre_manquants()` (modules, tâches planifiées, éléments d'une installation par
+  `greffe_registre_attendus()`), exigé vide par le test de base ; `tests/unit/registre.test.ts`
+  refuse un script sans ligne.

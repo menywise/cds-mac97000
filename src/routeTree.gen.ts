@@ -93,6 +93,7 @@ import { Route as AuthenticatedAdminPaiementsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminPilotageRouteImport } from './routes/_authenticated/admin.pilotage'
 import { Route as AuthenticatedAdminRecettageRouteImport } from './routes/_authenticated/admin.recettage'
 import { Route as AuthenticatedAdminRegieRouteImport } from './routes/_authenticated/admin.regie'
+import { Route as AuthenticatedAdminRegistreRouteImport } from './routes/_authenticated/admin.registre'
 import { Route as AuthenticatedAdminSignalementsRouteImport } from './routes/_authenticated/admin.signalements'
 import { Route as AuthenticatedAdminTemoignagesRouteImport } from './routes/_authenticated/admin.temoignages'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
@@ -555,6 +556,12 @@ const AuthenticatedAdminRegieRoute = AuthenticatedAdminRegieRouteImport.update({
   path: '/admin/regie',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRegistreRoute =
+  AuthenticatedAdminRegistreRouteImport.update({
+    id: '/admin/registre',
+    path: '/admin/registre',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSignalementsRoute =
   AuthenticatedAdminSignalementsRouteImport.update({
     id: '/admin/signalements',
@@ -758,6 +765,7 @@ export interface FileRoutesByFullPath {
   '/admin/pilotage': typeof AuthenticatedAdminPilotageRoute
   '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
+  '/admin/registre': typeof AuthenticatedAdminRegistreRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -865,6 +873,7 @@ export interface FileRoutesByTo {
   '/admin/pilotage': typeof AuthenticatedAdminPilotageRoute
   '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
+  '/admin/registre': typeof AuthenticatedAdminRegistreRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -974,6 +983,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/pilotage': typeof AuthenticatedAdminPilotageRoute
   '/_authenticated/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/_authenticated/admin/regie': typeof AuthenticatedAdminRegieRoute
+  '/_authenticated/admin/registre': typeof AuthenticatedAdminRegistreRoute
   '/_authenticated/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/_authenticated/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -1083,6 +1093,7 @@ export interface FileRouteTypes {
     | '/admin/pilotage'
     | '/admin/recettage'
     | '/admin/regie'
+    | '/admin/registre'
     | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
@@ -1190,6 +1201,7 @@ export interface FileRouteTypes {
     | '/admin/pilotage'
     | '/admin/recettage'
     | '/admin/regie'
+    | '/admin/registre'
     | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
@@ -1298,6 +1310,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/pilotage'
     | '/_authenticated/admin/recettage'
     | '/_authenticated/admin/regie'
+    | '/_authenticated/admin/registre'
     | '/_authenticated/admin/signalements'
     | '/_authenticated/admin/temoignages'
     | '/_authenticated/admin/utilisateurs'
@@ -1983,6 +1996,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRegieRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/registre': {
+      id: '/_authenticated/admin/registre'
+      path: '/admin/registre'
+      fullPath: '/admin/registre'
+      preLoaderRoute: typeof AuthenticatedAdminRegistreRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/signalements': {
       id: '/_authenticated/admin/signalements'
       path: '/admin/signalements'
@@ -2170,6 +2190,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminPilotageRoute: typeof AuthenticatedAdminPilotageRoute
   AuthenticatedAdminRecettageRoute: typeof AuthenticatedAdminRecettageRoute
   AuthenticatedAdminRegieRoute: typeof AuthenticatedAdminRegieRoute
+  AuthenticatedAdminRegistreRoute: typeof AuthenticatedAdminRegistreRoute
   AuthenticatedAdminSignalementsRoute: typeof AuthenticatedAdminSignalementsRoute
   AuthenticatedAdminTemoignagesRoute: typeof AuthenticatedAdminTemoignagesRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
@@ -2212,6 +2233,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminPilotageRoute: AuthenticatedAdminPilotageRoute,
   AuthenticatedAdminRecettageRoute: AuthenticatedAdminRecettageRoute,
   AuthenticatedAdminRegieRoute: AuthenticatedAdminRegieRoute,
+  AuthenticatedAdminRegistreRoute: AuthenticatedAdminRegistreRoute,
   AuthenticatedAdminSignalementsRoute: AuthenticatedAdminSignalementsRoute,
   AuthenticatedAdminTemoignagesRoute: AuthenticatedAdminTemoignagesRoute,
   AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
