@@ -69,7 +69,7 @@ node scripts/verifier-socle.mjs --comparer ../<dossier du socle>
 | Composants `src/components/ui/` | S | portée | écart | S→C1 | 11 fichiers communs différents (`button`, `card`, `input`…). Candidat copie exacte. Reporté le 06/11/2026 | 06/11/2026 |
 | Composants de charte | C1 | portée | à décider | C1→S | `src/components/charte/` (carte de section, barre d'avancement, pastille) | 03/11/2026 |
 | Robot de recette | S | portée | écart | S→C1 | `tests/e2e/recette.ts` porté du socle. Audit du rendu `tests/e2e/rendu.ts` né dans C1 : candidat C1→S. Reporté le 06/11/2026 | 06/11/2026 |
-| Registre de l'application | S | copie + portée | écart | S→C1 | `src/lib/registre.ts` en copie exacte (listes, tri, contrôle des scripts). Table `registre`, écran et test de base portés : C1 contrôle en plus ses propres éléments (modules en base, clés d'agent). Né d'un besoin de C1 | 11/11/2026 |
+| Registre de l'application | S | copie + portée | aligné | S→C1 | `registre.ts` en copie exacte dans C1 (`verifier-socle.mjs`) ; table, écran et contrôles portés. Propre à C1 : contrôle des clés d'agent (la ligne suit `agent_cles`) et des comptes de recette | 12/11/2026 |
 
 ### Socle technique
 
@@ -153,5 +153,6 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 | 09/11/2026 | Socle 1.15.6 | Remontée C1 : les termes interdits (et les noms de greffe_termes_nominatifs) sont aussi cherchés dans les références. C1 a la même règle dans sa propre anonymisation |
 | 10/11/2026 | Socle 1.15.7 | Remontée d'un clone par remix : `modules-sql` et `socle-neutre` passent sans `supabase/migrations` ; `docs/greffe/` pour les documents d'un projet. Sans objet pour C1 (pas de remix, pas de greffe) |
 | 11/11/2026 | Socle 1.16.0 | Registre de l'application, né d'un besoin de C1 (clés d'agent dont plus personne ne savait l'usage). Écart S→C1 : `registre.ts` à copier, table et écran à porter, avec les éléments propres à C1 |
+| 12/11/2026 | Registre porté dans C1 | Copie exacte de `registre.ts`, table, écran Admin → Surveillance → Registre, test de base 707, garde-fou des scripts. Rien à remonter au socle |
 | 06/11/2026 | Mise à niveau de C1 : socle 1.15.2 → 1.15.5 | Treize copies identiques. 1.15.3 équivalente dans C1 (lecture par anticipation `(?![(])`), 1.15.5 déjà dans C1, 1.15.4 sans objet (pas de taxonomie). Portés S→C1 : RSS simple, image de couverture. Reportés : taxonomie et ce qui en dépend, appel à l'action. Remontée C1→S : page d'erreur en français. Marqués propres : e-mails, session et rôles |
 | 06/11/2026 | Image de couverture de C1 | L'adresse de l'image sort du contrôle des noms (un terme court tomberait dans un nom de domaine) ; seul son texte est contrôlé. Rien à copier pour le socle |
