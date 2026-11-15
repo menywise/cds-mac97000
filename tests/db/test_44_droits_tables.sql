@@ -85,7 +85,8 @@ END $$;
 \i supabase/migrations/20261116120000_v1_16_2_droits_tables.sql
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.socle_versions WHERE version = '1.16.2' AND niveau = 'correctif') <> 1 THEN RAISE EXCEPTION 'version 1.16.2'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.16.2' THEN RAISE EXCEPTION 'réglage socle'; END IF;
+  IF string_to_array((SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle'), '.')::int[] < ARRAY[1, 16, 2] THEN
+    RAISE EXCEPTION 'réglage socle sous 1.16.2'; END IF;
 END $$;
 RESET client_min_messages;
 ROLLBACK;
