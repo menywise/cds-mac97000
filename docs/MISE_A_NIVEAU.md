@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.16.1**, migration
-  `20261115120000_v1_16_1_durcissement_rls`.
+  migrations de la plateforme. Version courante : **1.16.2**, migration
+  `20261116120000_v1_16_2_droits_tables`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -68,6 +68,11 @@ installation.
   lisibles quand leur module est allumé. Rubriques, étiquettes, séries, redirections : module « blog »
   allumé, ou rédacteur. J'aime : chacun les siens. Synonymes : rédacteurs. `socle_versions` et
   `socle_installation` : administrateurs.
+  La 1.16.2 (correctif) : ordre indifférent ; les rôles `anon` et `authenticated` perdent `TRUNCATE`,
+  `REFERENCES`, `TRIGGER` (et `MAINTAIN` en PostgreSQL 17) sur toutes les tables du schéma public,
+  et dans les droits par défaut. Supabase les donne à chaque table créée ; `TRUNCATE` passe par-dessus
+  la sécurité par ligne. Une greffe qui crée une table après la 1.16.2 n'a rien à faire ; une greffe
+  créée avant les perd au passage du bloc 1.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
