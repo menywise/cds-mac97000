@@ -16,6 +16,8 @@ SELECT public.bootstrap_current_user('Membre');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a1', 'admin@test.fr');
 SELECT public.admin_set_editor('00000000-0000-0000-0000-0000000000a2', true);
 RESET ROLE;
+-- Les taxonomies du blog se lisent module allumé (socle 1.16.1).
+UPDATE public.site_settings SET value = value || '{"blog": true}' WHERE key = 'modules';
 INSERT INTO public.rubriques (id, slug, libelle) VALUES
   ('00000000-0000-0000-0000-0000000000d1', 'materiel', 'Matériel'),
   ('00000000-0000-0000-0000-0000000000d2', 'instruments', 'Instruments');

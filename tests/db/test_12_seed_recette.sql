@@ -2,7 +2,7 @@
 \i tests/db/_helpers.sql
 BEGIN;
 -- Seed de recette : rejouable, visible des visiteurs, retiré entièrement par le nettoyage.
-UPDATE public.site_settings SET value = value || '{"lms": true, "members": true, "messaging": true, "marketplace": true}' WHERE key = 'modules';
+UPDATE public.site_settings SET value = value || '{"lms": true, "members": true, "messaging": true, "marketplace": true, "forum": true}' WHERE key = 'modules';
 INSERT INTO public.contenus_publics (id, slug, titre, corps, publie, publie_le)
   VALUES ('00000000-0000-0000-0000-0000000000b1', 'article-test', 'Article', 'Texte', true, now());
 \i supabase/seed/recette_seed.sql

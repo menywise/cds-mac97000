@@ -1,6 +1,8 @@
 \set ON_ERROR_STOP 1
 \i tests/db/_helpers.sql
 BEGIN;
+-- Le forum se lit module allumé (socle 1.16.1).
+UPDATE public.site_settings SET value = value || '{"forum": true}' WHERE key = 'modules';
 -- a1 : admin du studio · a2 : membre
 INSERT INTO auth.users (id, email) VALUES
   ('00000000-0000-0000-0000-0000000000a1', 'admin@test.fr'),
