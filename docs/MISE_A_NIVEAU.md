@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.16.2**, migration
-  `20261116120000_v1_16_2_droits_tables`.
+  migrations de la plateforme. Version courante : **1.16.3**, migration
+  `20261117120000_v1_16_3_ecritures_visiteur`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -73,6 +73,10 @@ installation.
   et dans les droits par défaut. Supabase les donne à chaque table créée ; `TRUNCATE` passe par-dessus
   la sécurité par ligne. Une greffe qui crée une table après la 1.16.2 n'a rien à faire ; une greffe
   créée avant les perd au passage du bloc 1.
+  La 1.16.3 (correctif) : ordre indifférent ; le rôle `anon` perd chaque droit d'écriture (ajout,
+  modification, suppression) qu'aucune politique ne lui ouvre. Une greffe qui ouvre une écriture aux
+  visiteurs par une politique garde son droit. Les droits par défaut ne changent pas : après une table
+  nouvelle, `ecritures_visiteur_sans_politique()` liste les écarts, et le bloc 1 rejoué les retire.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
