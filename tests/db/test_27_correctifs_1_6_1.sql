@@ -311,6 +311,9 @@ END $$;
 
 -- Colonne « pinned » ajoutée plus tard (par un projet) : forcée à faux sans toucher à la fonction.
 ALTER TABLE public.forum_topics ADD COLUMN pinned boolean NOT NULL DEFAULT false;
+-- Dans la vie réelle la colonne arrive par une migration, dans une autre session : la fonction de garde
+-- repart d'un plan neuf. Ici la même session a déjà exécuté la garde avant l'ALTER (PostgreSQL 16.16).
+DISCARD PLANS;
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000b2', 'deux@test.fr');
 INSERT INTO public.forum_topics (id, author_id, title, content, pinned) VALUES
   ('00000000-0000-0000-0000-0000000000f7', '00000000-0000-0000-0000-0000000000b2', 'Sujet épinglé', 'Texte', true);
