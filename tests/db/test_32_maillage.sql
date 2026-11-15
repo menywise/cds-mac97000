@@ -15,6 +15,8 @@ SELECT public.bootstrap_current_user('Rédacteur');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a1', 'admin@test.fr');
 SELECT public.admin_set_editor('00000000-0000-0000-0000-0000000000a2', true);
 RESET ROLE;
+-- Les taxonomies du blog se lisent module allumé (socle 1.16.1).
+UPDATE public.site_settings SET value = value || '{"blog": true}' WHERE key = 'modules';
 UPDATE public.site_settings SET value = value || '{"circuit": "simple", "exiger_sources": false, "longueurs_seo": false, "exiger_auteur": false}'
 WHERE key = 'editorial';
 

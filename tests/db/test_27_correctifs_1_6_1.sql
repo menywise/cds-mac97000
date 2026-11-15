@@ -1,6 +1,8 @@
 \set ON_ERROR_STOP 1
 \i tests/db/_helpers.sql
 BEGIN;
+-- Le forum se lit module allumé (socle 1.16.1).
+UPDATE public.site_settings SET value = value || '{"forum": true}' WHERE key = 'modules';
 -- Socle 1.6.1 : correctifs issus de l'audit du 13/10 (messagerie privée, stock de la boutique, forum,
 -- formulaires ouverts aux visiteurs, revendication d'une fiche d'annuaire, fiche publiée et modifiée,
 -- adresse confirmée exigée pour les administrateurs nommés d'avance, prix négatifs refusés, plan directeur
@@ -827,6 +829,9 @@ INSERT INTO public.template_checks (code, area, label, requirement, position, mo
   ('MOD-essai_retouche', 'Modules', 'Module fini : essai retouché', 'Les 8 critères de V0.md §4, plus le nôtre : interrupteur, aucune trace éteint, accès testés.', 291, ARRAY['blog']);
 SET client_min_messages = warning;
 \i supabase/migrations/20261013120000_v1_6_1_correctifs_audit.sql
+-- Rejouer la 1.6.1 remet les compteurs du forum en droits de l'appelant : la 1.16.1 repasse derrière,
+-- comme sur une base réelle où les blocs se rejouent dans l'ordre.
+\i supabase/migrations/20261115120000_v1_16_1_durcissement_rls.sql
 RESET client_min_messages;
 DO $$ BEGIN
   IF (SELECT requirement FROM public.template_checks WHERE code = 'MOD-essai_origine') NOT LIKE 'Les 8 critères d''un module fini : %'
@@ -877,9 +882,9 @@ BEGIN
   SELECT * INTO _r FROM public.forum_category_counts() WHERE category_id = '00000000-0000-0000-0000-000000000c90';
   IF _r.topics <> 2 OR _r.replies <> 1202 OR _r.likes <> 1205
   THEN RAISE EXCEPTION 'compteurs de la thématique : % sujets, % réponses, % j''aime', _r.topics, _r.replies, _r.likes; END IF;
+  -- Le visiteur ne lit plus la table des j'aime (1.16.1) : les totaux se comparent aux tables plus bas, hors rôle.
   IF (SELECT sum(topics) FROM public.forum_category_counts()) <> (SELECT count(*) FROM public.forum_topics)
      OR (SELECT sum(replies) FROM public.forum_category_counts()) <> (SELECT count(*) FROM public.forum_replies)
-     OR (SELECT sum(likes) FROM public.forum_category_counts()) <> (SELECT count(*) FROM public.forum_likes)
   THEN RAISE EXCEPTION 'totaux du forum différents des tables'; END IF;
   -- Par réponse : seules les réponses aimées ont une ligne.
   IF (SELECT count(*) FROM public.forum_reply_like_counts('00000000-0000-0000-0000-000000000f90')) <> 2
@@ -891,6 +896,10 @@ BEGIN
 END $$;
 SELECT pg_temp.expect_sqlstate($$SELECT * FROM public.forum_topic_counts((SELECT array_agg(gen_random_uuid()) FROM generate_series(1, 501)))$$, '22023', 'plus de 500 sujets par appel');
 RESET ROLE;
+DO $$ BEGIN
+  IF (SELECT sum(likes) FROM public.forum_category_counts()) <> (SELECT count(*) FROM public.forum_likes)
+  THEN RAISE EXCEPTION 'total des j''aime différent de la table'; END IF;
+END $$;
 
 -- 11.2 Formations : 1 100 inscrits à une formation publiée, 5 à une formation non publiée, 0 à une troisième.
 INSERT INTO public.lms_courses (id, title, slug, published, price_cents) VALUES

@@ -80,6 +80,9 @@ DO $$ DECLARE e text; BEGIN
   e := pg_temp.erreur_de($q$INSERT INTO public.references_contenu (contenu_id, rang, auteurs, titre)
          VALUES ('00000000-0000-0000-0000-0000000000e1', 3, 'Nomfictifgreffe B', 'Un retour de terrain')$q$);
   IF e NOT LIKE '23514 Référence refusée%Nomfictifgreffe%' THEN RAISE EXCEPTION 'nom de greffe accepté : %', e; END IF;
+END $$;
+RESET ROLE;
+DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.socle_versions WHERE version = '1.15.6' AND niveau = 'correctif') THEN
     RAISE EXCEPTION 'version 1.15.6'; END IF;
 END $$;

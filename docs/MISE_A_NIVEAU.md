@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.16.0**, migration
-  `20261111120000_v1_16_0_registre`.
+  migrations de la plateforme. Version courante : **1.16.1**, migration
+  `20261115120000_v1_16_1_durcissement_rls`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -59,10 +59,20 @@ installation.
   installation inscrit ses propres éléments (`registre_inscrire` dans `supabase/greffe/`) et déclare
   ceux que la base doit contrôler dans `public.greffe_registre_attendus()` ; chaque nouveau script de
   `scripts/` a sa ligne, sinon `tests/unit/registre.test.ts` refuse.
+  La 1.16.1 (correctif) : ordre indifférent ; plus aucune politique de lecture « USING (true) » sur
+  les seize tables signalées par le scanner de Lovable (règle LOV.DB.RLS_TAUTOLOGY_PERMISSIVE.V1).
+  `site_settings` : les clés `brand`, `modules`, `annuaire`, `editorial` et `shop` restent lisibles de
+  tous, le reste est réservé aux administrateurs ; une installation qui range une clé publique à elle
+  dans `site_settings` la déclare dans `public.greffe_site_settings_publiques() returns text[]`
+  (`supabase/greffe/`). Forum, catégories de l'annuaire et des annonces, départements, voisinages :
+  lisibles quand leur module est allumé. Rubriques, étiquettes, séries, redirections : module « blog »
+  allumé, ou rédacteur. J'aime : chacun les siens. Synonymes : rédacteurs. `socle_versions` et
+  `socle_installation` : administrateurs.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
-  `site_settings` donne la version en un coup d'œil.
+  `site_settings` donne la version en un coup d'œil. Les trois sont réservés aux administrateurs
+  depuis la 1.16.1.
 - **Le Remix copie le code et la structure de la base, pas les données.** Il n'emporte donc ni les
   réglages (`site_settings`), ni l'historique des versions, ni la grille de conformité, ni la tâche
   pg_cron de purge des messages de contact. Il retire aussi `supabase/migrations` du dépôt du clone,

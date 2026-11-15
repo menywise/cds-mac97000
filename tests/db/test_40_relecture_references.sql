@@ -71,6 +71,9 @@ DELETE FROM public.references_contenu WHERE contenu_id = '00000000-0000-0000-000
 DO $$ BEGIN
   IF pg_temp.statut('00000000-0000-0000-0000-0000000000d2') <> 'redaction' THEN
     RAISE EXCEPTION 'brouillon : en rédaction attendu, % lu', pg_temp.statut('00000000-0000-0000-0000-0000000000d2'); END IF;
+END $$;
+RESET ROLE;
+DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.socle_versions WHERE version = '1.15.5' AND niveau = 'correctif') THEN
     RAISE EXCEPTION 'version 1.15.5'; END IF;
 END $$;
