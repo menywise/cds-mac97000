@@ -82,7 +82,7 @@ node scripts/verifier-socle.mjs --comparer ../<dossier du socle>
 | Pages d'erreur | C1 | portée | aligné | C1→S | `src/lib/error-page.ts` : le texte en français de C1 remplace l'anglais du socle (06/11/2026). Candidat copie exacte | 06/11/2026 |
 | Messages d'erreur en français | C1 | portée | à décider | C1→S | `src/lib/erreurs.ts` (`erreurFrancaise`, formules de refus) | 03/11/2026 |
 | Charte de rédaction | S | portée | aligné | S→C1 | `docs/redaction/CHARTE_REDACTION_CDS.md`, citée par C1 | 03/11/2026 |
-| Droits des rôles publics | S | portée | écart | S→C1 | Socle 1.16.2 et 1.16.3 : ni vider ni droit de structure pour `anon` et `authenticated`, écriture visiteur seulement avec une politique, `ecritures_visiteur_sans_politique()`. Porté dans C1 le 15/11/2026 (contrôle admin propre à C1) ; migrations à passer dans la base de C1. C1 ne donne déjà rien au visiteur par défaut : candidat C1→S pour les tables nouvelles | 15/11/2026 |
+| Droits des rôles publics | S | portée | aligné | S→C1 | Socle 1.16.2 et 1.16.3 : ni vider ni droit de structure pour `anon` et `authenticated`, écriture visiteur seulement avec une politique, `ecritures_visiteur_sans_politique()`. Porté dans C1 le 15/11/2026 (contrôle admin propre à C1), passé dans sa base le 16/11/2026. C1 ne donne déjà rien au visiteur par défaut : candidat C1→S pour les tables nouvelles | 16/11/2026 |
 | Lectures sans condition | — | propre | propre | — | Socle 1.16.1 : ses tables n'existent pas dans C1. Les trois lectures sans condition de C1 (catalogue des modules, familles, réglages du site) sont publiques par conception | 15/11/2026 |
 
 ### Contenus éditoriaux, référencement, recherche
