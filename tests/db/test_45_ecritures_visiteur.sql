@@ -89,7 +89,8 @@ RESET ROLE;
 \i supabase/migrations/20261117120000_v1_16_3_ecritures_visiteur.sql
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.socle_versions WHERE version = '1.16.3' AND niveau = 'correctif') <> 1 THEN RAISE EXCEPTION 'version 1.16.3'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.16.3' THEN RAISE EXCEPTION 'réglage socle'; END IF;
+  IF string_to_array((SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle'), '.')::int[] < ARRAY[1, 16, 3] THEN
+    RAISE EXCEPTION 'réglage socle sous 1.16.3'; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.registre WHERE type = 'autre' AND identifiant = 'public.ecritures_visiteur_sans_politique()') THEN
     RAISE EXCEPTION 'registre'; END IF;
 END $$;

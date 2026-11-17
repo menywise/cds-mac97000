@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.16.3**, migration
-  `20261117120000_v1_16_3_ecritures_visiteur`.
+  migrations de la plateforme. Version courante : **1.16.4**, migration
+  `20261118120000_v1_16_4_defaut_visiteur`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -77,6 +77,10 @@ installation.
   modification, suppression) qu'aucune politique ne lui ouvre. Une greffe qui ouvre une écriture aux
   visiteurs par une politique garde son droit. Les droits par défaut ne changent pas : après une table
   nouvelle, `ecritures_visiteur_sans_politique()` liste les écarts, et le bloc 1 rejoué les retire.
+  La 1.16.4 (correctif) : ordre indifférent pour le socle ; une table nouvelle ne donne plus rien au
+  visiteur (droits par défaut du rôle `anon` retirés), règle reprise du premier clone. Avant de passer
+  le bloc, vérifier qu'aucune table de greffe ouverte aux visiteurs ne compte sur les droits par défaut :
+  une greffe créée après la 1.16.4 accorde ses droits par `GRANT` (`docs/CLONER.md`, « Tables »).
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de
