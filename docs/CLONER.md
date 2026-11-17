@@ -167,7 +167,10 @@ socle. Toute page connectée rattachée à un module se déclare dans `pagesProt
 ### Tables : étendre une fiche du socle sans toucher sa table
 
 Une table de greffe est liée par id à la fiche du socle, supprimée avec elle, et reprend ses droits
-avec les fonctions du socle (ici, une fiche de l'annuaire métier) :
+avec les fonctions du socle (ici, une fiche de l'annuaire métier). Depuis le socle 1.16.4, une table
+nouvelle ne donne rien au visiteur : une greffe ouverte aux visiteurs leur accorde ses droits par
+`GRANT`, table par table, comme le socle. Sans `GRANT`, la politique de lecture ne suffit pas : le
+visiteur reçoit un refus.
 
 ```sql
 CREATE TABLE IF NOT EXISTS public.greffe_sites (
@@ -175,6 +178,8 @@ CREATE TABLE IF NOT EXISTS public.greffe_sites (
   technologies text[] NOT NULL DEFAULT '{}'
 );
 ALTER TABLE public.greffe_sites ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.greffe_sites TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.greffe_sites TO authenticated;
 CREATE POLICY greffe_sites_lecture ON public.greffe_sites FOR SELECT TO anon, authenticated
   USING (public.directory_listing_visible(listing_id) AND public.module_enabled('greffe_veille'));
 CREATE POLICY greffe_sites_ecriture ON public.greffe_sites FOR ALL TO authenticated
