@@ -63,3 +63,17 @@ revoir en tête.
 - Garde-fous : `registre_manquants()` (modules, tâches planifiées, éléments d'une installation par
   `greffe_registre_attendus()`), exigé vide par le test de base ; `tests/unit/registre.test.ts`
   refuse un script sans ligne.
+
+## Co-intervenant IA (socle 1.17.0)
+
+Une IA qui écrit dans l'application est un intervenant comme un autre : une clé (`agent_cles`) avec
+sa fiche obligatoire (usage, utilisateur, dernier jour), un niveau (`lecture`, `completer`,
+`corriger`), et la trace de chaque écriture (`agent_journal`). Écran : Admin → Co-intervenants IA.
+
+- Une session d'agent qui doit écrire reçoit sa clé d'un administrateur, pour la durée du travail ;
+  la clé expire le jour où le travail finit. Jamais de clé partagée, jamais de clé dans le dépôt.
+- Le socle authentifie et journalise (`/api/agent`, `src/lib/agents.server.ts`) ; les actions se
+  déclarent dans la prise de greffe (`actionsAgent`, `docs/CLONER.md`, « Co-intervenant IA »).
+  Une action écrit par `journaliser`, jamais à côté.
+- Règles pures dans `src/lib/agents.ts` (copie exacte dans les installations) ; garde-fous :
+  `tests/unit/agents.test.ts`, `tests/db/test_47_agents.sql`.

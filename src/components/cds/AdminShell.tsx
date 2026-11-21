@@ -151,6 +151,12 @@ function buildAdminNav(): AdminNavItem[] {
       module: "studio",
     },
     {
+      to: "/admin/agents",
+      label: "Co-intervenants IA",
+      title: "Clés des IA qui écrivent dans le site, leur fiche et tout ce qu'elles ont écrit",
+      module: "studio",
+    },
+    {
       to: "/admin/abonnes",
       label: "Abonnés",
       title: "Consulter et exporter la liste d'abonnés",

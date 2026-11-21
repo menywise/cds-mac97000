@@ -94,6 +94,7 @@ import { Route as AuthenticatedAdminPilotageRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminRecettageRouteImport } from './routes/_authenticated/admin.recettage'
 import { Route as AuthenticatedAdminRegieRouteImport } from './routes/_authenticated/admin.regie'
 import { Route as AuthenticatedAdminRegistreRouteImport } from './routes/_authenticated/admin.registre'
+import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
 import { Route as AuthenticatedAdminSignalementsRouteImport } from './routes/_authenticated/admin.signalements'
 import { Route as AuthenticatedAdminTemoignagesRouteImport } from './routes/_authenticated/admin.temoignages'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
@@ -106,6 +107,7 @@ import { Route as AnnuaireCategorieSlugRouteImport } from './routes/annuaire.cat
 import { Route as AnnuaireCommuneCodeRouteImport } from './routes/annuaire.commune.$code'
 import { Route as AnnuaireDepartementSlugRouteImport } from './routes/annuaire.departement.$slug'
 import { Route as ApiCronPurgeContactRouteImport } from './routes/api.cron.purge-contact'
+import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as BlogEtiquetteSlugRouteImport } from './routes/blog.etiquette.$slug'
 import { Route as BlogRubriqueSlugRouteImport } from './routes/blog.rubrique.$slug'
 import { Route as BlogSerieSlugRouteImport } from './routes/blog.serie.$slug'
@@ -562,6 +564,12 @@ const AuthenticatedAdminRegistreRoute =
     path: '/admin/registre',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminAgentsRoute =
+  AuthenticatedAdminAgentsRouteImport.update({
+    id: '/admin/agents',
+    path: '/admin/agents',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSignalementsRoute =
   AuthenticatedAdminSignalementsRouteImport.update({
     id: '/admin/signalements',
@@ -626,6 +634,11 @@ const AnnuaireDepartementSlugRoute = AnnuaireDepartementSlugRouteImport.update({
 const ApiCronPurgeContactRoute = ApiCronPurgeContactRouteImport.update({
   id: '/api/cron/purge-contact',
   path: '/api/cron/purge-contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentRoute = ApiAgentRouteImport.update({
+  id: '/api/agent',
+  path: '/api/agent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogEtiquetteSlugRoute = BlogEtiquetteSlugRouteImport.update({
@@ -766,6 +779,7 @@ export interface FileRoutesByFullPath {
   '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/admin/registre': typeof AuthenticatedAdminRegistreRoute
+  '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -776,6 +790,7 @@ export interface FileRoutesByFullPath {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
+  '/api/agent': typeof ApiAgentRoute
   '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
   '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
   '/blog/serie/$slug': typeof BlogSerieSlugRoute
@@ -874,6 +889,7 @@ export interface FileRoutesByTo {
   '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/admin/registre': typeof AuthenticatedAdminRegistreRoute
+  '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -884,6 +900,7 @@ export interface FileRoutesByTo {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
+  '/api/agent': typeof ApiAgentRoute
   '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
   '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
   '/blog/serie/$slug': typeof BlogSerieSlugRoute
@@ -984,6 +1001,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/_authenticated/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/_authenticated/admin/registre': typeof AuthenticatedAdminRegistreRoute
+  '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/_authenticated/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/_authenticated/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -994,6 +1012,7 @@ export interface FileRoutesById {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
+  '/api/agent': typeof ApiAgentRoute
   '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
   '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
   '/blog/serie/$slug': typeof BlogSerieSlugRoute
@@ -1094,6 +1113,7 @@ export interface FileRouteTypes {
     | '/admin/recettage'
     | '/admin/regie'
     | '/admin/registre'
+    | '/admin/agents'
     | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
@@ -1104,6 +1124,7 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
+    | '/api/agent'
     | '/blog/etiquette/$slug'
     | '/blog/rubrique/$slug'
     | '/blog/serie/$slug'
@@ -1202,6 +1223,7 @@ export interface FileRouteTypes {
     | '/admin/recettage'
     | '/admin/regie'
     | '/admin/registre'
+    | '/admin/agents'
     | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
@@ -1212,6 +1234,7 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
+    | '/api/agent'
     | '/blog/etiquette/$slug'
     | '/blog/rubrique/$slug'
     | '/blog/serie/$slug'
@@ -1311,6 +1334,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/recettage'
     | '/_authenticated/admin/regie'
     | '/_authenticated/admin/registre'
+    | '/_authenticated/admin/agents'
     | '/_authenticated/admin/signalements'
     | '/_authenticated/admin/temoignages'
     | '/_authenticated/admin/utilisateurs'
@@ -1321,6 +1345,7 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
+    | '/api/agent'
     | '/blog/etiquette/$slug'
     | '/blog/rubrique/$slug'
     | '/blog/serie/$slug'
@@ -1395,6 +1420,7 @@ export interface RootRouteChildren {
   AnnuaireCommuneCodeRoute: typeof AnnuaireCommuneCodeRoute
   AnnuaireDepartementSlugRoute: typeof AnnuaireDepartementSlugRoute
   ApiCronPurgeContactRoute: typeof ApiCronPurgeContactRoute
+  ApiAgentRoute: typeof ApiAgentRoute
   BlogEtiquetteSlugRoute: typeof BlogEtiquetteSlugRoute
   BlogRubriqueSlugRoute: typeof BlogRubriqueSlugRoute
   BlogSerieSlugRoute: typeof BlogSerieSlugRoute
@@ -2003,6 +2029,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRegistreRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/agents': {
+      id: '/_authenticated/admin/agents'
+      path: '/admin/agents'
+      fullPath: '/admin/agents'
+      preLoaderRoute: typeof AuthenticatedAdminAgentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/signalements': {
       id: '/_authenticated/admin/signalements'
       path: '/admin/signalements'
@@ -2085,6 +2118,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/purge-contact'
       fullPath: '/api/cron/purge-contact'
       preLoaderRoute: typeof ApiCronPurgeContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent': {
+      id: '/api/agent'
+      path: '/api/agent'
+      fullPath: '/api/agent'
+      preLoaderRoute: typeof ApiAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/etiquette/$slug': {
@@ -2191,6 +2231,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRecettageRoute: typeof AuthenticatedAdminRecettageRoute
   AuthenticatedAdminRegieRoute: typeof AuthenticatedAdminRegieRoute
   AuthenticatedAdminRegistreRoute: typeof AuthenticatedAdminRegistreRoute
+  AuthenticatedAdminAgentsRoute: typeof AuthenticatedAdminAgentsRoute
   AuthenticatedAdminSignalementsRoute: typeof AuthenticatedAdminSignalementsRoute
   AuthenticatedAdminTemoignagesRoute: typeof AuthenticatedAdminTemoignagesRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
@@ -2234,6 +2275,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRecettageRoute: AuthenticatedAdminRecettageRoute,
   AuthenticatedAdminRegieRoute: AuthenticatedAdminRegieRoute,
   AuthenticatedAdminRegistreRoute: AuthenticatedAdminRegistreRoute,
+  AuthenticatedAdminAgentsRoute: AuthenticatedAdminAgentsRoute,
   AuthenticatedAdminSignalementsRoute: AuthenticatedAdminSignalementsRoute,
   AuthenticatedAdminTemoignagesRoute: AuthenticatedAdminTemoignagesRoute,
   AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
@@ -2311,6 +2353,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnuaireCommuneCodeRoute: AnnuaireCommuneCodeRoute,
   AnnuaireDepartementSlugRoute: AnnuaireDepartementSlugRoute,
   ApiCronPurgeContactRoute: ApiCronPurgeContactRoute,
+  ApiAgentRoute: ApiAgentRoute,
   BlogEtiquetteSlugRoute: BlogEtiquetteSlugRoute,
   BlogRubriqueSlugRoute: BlogRubriqueSlugRoute,
   BlogSerieSlugRoute: BlogSerieSlugRoute,
