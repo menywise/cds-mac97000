@@ -937,6 +937,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/lib/tables.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/lib/utils.ts": {
     "gris": 0,
     "opacite": 0,
@@ -1121,6 +1128,13 @@
   },
   "src/routes/_authenticated/admin.signalements.tsx": {
     "gris": 3,
+    "opacite": 0,
+    "listes": 1,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/routes/_authenticated/admin.tables.tsx": {
+    "gris": 0,
     "opacite": 0,
     "listes": 1,
     "couleurs": 0,

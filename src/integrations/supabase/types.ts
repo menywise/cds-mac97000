@@ -2948,6 +2948,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      tables_catalogue: {
+        Args: never
+        Returns: Json
+      }
       agent_authentifier: {
         Args: { _cle_hash: string }
         Returns: { id: string; niveau: string; nom: string }[]

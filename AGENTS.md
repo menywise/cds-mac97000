@@ -77,3 +77,15 @@ sa fiche obligatoire (usage, utilisateur, dernier jour), un niveau (`lecture`, `
   Une action écrit par `journaliser`, jamais à côté.
 - Règles pures dans `src/lib/agents.ts` (copie exacte dans les installations) ; garde-fous :
   `tests/unit/agents.test.ts`, `tests/db/test_47_agents.sql`.
+
+## Tables (socle 1.18.0)
+
+Admin → Tables fait vivre la base sans écrire de code : chaque table du schéma public en grille,
+fiche d'une ligne, import et export CSV. L'écran lit et écrit par l'interface de données, sous les
+politiques de sécurité par ligne : il ne contourne rien, il ne remplace aucune migration.
+
+- Une table de greffe apparaît d'elle-même ; ses droits viennent de ses politiques, jamais de l'écran.
+- Une saisie en masse passe par l'import CSV (aperçu, erreurs ligne par ligne, mise à jour sur la
+  clé) ; une donnée de départ versionnée reste un bloc SQL de `supabase/seed/`.
+- Règles pures dans `src/lib/tables.ts` (copie exacte dans les installations) ; garde-fous :
+  `tests/unit/tables.test.ts`, `tests/db/test_48_tables.sql`.

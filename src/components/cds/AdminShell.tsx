@@ -151,6 +151,12 @@ function buildAdminNav(): AdminNavItem[] {
       module: "studio",
     },
     {
+      to: "/admin/tables",
+      label: "Tables",
+      title: "Chaque table de la base en grille : fiche, ajout, import et export CSV",
+      module: "studio",
+    },
+    {
       to: "/admin/agents",
       label: "Co-intervenants IA",
       title: "Clés des IA qui écrivent dans le site, leur fiche et tout ce qu'elles ont écrit",

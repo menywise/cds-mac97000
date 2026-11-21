@@ -240,6 +240,7 @@ const SOCLE_PROTECTED_PATHS: ReadonlyArray<{ prefix: string; anyOf: readonly Fea
   { prefix: "/admin/registre", anyOf: ["studio"] },
   { prefix: "/admin/regie", anyOf: ["adNetwork"] },
   { prefix: "/admin/signalements", anyOf: ["reports"] },
+  { prefix: "/admin/tables", anyOf: ["studio"] },
   { prefix: "/admin/temoignages", anyOf: ["testimonials"] },
   { prefix: "/crm", anyOf: ["crm"] },
   { prefix: "/decouvrir", anyOf: ["onboarding"] },

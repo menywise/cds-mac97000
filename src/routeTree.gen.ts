@@ -95,6 +95,7 @@ import { Route as AuthenticatedAdminRecettageRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminRegieRouteImport } from './routes/_authenticated/admin.regie'
 import { Route as AuthenticatedAdminRegistreRouteImport } from './routes/_authenticated/admin.registre'
 import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
+import { Route as AuthenticatedAdminTablesRouteImport } from './routes/_authenticated/admin.tables'
 import { Route as AuthenticatedAdminSignalementsRouteImport } from './routes/_authenticated/admin.signalements'
 import { Route as AuthenticatedAdminTemoignagesRouteImport } from './routes/_authenticated/admin.temoignages'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
@@ -570,6 +571,12 @@ const AuthenticatedAdminAgentsRoute =
     path: '/admin/agents',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminTablesRoute =
+  AuthenticatedAdminTablesRouteImport.update({
+    id: '/admin/tables',
+    path: '/admin/tables',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSignalementsRoute =
   AuthenticatedAdminSignalementsRouteImport.update({
     id: '/admin/signalements',
@@ -780,6 +787,7 @@ export interface FileRoutesByFullPath {
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/admin/registre': typeof AuthenticatedAdminRegistreRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
+  '/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -890,6 +898,7 @@ export interface FileRoutesByTo {
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/admin/registre': typeof AuthenticatedAdminRegistreRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
+  '/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -1002,6 +1011,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/_authenticated/admin/registre': typeof AuthenticatedAdminRegistreRoute
   '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
+  '/_authenticated/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/_authenticated/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
   '/_authenticated/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
@@ -1114,6 +1124,7 @@ export interface FileRouteTypes {
     | '/admin/regie'
     | '/admin/registre'
     | '/admin/agents'
+    | '/admin/tables'
     | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
@@ -1224,6 +1235,7 @@ export interface FileRouteTypes {
     | '/admin/regie'
     | '/admin/registre'
     | '/admin/agents'
+    | '/admin/tables'
     | '/admin/signalements'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
@@ -1335,6 +1347,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/regie'
     | '/_authenticated/admin/registre'
     | '/_authenticated/admin/agents'
+    | '/_authenticated/admin/tables'
     | '/_authenticated/admin/signalements'
     | '/_authenticated/admin/temoignages'
     | '/_authenticated/admin/utilisateurs'
@@ -2036,6 +2049,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAgentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/tables': {
+      id: '/_authenticated/admin/tables'
+      path: '/admin/tables'
+      fullPath: '/admin/tables'
+      preLoaderRoute: typeof AuthenticatedAdminTablesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/signalements': {
       id: '/_authenticated/admin/signalements'
       path: '/admin/signalements'
@@ -2232,6 +2252,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRegieRoute: typeof AuthenticatedAdminRegieRoute
   AuthenticatedAdminRegistreRoute: typeof AuthenticatedAdminRegistreRoute
   AuthenticatedAdminAgentsRoute: typeof AuthenticatedAdminAgentsRoute
+  AuthenticatedAdminTablesRoute: typeof AuthenticatedAdminTablesRoute
   AuthenticatedAdminSignalementsRoute: typeof AuthenticatedAdminSignalementsRoute
   AuthenticatedAdminTemoignagesRoute: typeof AuthenticatedAdminTemoignagesRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
@@ -2276,6 +2297,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRegieRoute: AuthenticatedAdminRegieRoute,
   AuthenticatedAdminRegistreRoute: AuthenticatedAdminRegistreRoute,
   AuthenticatedAdminAgentsRoute: AuthenticatedAdminAgentsRoute,
+  AuthenticatedAdminTablesRoute: AuthenticatedAdminTablesRoute,
   AuthenticatedAdminSignalementsRoute: AuthenticatedAdminSignalementsRoute,
   AuthenticatedAdminTemoignagesRoute: AuthenticatedAdminTemoignagesRoute,
   AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,

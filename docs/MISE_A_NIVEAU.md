@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.17.0**, migration
-  `20261119120000_v1_17_0_agents`.
+  migrations de la plateforme. Version courante : **1.18.0**, migration
+  `20261120120000_v1_18_0_tables`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -88,6 +88,10 @@ installation.
   registre suit sa fiche. Les actions qu'une clé peut appeler se déclarent dans la prise de greffe
   (`actionsAgent`, `docs/CLONER.md`, « Co-intervenant IA »). Une installation qui avait déjà ces
   deux tables les rapproche de celles du socle avant de passer le bloc.
+  La 1.18.0 (brique) : la base d'abord ; l'écran Admin → Tables lit `tables_catalogue()` puis lit
+  et écrit chaque table par l'interface de données, sous ses politiques de sécurité par ligne. Grille,
+  fiche, ajout, modification, suppression, export CSV, import CSV en masse. Les tables d'une greffe
+  apparaissent d'elles-mêmes ; ce que leurs politiques refusent reste refusé.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de

@@ -13,8 +13,8 @@ RESET ROLE;
 -- 1. Historique écrit par la migration -----------------------------------------------------------------
 DO $$ BEGIN
   IF (SELECT string_agg(version || ':' || niveau, ',' ORDER BY string_to_array(version, '.')::int[]) FROM public.socle_versions)
-     <> '1.0.0:initial,1.1.0:brique,1.2.0:brique,1.3.0:brique,1.4.0:brique,1.4.1:correctif,1.5.0:brique,1.6.0:brique,1.6.1:correctif,1.7.0:brique,1.8.0:brique,1.9.0:brique,1.10.0:brique,1.11.0:brique,1.12.0:brique,1.13.0:brique,1.14.0:brique,1.15.0:brique,1.15.1:correctif,1.15.2:correctif,1.15.3:correctif,1.15.4:correctif,1.15.5:correctif,1.15.6:correctif,1.15.7:correctif,1.16.0:brique,1.16.1:correctif,1.16.2:correctif,1.16.3:correctif,1.16.4:correctif,1.17.0:brique' THEN RAISE EXCEPTION 'historique des versions'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.17.0' THEN
+     <> '1.0.0:initial,1.1.0:brique,1.2.0:brique,1.3.0:brique,1.4.0:brique,1.4.1:correctif,1.5.0:brique,1.6.0:brique,1.6.1:correctif,1.7.0:brique,1.8.0:brique,1.9.0:brique,1.10.0:brique,1.11.0:brique,1.12.0:brique,1.13.0:brique,1.14.0:brique,1.15.0:brique,1.15.1:correctif,1.15.2:correctif,1.15.3:correctif,1.15.4:correctif,1.15.5:correctif,1.15.6:correctif,1.15.7:correctif,1.16.0:brique,1.16.1:correctif,1.16.2:correctif,1.16.3:correctif,1.16.4:correctif,1.17.0:brique,1.18.0:brique' THEN RAISE EXCEPTION 'historique des versions'; END IF;
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.18.0' THEN
     RAISE EXCEPTION 'réglage socle'; END IF;
   IF EXISTS (SELECT 1 FROM public.socle_installation) THEN RAISE EXCEPTION 'installation vide dans le socle'; END IF;
 END $$;
@@ -32,7 +32,7 @@ DO $$ BEGIN
 END $$;
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a1', 'admin@test.fr');
 DO $$ BEGIN
-  IF (SELECT count(*) FROM public.socle_versions) <> 31 THEN RAISE EXCEPTION 'admin lit les versions'; END IF;
+  IF (SELECT count(*) FROM public.socle_versions) <> 32 THEN RAISE EXCEPTION 'admin lit les versions'; END IF;
 END $$;
 SELECT pg_temp.expect_error($$INSERT INTO public.socle_installation (version, niveau, installe_le, resume)
   VALUES ('9.9.9', 'installation', CURRENT_DATE, 'x')$$, 'admin écrit dans le registre');
@@ -51,7 +51,7 @@ UPDATE public.site_settings SET value = '{"version": "1.10.0"}' WHERE key = 'soc
 DO $$ BEGIN
   IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.10.0' THEN
     RAISE EXCEPTION 'réglage revu à la baisse'; END IF;
-  IF (SELECT count(*) FROM public.socle_versions) <> 31 THEN RAISE EXCEPTION 'doublon de version'; END IF;
+  IF (SELECT count(*) FROM public.socle_versions) <> 32 THEN RAISE EXCEPTION 'doublon de version'; END IF;
 END $$;
 UPDATE public.site_settings SET value = '{"version": "0.0.0", "ecart": "non mesure"}' WHERE key = 'socle';
 \i supabase/migrations/20261003120000_v1_1_0_versions_installation.sql
