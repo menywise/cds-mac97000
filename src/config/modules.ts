@@ -219,6 +219,7 @@ export function onlyActive<T extends object>(states: ModuleStates, items: readon
  */
 const SOCLE_PROTECTED_PATHS: ReadonlyArray<{ prefix: string; anyOf: readonly FeatureKey[] }> = [
   { prefix: "/admin/abonnes", anyOf: ["newsletter"] },
+  { prefix: "/admin/agents", anyOf: ["studio"] },
   { prefix: "/admin/annuaire", anyOf: ["directory"] },
   { prefix: "/admin/boutique", anyOf: ["shop"] },
   { prefix: "/admin/conformite", anyOf: ["studio"] },

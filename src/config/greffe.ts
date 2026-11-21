@@ -10,6 +10,7 @@
  */
 import type { FeatureKey, GreffeKey } from "./modules.ts";
 import type { QaPage } from "../lib/qa-plan.ts";
+import type { NiveauAgent } from "../lib/agents.ts";
 
 /** Module propre au projet : éteint par défaut, allumé dans Administration → Modules. */
 export type GreffeModule = {
@@ -40,6 +41,29 @@ export type GreffePagePublique = {
   sitemap?: boolean;
 };
 
+/** Ce qu'une action reçoit : la clé authentifiée, ses paramètres, et de quoi journaliser. */
+export type ContexteActionAgent = {
+  agent: { id: string; nom: string; niveau: NiveauAgent };
+  params: unknown;
+  /** Toute écriture s'inscrit au journal des agents (table, ligne, champ, avant, après). */
+  journaliser: (entree: {
+    table_cible: string;
+    ligne_id?: string | null;
+    champ?: string | null;
+    avant?: string | null;
+    apres?: string | null;
+  }) => Promise<void>;
+};
+
+/** Action qu'un co-intervenant IA peut appeler sur /api/agent (socle 1.17.0). */
+export type ActionAgent = {
+  /** Niveau de clé exigé : lecture, completer ou corriger. */
+  niveau: NiveauAgent;
+  /** Une phrase, rendue par l'action « aide ». */
+  description: string;
+  executer: (contexte: ContexteActionAgent) => Promise<unknown>;
+};
+
 export type GreffeDeclaration = {
   modules?: readonly GreffeModule[];
   menuPublic?: readonly GreffeLien[];
@@ -52,4 +76,6 @@ export type GreffeDeclaration = {
   pagesPubliques?: readonly GreffePagePublique[];
   /** Pages ouvertes par le robot de recette, comme celles du socle. */
   recette?: readonly QaPage[];
+  /** Actions ouvertes aux co-intervenants IA par /api/agent ; la clé est authentifiée par le socle. */
+  actionsAgent?: Readonly<Record<string, ActionAgent>>;
 };

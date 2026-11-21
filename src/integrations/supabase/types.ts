@@ -219,6 +219,95 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_cles: {
+        Row: {
+          actif: boolean
+          cle_hash: string
+          created_at: string
+          expire_le: string | null
+          id: string
+          last_used_at: string | null
+          niveau: string
+          nom: string
+          updated_at: string
+          usage: string | null
+          utilisateur: string | null
+        }
+        Insert: {
+          actif?: boolean
+          cle_hash: string
+          created_at?: string
+          expire_le?: string | null
+          id?: string
+          last_used_at?: string | null
+          niveau?: string
+          nom: string
+          updated_at?: string
+          usage?: string | null
+          utilisateur?: string | null
+        }
+        Update: {
+          actif?: boolean
+          cle_hash?: string
+          created_at?: string
+          expire_le?: string | null
+          id?: string
+          last_used_at?: string | null
+          niveau?: string
+          nom?: string
+          updated_at?: string
+          usage?: string | null
+          utilisateur?: string | null
+        }
+        Relationships: []
+      }
+      agent_journal: {
+        Row: {
+          action: string
+          agent: string
+          apres: string | null
+          avant: string | null
+          champ: string | null
+          cle_id: string | null
+          created_at: string
+          id: string
+          ligne_id: string | null
+          table_cible: string
+        }
+        Insert: {
+          action: string
+          agent: string
+          apres?: string | null
+          avant?: string | null
+          champ?: string | null
+          cle_id?: string | null
+          created_at?: string
+          id?: string
+          ligne_id?: string | null
+          table_cible: string
+        }
+        Update: {
+          action?: string
+          agent?: string
+          apres?: string | null
+          avant?: string | null
+          champ?: string | null
+          cle_id?: string | null
+          created_at?: string
+          id?: string
+          ligne_id?: string | null
+          table_cible?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_journal_cle_id_fkey"
+            columns: ["cle_id"]
+            isOneToOne: false
+            referencedRelation: "agent_cles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_findings: {
         Row: {
           audit_id: string
@@ -2859,6 +2948,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      agent_authentifier: {
+        Args: { _cle_hash: string }
+        Returns: { id: string; niveau: string; nom: string }[]
+      }
+      agent_journaliser: {
+        Args: {
+          _action: string
+          _apres?: string
+          _avant?: string
+          _champ?: string
+          _cle_id: string
+          _ligne_id?: string
+          _table_cible: string
+        }
+        Returns: string
+      }
       ad_campaign_is_live: { Args: { _campaign_id: string }; Returns: boolean }
       admin_list_users: {
         Args: never

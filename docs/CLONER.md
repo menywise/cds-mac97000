@@ -48,14 +48,14 @@ Utilisateurs. Le dernier administrateur ne peut ni se retirer ni supprimer son c
 
 ## 5. Secrets d'environnement (Lovable → Cloud → Secrets)
 
-| Secret | Quand | Rôle |
-| --- | --- | --- |
-| `LOVABLE_API_KEY` | toujours (fourni par Lovable) | service d'envoi des e-mails |
-| `LOVABLE_CRON_SECRET` | conseillé | tâches planifiées (purge des messages de contact) |
-| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | paiement des formations ou Boutique | Stripe ; webhook vers `<adresse>/api/stripe-webhook` |
-| `CDS_RECETTE_*` (secrets GitHub) | recette en écriture réelle | comptes de test du robot |
-| `CDS_GEO_URL`, `CDS_GEO_CLE` | géographie du projet (socle 1.5.0) | adresse du référentiel géographique du Studio (GeoAnnonces) et clé d'accès propre au projet ; import par Administration → Géographie |
-| `CDS_URL_PUBLIQUE` (variable GitHub) | recette du site public | adresse en ligne visée par le workflow « Recette du site public » (lancement manuel ; sur le poste : `scripts/recette-locale.ps1`) |
+| Secret                                       | Quand                               | Rôle                                                                                                                                 |
+| -------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `LOVABLE_API_KEY`                            | toujours (fourni par Lovable)       | service d'envoi des e-mails                                                                                                          |
+| `LOVABLE_CRON_SECRET`                        | conseillé                           | tâches planifiées (purge des messages de contact)                                                                                    |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | paiement des formations ou Boutique | Stripe ; webhook vers `<adresse>/api/stripe-webhook`                                                                                 |
+| `CDS_RECETTE_*` (secrets GitHub)             | recette en écriture réelle          | comptes de test du robot                                                                                                             |
+| `CDS_GEO_URL`, `CDS_GEO_CLE`                 | géographie du projet (socle 1.5.0)  | adresse du référentiel géographique du Studio (GeoAnnonces) et clé d'accès propre au projet ; import par Administration → Géographie |
+| `CDS_URL_PUBLIQUE` (variable GitHub)         | recette du site public              | adresse en ligne visée par le workflow « Recette du site public » (lancement manuel ; sur le poste : `scripts/recette-locale.ps1`)   |
 
 Les clés ne vont jamais dans le code ni en base.
 
@@ -83,18 +83,18 @@ Une **greffe** est ce qu'un projet ajoute au socle : ses modules, ses pages, ses
 ce qui lui appartient porte la marque `greffe` et vit dans des emplacements que le socle ne touche
 pas. Depuis le socle 1.3.0, le socle lit ces ajouts lui-même.
 
-| Quoi | Où | Forme |
-| --- | --- | --- |
-| Déclarations (modules, menus, pages) | `src/greffe/index.ts` | la « prise », livrée vide par le socle |
-| Code (fonctions, composants) | `src/greffe/` | libre |
-| Pages | `src/routes/(greffe)/` | le dossier entre parenthèses ne change pas les adresses |
-| Pages connectées | `src/routes/(greffe)/_connecte/` | avec la mise en page ci-dessous |
-| Tables, fonctions, politiques SQL | `supabase/greffe/` | objets nommés `greffe_<nom>`, blocs rejouables |
-| Modules | dans la prise | clé `greffe_<nom>` (minuscules, chiffres, soulignés) |
-| Tests | `tests/greffe/` | libre |
-| Documents du projet (cadrage, décisions, reprises) | `docs/greffe/` | libre ; consignes d'agent dans `docs/greffe/CLAUDE.md` (socle 1.15.7) |
-| Registre (modules, scripts, tâches du projet) | `supabase/greffe/` | `registre_inscrire(...)` par élément ; `greffe_registre_attendus()` pour ce que la base contrôle (socle 1.16.0) |
-| Clés publiques du projet dans `site_settings` | `supabase/greffe/` | `public.greffe_site_settings_publiques() returns text[]` ; sans elle, seules les clés du socle sont lisibles de tous (socle 1.16.1) |
+| Quoi                                               | Où                               | Forme                                                                                                                               |
+| -------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Déclarations (modules, menus, pages)               | `src/greffe/index.ts`            | la « prise », livrée vide par le socle                                                                                              |
+| Code (fonctions, composants)                       | `src/greffe/`                    | libre                                                                                                                               |
+| Pages                                              | `src/routes/(greffe)/`           | le dossier entre parenthèses ne change pas les adresses                                                                             |
+| Pages connectées                                   | `src/routes/(greffe)/_connecte/` | avec la mise en page ci-dessous                                                                                                     |
+| Tables, fonctions, politiques SQL                  | `supabase/greffe/`               | objets nommés `greffe_<nom>`, blocs rejouables                                                                                      |
+| Modules                                            | dans la prise                    | clé `greffe_<nom>` (minuscules, chiffres, soulignés)                                                                                |
+| Tests                                              | `tests/greffe/`                  | libre                                                                                                                               |
+| Documents du projet (cadrage, décisions, reprises) | `docs/greffe/`                   | libre ; consignes d'agent dans `docs/greffe/CLAUDE.md` (socle 1.15.7)                                                               |
+| Registre (modules, scripts, tâches du projet)      | `supabase/greffe/`               | `registre_inscrire(...)` par élément ; `greffe_registre_attendus()` pour ce que la base contrôle (socle 1.16.0)                     |
+| Clés publiques du projet dans `site_settings`      | `supabase/greffe/`               | `public.greffe_site_settings_publiques() returns text[]` ; sans elle, seules les clés du socle sont lisibles de tous (socle 1.16.1) |
 
 Les emplacements de greffe appartiennent au projet : ils peuvent nommer le projet, son dépôt, son
 propriétaire. Le test d'identité du socle (`tests/unit/socle-neutre.test.ts`) les laisse de côté dès
@@ -115,12 +115,27 @@ export const GREFFE: GreffeDeclaration = {
     {
       key: "greffe_veille",
       label: "Veille de sites",
-      definition: "Le site découvre de nouveaux sites, les analyse et repère ceux qui ne répondent plus.",
+      definition:
+        "Le site découvre de nouveaux sites, les analyse et repère ceux qui ne répondent plus.",
       requires: ["directory"],
     },
   ],
-  menuAdmin: [{ to: "/admin/veille", label: "Veille", title: "Découverte et surveillance des sites", module: "greffe_veille" }],
-  menuMembre: [{ to: "/proposer-un-site", label: "Proposer un site", title: "Signaler un site à ajouter", module: "greffe_veille" }],
+  menuAdmin: [
+    {
+      to: "/admin/veille",
+      label: "Veille",
+      title: "Découverte et surveillance des sites",
+      module: "greffe_veille",
+    },
+  ],
+  menuMembre: [
+    {
+      to: "/proposer-un-site",
+      label: "Proposer un site",
+      title: "Signaler un site à ajouter",
+      module: "greffe_veille",
+    },
+  ],
   pagesProtegees: [
     { prefix: "/admin/veille", anyOf: ["greffe_veille"] },
     { prefix: "/proposer-un-site", anyOf: ["greffe_veille"] },
@@ -157,7 +172,10 @@ Pages connectées : une mise en page de quelques lignes, puis les pages dessous.
 import { createFileRoute } from "@tanstack/react-router";
 import { EspaceConnecte } from "@/components/cds/EspaceConnecte";
 
-export const Route = createFileRoute("/(greffe)/_connecte")({ ssr: false, component: EspaceConnecte });
+export const Route = createFileRoute("/(greffe)/_connecte")({
+  ssr: false,
+  component: EspaceConnecte,
+});
 ```
 
 `src/routes/(greffe)/_connecte/admin.veille.tsx` répond à `/admin/veille`, avec `AdminShell` du
@@ -189,6 +207,47 @@ CREATE POLICY greffe_sites_ecriture ON public.greffe_sites FOR ALL TO authentica
 
 Le SQL d'une greffe se range dans `supabase/greffe/` (le Remix retire `supabase/migrations`), en
 blocs rejouables pour l'éditeur SQL de Lovable, comme ceux du socle.
+
+### Co-intervenant IA : déclarer ce qu'une clé peut faire
+
+Depuis le socle 1.17.0, une IA qui écrit dans le site passe par `/api/agent` avec une clé créée dans
+Admin → Co-intervenants IA (fiche obligatoire : à quoi elle sert, qui s'en sert, dernier jour). Le
+socle authentifie la clé et journalise ; la greffe déclare les actions, chacune avec le niveau de clé
+exigé (`lecture`, `completer`, `corriger`). Toute écriture passe par `journaliser`, qui l'inscrit au
+journal lu par les administrateurs (« ce qu'elle a écrit »). L'action `aide`, du socle, dit à la clé
+ce qu'elle peut faire.
+
+```ts
+export const GREFFE: GreffeDeclaration = {
+  actionsAgent: {
+    completer_definition: {
+      niveau: "completer",
+      description: "Remplit la définition vide d'un terme du glossaire de la veille.",
+      executer: async ({ params, journaliser }) => {
+        const { id, definition } = parametres(params);
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data } = await supabaseAdmin
+          .from("greffe_termes")
+          .update({ definition })
+          .eq("id", id)
+          .is("definition", null)
+          .select("id")
+          .maybeSingle();
+        if (!data) throw new Error("Terme introuvable ou définition déjà écrite.");
+        await journaliser({
+          table_cible: "greffe_termes",
+          ligne_id: id,
+          champ: "definition",
+          apres: definition,
+        });
+        return { id };
+      },
+    },
+  },
+};
+```
+
+Appel : `POST /api/agent`, en-tête `x-agent-key`, corps `{ "action": "completer_definition", "params": { … } }`.
 
 ### Grille de conformité
 

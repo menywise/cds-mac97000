@@ -384,6 +384,20 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/lib/agents.server.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/lib/agents.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/lib/article-donnees.ts": {
     "gris": 0,
     "opacite": 0,
@@ -951,6 +965,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/routes/_authenticated/admin.agents.tsx": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/routes/_authenticated/admin.annuaire.tsx": {
     "gris": 1,
     "opacite": 0,
@@ -1303,6 +1324,13 @@
   },
   "src/routes/annuaire.soumettre.tsx": {
     "gris": 5,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/routes/api.agent.ts": {
+    "gris": 0,
     "opacite": 0,
     "listes": 0,
     "couleurs": 0,
