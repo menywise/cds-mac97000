@@ -14,7 +14,7 @@
     "styles": 0
   },
   "src/components/cds/AuthLayout.tsx": {
-    "gris": 3,
+    "gris": 2,
     "opacite": 0,
     "listes": 0,
     "couleurs": 0,
@@ -146,6 +146,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/components/cds/PiedDePageReduit.tsx": {
+    "gris": 2,
+    "opacite": 0,
+    "listes": 1,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/components/cds/RecordEditor.tsx": {
     "gris": 1,
     "opacite": 0,
@@ -175,7 +182,7 @@
     "styles": 0
   },
   "src/components/cds/SiteHeader.tsx": {
-    "gris": 4,
+    "gris": 3,
     "opacite": 0,
     "listes": 2,
     "couleurs": 0,
@@ -342,6 +349,13 @@
     "couleurs": 0,
     "styles": 0
   },
+  "src/config/socle.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
   "src/greffe/index.ts": {
     "gris": 0,
     "opacite": 0,
@@ -420,6 +434,20 @@
     "styles": 0
   },
   "src/lib/blog.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/lib/captures-navigateur.ts": {
+    "gris": 0,
+    "opacite": 0,
+    "listes": 0,
+    "couleurs": 0,
+    "styles": 0
+  },
+  "src/lib/captures.ts": {
     "gris": 0,
     "opacite": 0,
     "listes": 0,
