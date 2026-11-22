@@ -71,6 +71,7 @@ function AdminReportsPage() {
   const [loadError, setLoadError] = useState(false);
   /** Codes de suivi des signalements qui ont une capture d'écran (socle 1.19.0). */
   const [captures, setCaptures] = useState<Set<string>>(new Set());
+  const [capturesErreur, setCapturesErreur] = useState(false);
 
   // Captures expirées (signalement supprimé, traité depuis 3 mois, envoyé depuis 12 mois) :
   // effacées à l'ouverture de l'écran, par l'interface des fichiers, seule voie admise.
@@ -100,10 +101,28 @@ function AdminReportsPage() {
     }
     const list = (data ?? []) as Report[];
     setRows(list);
-    const { data: dossiers } = await supabase.storage
-      .from(CAPTURE_DOSSIER)
-      .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
-    setCaptures(new Set((dossiers ?? []).map((d) => d.name)));
+    // Captures des signalements affichés : une demande de liens signés, chemin par chemin. Un
+    // chemin sans fichier revient en erreur ; aucune lecture de la liste du dossier (1.19.1).
+    const chemins = list.flatMap((r) => {
+      const chemin = r.tracking_code ? cheminCapture(r.tracking_code) : null;
+      return chemin ? [chemin] : [];
+    });
+    setCapturesErreur(false);
+    if (chemins.length) {
+      const { data: liens, error: erreurLiens } = await supabase.storage
+        .from(CAPTURE_DOSSIER)
+        .createSignedUrls(chemins, CAPTURE_LIEN_SECONDES);
+      setCapturesErreur(!!erreurLiens);
+      setCaptures(
+        new Set(
+          (liens ?? []).flatMap((l) =>
+            !l.error && l.signedUrl && l.path ? [l.path.split("/")[0] ?? ""] : [],
+          ),
+        ),
+      );
+    } else {
+      setCaptures(new Set());
+    }
     const ids = [...new Set(list.flatMap((r) => (r.reporter_id ? [r.reporter_id] : [])))];
     if (ids.length) {
       const { data: people } = await supabase
@@ -141,6 +160,11 @@ function AdminReportsPage() {
         ))}
       </div>
 
+      {capturesErreur ? (
+        <p role="alert" className="mt-4 text-sm text-warning-text">
+          Les captures d'écran n'ont pas pu être vérifiées : rechargez la page.
+        </p>
+      ) : null}
       {rows === null ? (
         <Skeleton className="mt-6 h-40 w-full rounded-xl" />
       ) : loadError ? (
