@@ -89,3 +89,19 @@ politiques de sécurité par ligne : il ne contourne rien, il ne remplace aucune
   clé) ; une donnée de départ versionnée reste un bloc SQL de `supabase/seed/`.
 - Règles pures dans `src/lib/tables.ts` (copie exacte dans les installations) ; garde-fous :
   `tests/unit/tables.test.ts`, `tests/db/test_48_tables.sql`.
+
+## Signalements : capture d'écran (socle 1.19.0)
+
+La personne qui signale peut joindre une capture d'écran, facultative : choisie ou collée dans la
+fenêtre « Signaler », réécrite par le navigateur (métadonnées retirées, 2 000 pixels et 2 Mo au plus),
+déposée après l'envoi sous `<code de suivi>/capture` dans le dossier privé `signalements-captures`.
+
+- Dépôt par l'auteur du signalement seul, dans les 15 minutes, une capture par signalement
+  (`report_capture_permise`) ; lecture et effacement réservés aux administrateurs, par lien signé.
+- Effacement 3 mois après le traitement, 12 mois après l'envoi, aussitôt avec le signalement : la base
+  dresse la liste (`report_captures_a_effacer`), l'interface des fichiers efface (écran Admin →
+  Signalements, `/api/cron/purge-contact`). Jamais de `DELETE` SQL sur `storage.objects`.
+- Règles pures dans `src/lib/captures.ts` ; garde-fous : `tests/unit/captures.test.ts`,
+  `tests/db/test_49_captures_signalements.sql`.
+- Version du socle : `src/config/socle.ts`, affichée dans le pied de page, montée à chaque version
+  (`tests/unit/socle-version.test.ts`). Pages plein écran sans en-tête : `PiedDePageReduit`.

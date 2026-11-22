@@ -20,10 +20,11 @@ import { jsonLdScript } from "@/lib/seo";
 import { loadSiteConfig } from "@/lib/site-config.functions";
 import { isFeatureOn } from "@/config/features";
 import { isPathOff } from "@/config/modules";
+import { PiedDePageReduit } from "@/components/cds/PiedDePageReduit";
 
 export function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
       {/* Aucune route ne fournit de titre ici : React place ces balises dans <head>. */}
       <title>{`Page introuvable — ${getSiteConfig().brand.shortName}`}</title>
       <meta name="robots" content="noindex" />
@@ -52,6 +53,7 @@ export function NotFoundComponent() {
           ) : null}
         </div>
       </div>
+      <PiedDePageReduit className="mt-12" />
     </div>
   );
 }
@@ -64,7 +66,7 @@ export function ErrorComponent({ error, reset }: ErrorComponentProps) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           Cette page n'a pas pu s'afficher
@@ -92,6 +94,7 @@ export function ErrorComponent({ error, reset }: ErrorComponentProps) {
           </a>
         </div>
       </div>
+      <PiedDePageReduit signaler={false} className="mt-12" />
     </div>
   );
 }

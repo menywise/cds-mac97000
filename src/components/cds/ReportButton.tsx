@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Flag } from "lucide-react";
+import { Flag, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +12,8 @@ import {
 import { isFeatureOn } from "@/config/features";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { CAPTURE_DOSSIER, cheminCapture, refusCapture, tailleLisible } from "@/lib/captures";
+import { CaptureIllisible, preparerCapture } from "@/lib/captures-navigateur";
 import {
   REPORT_IMPROVEMENT_REASONS,
   REPORT_REASONS,
@@ -37,6 +39,9 @@ const moderation = REPORT_REASONS.filter(
  * Visiteur ou membre : erreur, oubli, correction proposée ou motif
  * de modération. Champ piège et délai de 3 secondes dans le navigateur ; bornes et plafonds en base
  * (report_submit). L'envoi rend un code de suivi, lisible sur /signalement.
+ * Capture d'écran facultative (1.19.0) : choisie ou collée, réécrite par le navigateur
+ * (métadonnées retirées, 2 Mo au plus), déposée après l'envoi dans le dossier privé des captures,
+ * lu des seuls administrateurs. Un échec de la capture ne fait pas échouer le signalement.
  * Invisible si le module « Signalements » est éteint ou sur son propre contenu.
  */
 export function ReportButton({
@@ -65,6 +70,10 @@ export function ReportButton({
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState("");
   const [code, setCode] = useState("");
+  const [capture, setCapture] = useState<File | null>(null);
+  const [apercu, setApercu] = useState("");
+  const [captureRefus, setCaptureRefus] = useState("");
+  const [captureEchec, setCaptureEchec] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
@@ -73,6 +82,17 @@ export function ReportButton({
     },
     [],
   );
+
+  // Aperçu de la capture : adresse locale libérée au changement d'image et à la fermeture.
+  useEffect(() => {
+    if (!capture) {
+      setApercu("");
+      return;
+    }
+    const url = URL.createObjectURL(capture);
+    setApercu(url);
+    return () => URL.revokeObjectURL(url);
+  }, [capture]);
 
   if (!isFeatureOn("reports")) return null;
   if (user && authorId && user.id === authorId) return null;
@@ -92,7 +112,44 @@ export function ReportButton({
     setTrap("");
     setFailure("");
     setCode("");
+    setCapture(null);
+    setCaptureRefus("");
+    setCaptureEchec("");
   };
+
+  const choisirCapture = (fichier: File | null | undefined) => {
+    setCaptureEchec("");
+    if (!fichier) return;
+    const refus = refusCapture(fichier);
+    setCaptureRefus(refus ?? "");
+    setCapture(refus ? null : fichier);
+  };
+
+  const collerCapture = (event: React.ClipboardEvent) => {
+    const fichier = Array.from(event.clipboardData.files).find((f) => f.type.startsWith("image/"));
+    if (!fichier) return;
+    event.preventDefault();
+    choisirCapture(fichier);
+  };
+
+  /** Dépose la capture du signalement `suivi`. Message lisible en cas d'échec, sinon chaîne vide. */
+  async function deposerCapture(suivi: string, fichier: File): Promise<string> {
+    const chemin = cheminCapture(suivi);
+    if (!chemin) return "La capture n'a pas pu être jointe.";
+    try {
+      const image = await preparerCapture(fichier);
+      const { error } = await supabase.storage
+        .from(CAPTURE_DOSSIER)
+        .upload(chemin, image, { contentType: image.type, upsert: false });
+      return error
+        ? "La capture n'a pas pu être jointe : le signalement, lui, est bien arrivé."
+        : "";
+    } catch (erreur) {
+      return erreur instanceof CaptureIllisible
+        ? `${erreur.message} Le signalement, lui, est bien arrivé.`
+        : "La capture n'a pas pu être jointe : le signalement, lui, est bien arrivé.";
+    }
+  }
 
   const isCorrection = reason === "correction";
   const filled = (details.trim() + proposed.trim()).length >= (user ? 0 : 5);
@@ -114,12 +171,15 @@ export function ReportButton({
       ...(mail ? { _contact_email: mail } : {}),
       ...(trap ? { _trap: trap } : {}),
     });
-    setSending(false);
     if (error) {
+      setSending(false);
       setFailure(reportErrorMessage(error));
       return;
     }
-    setCode(String(data ?? ""));
+    const suivi = String(data ?? "");
+    if (capture) setCaptureEchec(await deposerCapture(suivi, capture));
+    setSending(false);
+    setCode(suivi);
   }
 
   return (
@@ -134,7 +194,10 @@ export function ReportButton({
         {label}
       </button>
       <Dialog open={open} onOpenChange={show}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent
+          className="max-h-[85vh] overflow-y-auto sm:max-w-lg"
+          onPaste={code ? undefined : collerCapture}
+        >
           <DialogHeader>
             <DialogTitle>Améliorer cette page</DialogTitle>
             <DialogDescription>
@@ -151,6 +214,13 @@ export function ReportButton({
               <p className="rounded-md bg-muted px-3 py-2 text-center font-mono text-lg font-semibold tracking-widest text-foreground">
                 {code}
               </p>
+              {captureEchec ? (
+                <p role="alert" className="text-sm text-warning-text">
+                  {captureEchec}
+                </p>
+              ) : capture ? (
+                <p className="text-sm text-foreground">Votre capture d'écran est jointe.</p>
+              ) : null}
               <p className="text-sm text-muted-foreground">
                 Suivez-le sur la page{" "}
                 <Link
@@ -236,6 +306,62 @@ export function ReportButton({
                   placeholder="Où exactement, et ce qui serait juste. Un seul lien au plus."
                   className={FIELD}
                 />
+              </div>
+              <div>
+                <label htmlFor="report-capture" className="text-sm font-semibold text-foreground">
+                  Capture d'écran (facultatif)
+                </label>
+                <p id="report-capture-aide" className="mt-1 text-xs text-foreground">
+                  Utile pour un défaut d'affichage. Choisissez une image ou collez-la ici (Ctrl+V).
+                  Vérifiez qu'elle ne montre aucune donnée personnelle, la vôtre ou celle d'un
+                  tiers. Seule l'équipe la voit ; elle est effacée 3 mois après le traitement.
+                </p>
+                {capture && apercu ? (
+                  <div className="mt-2 flex items-start gap-3 rounded-md border border-input p-2">
+                    <img
+                      src={apercu}
+                      alt="Aperçu de la capture d'écran jointe"
+                      className="max-h-24 max-w-[40%] rounded object-contain"
+                    />
+                    <div className="min-w-0 flex-1 text-xs text-foreground">
+                      <p className="truncate font-medium">{capture.name || "Image collée"}</p>
+                      <p>{tailleLisible(capture.size)} avant réduction</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCapture(null)}
+                      title="Retirer la capture d'écran"
+                      aria-label="Retirer la capture d'écran"
+                      className="grid size-11 shrink-0 place-items-center rounded-md text-foreground hover:bg-accent sm:size-8"
+                    >
+                      <X className="size-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="report-capture"
+                    className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-dashed border-input px-3 py-2 text-sm text-foreground hover:bg-accent"
+                  >
+                    <ImagePlus className="size-4" aria-hidden="true" />
+                    Choisir une image (PNG, JPEG ou WebP)
+                  </label>
+                )}
+                <input
+                  id="report-capture"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  aria-describedby="report-capture-aide"
+                  className="sr-only"
+                  onChange={(e) => {
+                    choisirCapture(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+                {captureRefus ? (
+                  <p role="alert" className="mt-1 text-xs text-destructive-text">
+                    {captureRefus}
+                  </p>
+                ) : null}
               </div>
               {!user ? (
                 <div>
