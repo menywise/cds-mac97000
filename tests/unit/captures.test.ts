@@ -39,6 +39,12 @@ test("le nom du fichier suit le code de suivi, et seulement lui", () => {
   assert.equal(codeDeCapture("0A1B2C3D4E/capture"), "0A1B2C3D4E");
   assert.equal(codeDeCapture("0A1B2C3D4E/autre"), null);
   assert.equal(codeDeCapture("0A1B2C3D4E/capture/x"), null);
+  // Installation dont les signalements portent un UUID (depuis le 22/11/2026).
+  const id = "3f2b8c1e-9a4d-4e7b-8c2a-1d5e6f7a8b9c";
+  assert.equal(cheminCapture(id), `${id}/capture`);
+  assert.equal(codeDeCapture(`${id}/capture`), id);
+  assert.equal(cheminCapture(id.toUpperCase()), null);
+  assert.equal(cheminCapture(`${id}x`), null);
 });
 
 test("types et tailles admis", () => {
