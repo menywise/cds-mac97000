@@ -8,10 +8,10 @@ SELECT public.registre_inscrire('script', 'scripts/radar-socle.mjs',
   'Radar des installations : versions du code et de la base de chaque installation comparées au socle, ajouts hors greffe, copies exactes à reprendre. Lecture seule, une action proposée par écart.',
   'Session d''agent qui passe le radar (docs/RADAR.md) ; une installation peut se mesurer elle-même', 'en_service', CURRENT_DATE + 182, 'Socle 1.20.0, docs/RADAR.md');
 
--- 2. Registre : la tâche hebdomadaire (socle seul ; « prévu » jusqu'à sa création) ----------------
+-- 2. Registre : la tâche hebdomadaire (socle seul) --------------------------------------------------
 SELECT public.registre_inscrire('automatisme', 'radar-installations-hebdomadaire',
   'Chaque semaine : une session neuve recense les installations du socle, les mesure, publie le rapport et notifie le propriétaire seulement s''il y a un écart. Ne corrige rien.',
-  'Tâche planifiée du propriétaire du socle, sur la plateforme des sessions d''agent', 'prevu', CURRENT_DATE, 'Socle 1.20.0, docs/RADAR.md');
+  'Tâche planifiée du propriétaire du socle (dimanche 19 h 40), sur la plateforme des sessions d''agent', 'en_service', CURRENT_DATE + 182, 'Socle 1.20.0, docs/RADAR.md');
 
 -- 3. Version -------------------------------------------------------------------------------------
 INSERT INTO public.socle_versions (version, niveau, publie_le, resume, detail, migration_reference)

@@ -70,9 +70,9 @@ accès. Étapes :
 2. Recenser par l'empreinte ci-dessus : marqueurs lus fichier par fichier (une lecture refusée
    « introuvable » coûte peu).
 3. Pour chaque installation : version du code, sonde de la base.
-4. Pour un Remix modifié depuis le passage précédent : liste de ses chemins (une page de 100 chemins
-   par appel), confiée à un agent qui l'écrit dans un fichier ; un Remix non modifié garde la liste
-   précédente.
+4. Pour un Remix modifié dans les 8 derniers jours : liste de ses chemins (une page de 100 chemins
+   par appel), confiée à un agent qui l'écrit dans un fichier. Un Remix non modifié n'est pas
+   relisté : ses ajouts ont été signalés au passage qui a suivi sa dernière modification.
 5. Écrire les observations dans un fichier JSON hors du dépôt, puis
    `node scripts/radar-socle.mjs rapport <observations.json>`.
 6. Publier le rapport ; notifier le propriétaire seulement si la première ligne dit « Écarts : » suivi
