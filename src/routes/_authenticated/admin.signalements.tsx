@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { requireFeature } from "@/config/features";
 import { supabase } from "@/integrations/supabase/client";
+import { CAPTURE_DOSSIER, CAPTURE_LIEN_SECONDES, cheminCapture } from "@/lib/captures";
 import {
   REPORT_STATUSES,
   reportContentTypeLabel,
@@ -68,6 +69,18 @@ function AdminReportsPage() {
   const [rows, setRows] = useState<Report[] | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
   const [loadError, setLoadError] = useState(false);
+  /** Codes de suivi des signalements qui ont une capture d'écran (socle 1.19.0). */
+  const [captures, setCaptures] = useState<Set<string>>(new Set());
+
+  // Captures expirées (signalement supprimé, traité depuis 3 mois, envoyé depuis 12 mois) :
+  // effacées à l'ouverture de l'écran, par l'interface des fichiers, seule voie admise.
+  useEffect(() => {
+    if (!isAdmin) return;
+    void (async () => {
+      const { data } = await supabase.rpc("report_captures_a_effacer");
+      if (data?.length) await supabase.storage.from(CAPTURE_DOSSIER).remove(data);
+    })();
+  }, [isAdmin]);
 
   const load = useCallback(async () => {
     setLoadError(false);
@@ -87,6 +100,10 @@ function AdminReportsPage() {
     }
     const list = (data ?? []) as Report[];
     setRows(list);
+    const { data: dossiers } = await supabase.storage
+      .from(CAPTURE_DOSSIER)
+      .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
+    setCaptures(new Set((dossiers ?? []).map((d) => d.name)));
     const ids = [...new Set(list.flatMap((r) => (r.reporter_id ? [r.reporter_id] : [])))];
     if (ids.length) {
       const { data: people } = await supabase
@@ -148,6 +165,7 @@ function AdminReportsPage() {
                   ? "un visiteur"
                   : (names[row.reporter_id ?? ""] ?? "Ancien membre")
               }
+              hasCapture={!!row.tracking_code && captures.has(row.tracking_code)}
               onChanged={load}
             />
           ))}
@@ -160,12 +178,32 @@ function AdminReportsPage() {
 function ReportItem({
   row,
   reporter,
+  hasCapture,
   onChanged,
 }: {
   row: Report;
   reporter: string;
+  hasCapture: boolean;
   onChanged: () => Promise<void>;
 }) {
+  const [captureUrl, setCaptureUrl] = useState("");
+  const [captureBusy, setCaptureBusy] = useState(false);
+  const chemin = row.tracking_code ? cheminCapture(row.tracking_code) : null;
+
+  async function openCapture() {
+    if (!chemin) return;
+    setCaptureBusy(true);
+    const { data, error } = await supabase.storage
+      .from(CAPTURE_DOSSIER)
+      .createSignedUrl(chemin, CAPTURE_LIEN_SECONDES);
+    setCaptureBusy(false);
+    if (error || !data) {
+      toast.error("La capture d'écran n'a pas pu être ouverte.");
+      return;
+    }
+    setCaptureUrl(data.signedUrl);
+  }
+
   const [note, setNote] = useState(row.admin_note ?? "");
   const [publicNote, setPublicNote] = useState(row.public_note ?? "");
   const [busy, setBusy] = useState(false);
@@ -190,6 +228,9 @@ function ReportItem({
   }
 
   async function remove() {
+    // La capture part avec le signalement ; une capture restée seule est effacée à la prochaine
+    // ouverture de l'écran (report_captures_a_effacer).
+    if (hasCapture && chemin) await supabase.storage.from(CAPTURE_DOSSIER).remove([chemin]);
     const { error } = await supabase.from("reports").delete().eq("id", row.id);
     if (error) {
       toast.error("La suppression a échoué.");
@@ -249,6 +290,40 @@ function ReportItem({
         >
           Ouvrir la page signalée ({row.reported_url})
         </a>
+      ) : null}
+      {hasCapture ? (
+        <div className="mt-3">
+          {captureUrl ? (
+            <figure>
+              <a
+                href={captureUrl}
+                target="_blank"
+                rel="noreferrer"
+                title="Ouvrir la capture en grand dans un nouvel onglet (lien valable 5 minutes)"
+              >
+                <img
+                  src={captureUrl}
+                  alt="Capture d'écran jointe au signalement"
+                  className="max-h-80 rounded-lg border border-border object-contain"
+                />
+              </a>
+              <figcaption className="mt-1 text-xs text-foreground">
+                Capture jointe par le signaleur. Lien valable 5 minutes ; effacée 3 mois après le
+                traitement.
+              </figcaption>
+            </figure>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={captureBusy}
+              onClick={() => void openCapture()}
+              title="Afficher la capture d'écran jointe par le signaleur"
+            >
+              {captureBusy ? "Ouverture…" : "Voir la capture d'écran"}
+            </Button>
+          )}
+        </div>
       ) : null}
       <label className="mt-3 block text-xs font-medium text-foreground" htmlFor={`note-${row.id}`}>
         Note interne (visible des admins seulement)

@@ -5,6 +5,9 @@ import { createFileRoute } from "@tanstack/react-router";
  * POST /api/cron/purge-contact, appelée chaque nuit par les tâches planifiées de Lovable
  * (en-tête « Authorization: Bearer <LOVABLE_CRON_SECRET> »). Sert quand pg_cron n'est pas
  * activé dans la base ; sinon la base fait déjà ce ménage seule. Sans effet si rejouée.
+ * Depuis le socle 1.19.0, efface aussi les captures d'écran des signalements expirées
+ * (report_captures_a_effacer) : la plateforme n'admet l'effacement d'un fichier que par l'interface
+ * des fichiers, jamais par la base seule.
  */
 export const Route = createFileRoute("/api/cron/purge-contact")({
   server: {
@@ -21,7 +24,16 @@ export const Route = createFileRoute("/api/cron/purge-contact")({
             headers: { "Content-Type": "application/json" },
           });
         }
-        return new Response(JSON.stringify({ purged: data ?? 0 }), {
+        const { CAPTURE_DOSSIER } = await import("@/lib/captures");
+        const { data: captures } = await supabaseAdmin.rpc("report_captures_a_effacer");
+        let capturesEffacees = 0;
+        if (captures?.length) {
+          const { data: effacees } = await supabaseAdmin.storage
+            .from(CAPTURE_DOSSIER)
+            .remove(captures);
+          capturesEffacees = effacees?.length ?? 0;
+        }
+        return new Response(JSON.stringify({ purged: data ?? 0, captures: capturesEffacees }), {
           headers: { "Content-Type": "application/json" },
         });
       },

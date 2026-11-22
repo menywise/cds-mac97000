@@ -11,6 +11,7 @@ import { CookieBanner, openCookieBanner } from "@/components/cds/CookieBanner";
 import { NewsletterForm } from "@/components/cds/NewsletterForm";
 import { AdSlot } from "@/components/cds/AdSlot";
 import { ReportButton } from "@/components/cds/ReportButton";
+import { MentionDuSite } from "@/components/cds/PiedDePageReduit";
 import { isFeatureOn, withActiveModules, type FeatureKey } from "@/config/features";
 import { GREFFE } from "@/greffe";
 
@@ -499,7 +500,6 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
-  const { settings } = useBrandSettings();
   const footerColumns = buildFooterColumns();
 
   return (
@@ -554,10 +554,9 @@ export function SiteFooter() {
           </div>
         ) : null}
 
-        <p className="mt-8 border-t border-border pt-6 text-xs text-muted-foreground">
-          {settings.tagline ? `${settings.tagline} — ` : ""}© {new Date().getFullYear()}{" "}
-          {settings.legal.company || settings.name}
-        </p>
+        <div className="mt-8 border-t border-border pt-6">
+          <MentionDuSite />
+        </div>
       </div>
     </footer>
   );

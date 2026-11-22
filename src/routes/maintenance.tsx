@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { seo } from "@/lib/seo";
 import { useBrandSettings } from "@/hooks/useSiteSettings";
 import { isFeatureOn } from "@/config/features";
+import { PiedDePageReduit } from "@/components/cds/PiedDePageReduit";
 
 export const Route = createFileRoute("/maintenance")({
   head: () =>
@@ -35,6 +36,7 @@ function MaintenancePage() {
           Nous contacter
         </Link>
       ) : null}
+      <PiedDePageReduit signaler={false} className="mt-12" />
     </div>
   );
 }

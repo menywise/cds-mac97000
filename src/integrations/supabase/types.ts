@@ -3279,6 +3279,8 @@ export type Database = {
         Args: never
         Returns: { identifiant: string; type: string }[]
       }
+      report_capture_permise: { Args: { _name: string }; Returns: boolean }
+      report_captures_a_effacer: { Args: never; Returns: string[] }
       report_improvements: {
         Args: { _limit?: number }
         Returns: {

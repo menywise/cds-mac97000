@@ -51,6 +51,7 @@ import { Route as AnnuaireIndexRouteImport } from './routes/annuaire.index'
 import { Route as AnnuaireSlugRouteImport } from './routes/annuaire.$slug'
 import { Route as AnnuaireDepartementsRouteImport } from './routes/annuaire.departements'
 import { Route as AnnuaireSoumettreRouteImport } from './routes/annuaire.soumettre'
+import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api.stripe-webhook'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -74,6 +75,7 @@ import { Route as PagesSlugRouteImport } from './routes/pages.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAbonnesRouteImport } from './routes/_authenticated/admin.abonnes'
+import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
 import { Route as AuthenticatedAdminAnnuaireRouteImport } from './routes/_authenticated/admin.annuaire'
 import { Route as AuthenticatedAdminBoutiqueRouteImport } from './routes/_authenticated/admin.boutique'
 import { Route as AuthenticatedAdminConformiteRouteImport } from './routes/_authenticated/admin.conformite'
@@ -94,9 +96,8 @@ import { Route as AuthenticatedAdminPilotageRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminRecettageRouteImport } from './routes/_authenticated/admin.recettage'
 import { Route as AuthenticatedAdminRegieRouteImport } from './routes/_authenticated/admin.regie'
 import { Route as AuthenticatedAdminRegistreRouteImport } from './routes/_authenticated/admin.registre'
-import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
-import { Route as AuthenticatedAdminTablesRouteImport } from './routes/_authenticated/admin.tables'
 import { Route as AuthenticatedAdminSignalementsRouteImport } from './routes/_authenticated/admin.signalements'
+import { Route as AuthenticatedAdminTablesRouteImport } from './routes/_authenticated/admin.tables'
 import { Route as AuthenticatedAdminTemoignagesRouteImport } from './routes/_authenticated/admin.temoignages'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
 import { Route as AuthenticatedCrmIndexRouteImport } from './routes/_authenticated/crm.index'
@@ -108,7 +109,6 @@ import { Route as AnnuaireCategorieSlugRouteImport } from './routes/annuaire.cat
 import { Route as AnnuaireCommuneCodeRouteImport } from './routes/annuaire.commune.$code'
 import { Route as AnnuaireDepartementSlugRouteImport } from './routes/annuaire.departement.$slug'
 import { Route as ApiCronPurgeContactRouteImport } from './routes/api.cron.purge-contact'
-import { Route as ApiAgentRouteImport } from './routes/api.agent'
 import { Route as BlogEtiquetteSlugRouteImport } from './routes/blog.etiquette.$slug'
 import { Route as BlogRubriqueSlugRouteImport } from './routes/blog.rubrique.$slug'
 import { Route as BlogSerieSlugRouteImport } from './routes/blog.serie.$slug'
@@ -333,6 +333,11 @@ const AnnuaireSoumettreRoute = AnnuaireSoumettreRouteImport.update({
   path: '/annuaire/soumettre',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentRoute = ApiAgentRouteImport.update({
+  id: '/api/agent',
+  path: '/api/agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe-webhook',
   path: '/api/stripe-webhook',
@@ -447,6 +452,12 @@ const AuthenticatedAdminAbonnesRoute =
   AuthenticatedAdminAbonnesRouteImport.update({
     id: '/admin/abonnes',
     path: '/admin/abonnes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminAgentsRoute =
+  AuthenticatedAdminAgentsRouteImport.update({
+    id: '/admin/agents',
+    path: '/admin/agents',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminAnnuaireRoute =
@@ -565,22 +576,16 @@ const AuthenticatedAdminRegistreRoute =
     path: '/admin/registre',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminAgentsRoute =
-  AuthenticatedAdminAgentsRouteImport.update({
-    id: '/admin/agents',
-    path: '/admin/agents',
+const AuthenticatedAdminSignalementsRoute =
+  AuthenticatedAdminSignalementsRouteImport.update({
+    id: '/admin/signalements',
+    path: '/admin/signalements',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminTablesRoute =
   AuthenticatedAdminTablesRouteImport.update({
     id: '/admin/tables',
     path: '/admin/tables',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAdminSignalementsRoute =
-  AuthenticatedAdminSignalementsRouteImport.update({
-    id: '/admin/signalements',
-    path: '/admin/signalements',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminTemoignagesRoute =
@@ -641,11 +646,6 @@ const AnnuaireDepartementSlugRoute = AnnuaireDepartementSlugRouteImport.update({
 const ApiCronPurgeContactRoute = ApiCronPurgeContactRouteImport.update({
   id: '/api/cron/purge-contact',
   path: '/api/cron/purge-contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAgentRoute = ApiAgentRouteImport.update({
-  id: '/api/agent',
-  path: '/api/agent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogEtiquetteSlugRoute = BlogEtiquetteSlugRouteImport.update({
@@ -743,6 +743,7 @@ export interface FileRoutesByFullPath {
   '/annuaire/$slug': typeof AnnuaireSlugRoute
   '/annuaire/departements': typeof AnnuaireDepartementsRoute
   '/annuaire/soumettre': typeof AnnuaireSoumettreRoute
+  '/api/agent': typeof ApiAgentRoute
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/$slug': typeof BoutiqueSlugRoute
@@ -766,6 +767,7 @@ export interface FileRoutesByFullPath {
   '/membres/': typeof MembresIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/abonnes': typeof AuthenticatedAdminAbonnesRoute
+  '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/annuaire': typeof AuthenticatedAdminAnnuaireRoute
   '/admin/boutique': typeof AuthenticatedAdminBoutiqueRoute
   '/admin/conformite': typeof AuthenticatedAdminConformiteRoute
@@ -786,9 +788,8 @@ export interface FileRoutesByFullPath {
   '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/admin/registre': typeof AuthenticatedAdminRegistreRoute
-  '/admin/agents': typeof AuthenticatedAdminAgentsRoute
-  '/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
+  '/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/crm/actions': typeof AuthenticatedCrmActionsRoute
@@ -798,7 +799,6 @@ export interface FileRoutesByFullPath {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
-  '/api/agent': typeof ApiAgentRoute
   '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
   '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
   '/blog/serie/$slug': typeof BlogSerieSlugRoute
@@ -854,6 +854,7 @@ export interface FileRoutesByTo {
   '/annuaire/$slug': typeof AnnuaireSlugRoute
   '/annuaire/departements': typeof AnnuaireDepartementsRoute
   '/annuaire/soumettre': typeof AnnuaireSoumettreRoute
+  '/api/agent': typeof ApiAgentRoute
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/$slug': typeof BoutiqueSlugRoute
@@ -877,6 +878,7 @@ export interface FileRoutesByTo {
   '/membres': typeof MembresIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/abonnes': typeof AuthenticatedAdminAbonnesRoute
+  '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/annuaire': typeof AuthenticatedAdminAnnuaireRoute
   '/admin/boutique': typeof AuthenticatedAdminBoutiqueRoute
   '/admin/conformite': typeof AuthenticatedAdminConformiteRoute
@@ -897,9 +899,8 @@ export interface FileRoutesByTo {
   '/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/admin/registre': typeof AuthenticatedAdminRegistreRoute
-  '/admin/agents': typeof AuthenticatedAdminAgentsRoute
-  '/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
+  '/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/crm/actions': typeof AuthenticatedCrmActionsRoute
@@ -909,7 +910,6 @@ export interface FileRoutesByTo {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
-  '/api/agent': typeof ApiAgentRoute
   '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
   '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
   '/blog/serie/$slug': typeof BlogSerieSlugRoute
@@ -967,6 +967,7 @@ export interface FileRoutesById {
   '/annuaire/$slug': typeof AnnuaireSlugRoute
   '/annuaire/departements': typeof AnnuaireDepartementsRoute
   '/annuaire/soumettre': typeof AnnuaireSoumettreRoute
+  '/api/agent': typeof ApiAgentRoute
   '/api/stripe-webhook': typeof ApiStripeWebhookRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/boutique/$slug': typeof BoutiqueSlugRoute
@@ -990,6 +991,7 @@ export interface FileRoutesById {
   '/membres/': typeof MembresIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/abonnes': typeof AuthenticatedAdminAbonnesRoute
+  '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/_authenticated/admin/annuaire': typeof AuthenticatedAdminAnnuaireRoute
   '/_authenticated/admin/boutique': typeof AuthenticatedAdminBoutiqueRoute
   '/_authenticated/admin/conformite': typeof AuthenticatedAdminConformiteRoute
@@ -1010,9 +1012,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/recettage': typeof AuthenticatedAdminRecettageRoute
   '/_authenticated/admin/regie': typeof AuthenticatedAdminRegieRoute
   '/_authenticated/admin/registre': typeof AuthenticatedAdminRegistreRoute
-  '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
-  '/_authenticated/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/_authenticated/admin/signalements': typeof AuthenticatedAdminSignalementsRoute
+  '/_authenticated/admin/tables': typeof AuthenticatedAdminTablesRoute
   '/_authenticated/admin/temoignages': typeof AuthenticatedAdminTemoignagesRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/crm/actions': typeof AuthenticatedCrmActionsRoute
@@ -1022,7 +1023,6 @@ export interface FileRoutesById {
   '/annuaire/commune/$code': typeof AnnuaireCommuneCodeRoute
   '/annuaire/departement/$slug': typeof AnnuaireDepartementSlugRoute
   '/api/cron/purge-contact': typeof ApiCronPurgeContactRoute
-  '/api/agent': typeof ApiAgentRoute
   '/blog/etiquette/$slug': typeof BlogEtiquetteSlugRoute
   '/blog/rubrique/$slug': typeof BlogRubriqueSlugRoute
   '/blog/serie/$slug': typeof BlogSerieSlugRoute
@@ -1080,6 +1080,7 @@ export interface FileRouteTypes {
     | '/annuaire/$slug'
     | '/annuaire/departements'
     | '/annuaire/soumettre'
+    | '/api/agent'
     | '/api/stripe-webhook'
     | '/blog/$slug'
     | '/boutique/$slug'
@@ -1103,6 +1104,7 @@ export interface FileRouteTypes {
     | '/membres/'
     | '/.lovable/oauth/consent'
     | '/admin/abonnes'
+    | '/admin/agents'
     | '/admin/annuaire'
     | '/admin/boutique'
     | '/admin/conformite'
@@ -1123,9 +1125,8 @@ export interface FileRouteTypes {
     | '/admin/recettage'
     | '/admin/regie'
     | '/admin/registre'
-    | '/admin/agents'
-    | '/admin/tables'
     | '/admin/signalements'
+    | '/admin/tables'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
     | '/crm/actions'
@@ -1135,7 +1136,6 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
-    | '/api/agent'
     | '/blog/etiquette/$slug'
     | '/blog/rubrique/$slug'
     | '/blog/serie/$slug'
@@ -1191,6 +1191,7 @@ export interface FileRouteTypes {
     | '/annuaire/$slug'
     | '/annuaire/departements'
     | '/annuaire/soumettre'
+    | '/api/agent'
     | '/api/stripe-webhook'
     | '/blog/$slug'
     | '/boutique/$slug'
@@ -1214,6 +1215,7 @@ export interface FileRouteTypes {
     | '/membres'
     | '/.lovable/oauth/consent'
     | '/admin/abonnes'
+    | '/admin/agents'
     | '/admin/annuaire'
     | '/admin/boutique'
     | '/admin/conformite'
@@ -1234,9 +1236,8 @@ export interface FileRouteTypes {
     | '/admin/recettage'
     | '/admin/regie'
     | '/admin/registre'
-    | '/admin/agents'
-    | '/admin/tables'
     | '/admin/signalements'
+    | '/admin/tables'
     | '/admin/temoignages'
     | '/admin/utilisateurs'
     | '/crm/actions'
@@ -1246,7 +1247,6 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
-    | '/api/agent'
     | '/blog/etiquette/$slug'
     | '/blog/rubrique/$slug'
     | '/blog/serie/$slug'
@@ -1303,6 +1303,7 @@ export interface FileRouteTypes {
     | '/annuaire/$slug'
     | '/annuaire/departements'
     | '/annuaire/soumettre'
+    | '/api/agent'
     | '/api/stripe-webhook'
     | '/blog/$slug'
     | '/boutique/$slug'
@@ -1326,6 +1327,7 @@ export interface FileRouteTypes {
     | '/membres/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/abonnes'
+    | '/_authenticated/admin/agents'
     | '/_authenticated/admin/annuaire'
     | '/_authenticated/admin/boutique'
     | '/_authenticated/admin/conformite'
@@ -1346,9 +1348,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/recettage'
     | '/_authenticated/admin/regie'
     | '/_authenticated/admin/registre'
-    | '/_authenticated/admin/agents'
-    | '/_authenticated/admin/tables'
     | '/_authenticated/admin/signalements'
+    | '/_authenticated/admin/tables'
     | '/_authenticated/admin/temoignages'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/crm/actions'
@@ -1358,7 +1359,6 @@ export interface FileRouteTypes {
     | '/annuaire/commune/$code'
     | '/annuaire/departement/$slug'
     | '/api/cron/purge-contact'
-    | '/api/agent'
     | '/blog/etiquette/$slug'
     | '/blog/rubrique/$slug'
     | '/blog/serie/$slug'
@@ -1407,6 +1407,7 @@ export interface RootRouteChildren {
   AnnuaireSlugRoute: typeof AnnuaireSlugRoute
   AnnuaireDepartementsRoute: typeof AnnuaireDepartementsRoute
   AnnuaireSoumettreRoute: typeof AnnuaireSoumettreRoute
+  ApiAgentRoute: typeof ApiAgentRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BoutiqueSlugRoute: typeof BoutiqueSlugRoute
@@ -1433,7 +1434,6 @@ export interface RootRouteChildren {
   AnnuaireCommuneCodeRoute: typeof AnnuaireCommuneCodeRoute
   AnnuaireDepartementSlugRoute: typeof AnnuaireDepartementSlugRoute
   ApiCronPurgeContactRoute: typeof ApiCronPurgeContactRoute
-  ApiAgentRoute: typeof ApiAgentRoute
   BlogEtiquetteSlugRoute: typeof BlogEtiquetteSlugRoute
   BlogRubriqueSlugRoute: typeof BlogRubriqueSlugRoute
   BlogSerieSlugRoute: typeof BlogSerieSlugRoute
@@ -1741,6 +1741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnuaireSoumettreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent': {
+      id: '/api/agent'
+      path: '/api/agent'
+      fullPath: '/api/agent'
+      preLoaderRoute: typeof ApiAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/stripe-webhook': {
       id: '/api/stripe-webhook'
       path: '/api/stripe-webhook'
@@ -1902,6 +1909,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAbonnesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/agents': {
+      id: '/_authenticated/admin/agents'
+      path: '/admin/agents'
+      fullPath: '/admin/agents'
+      preLoaderRoute: typeof AuthenticatedAdminAgentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/annuaire': {
       id: '/_authenticated/admin/annuaire'
       path: '/admin/annuaire'
@@ -2042,11 +2056,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRegistreRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/agents': {
-      id: '/_authenticated/admin/agents'
-      path: '/admin/agents'
-      fullPath: '/admin/agents'
-      preLoaderRoute: typeof AuthenticatedAdminAgentsRouteImport
+    '/_authenticated/admin/signalements': {
+      id: '/_authenticated/admin/signalements'
+      path: '/admin/signalements'
+      fullPath: '/admin/signalements'
+      preLoaderRoute: typeof AuthenticatedAdminSignalementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/tables': {
@@ -2054,13 +2068,6 @@ declare module '@tanstack/react-router' {
       path: '/admin/tables'
       fullPath: '/admin/tables'
       preLoaderRoute: typeof AuthenticatedAdminTablesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin/signalements': {
-      id: '/_authenticated/admin/signalements'
-      path: '/admin/signalements'
-      fullPath: '/admin/signalements'
-      preLoaderRoute: typeof AuthenticatedAdminSignalementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/temoignages': {
@@ -2138,13 +2145,6 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/purge-contact'
       fullPath: '/api/cron/purge-contact'
       preLoaderRoute: typeof ApiCronPurgeContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/agent': {
-      id: '/api/agent'
-      path: '/api/agent'
-      fullPath: '/api/agent'
-      preLoaderRoute: typeof ApiAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/etiquette/$slug': {
@@ -2231,6 +2231,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
   AuthenticatedAdminAbonnesRoute: typeof AuthenticatedAdminAbonnesRoute
+  AuthenticatedAdminAgentsRoute: typeof AuthenticatedAdminAgentsRoute
   AuthenticatedAdminAnnuaireRoute: typeof AuthenticatedAdminAnnuaireRoute
   AuthenticatedAdminBoutiqueRoute: typeof AuthenticatedAdminBoutiqueRoute
   AuthenticatedAdminConformiteRoute: typeof AuthenticatedAdminConformiteRoute
@@ -2251,9 +2252,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRecettageRoute: typeof AuthenticatedAdminRecettageRoute
   AuthenticatedAdminRegieRoute: typeof AuthenticatedAdminRegieRoute
   AuthenticatedAdminRegistreRoute: typeof AuthenticatedAdminRegistreRoute
-  AuthenticatedAdminAgentsRoute: typeof AuthenticatedAdminAgentsRoute
-  AuthenticatedAdminTablesRoute: typeof AuthenticatedAdminTablesRoute
   AuthenticatedAdminSignalementsRoute: typeof AuthenticatedAdminSignalementsRoute
+  AuthenticatedAdminTablesRoute: typeof AuthenticatedAdminTablesRoute
   AuthenticatedAdminTemoignagesRoute: typeof AuthenticatedAdminTemoignagesRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedCrmActionsRoute: typeof AuthenticatedCrmActionsRoute
@@ -2276,6 +2276,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
   AuthenticatedAdminAbonnesRoute: AuthenticatedAdminAbonnesRoute,
+  AuthenticatedAdminAgentsRoute: AuthenticatedAdminAgentsRoute,
   AuthenticatedAdminAnnuaireRoute: AuthenticatedAdminAnnuaireRoute,
   AuthenticatedAdminBoutiqueRoute: AuthenticatedAdminBoutiqueRoute,
   AuthenticatedAdminConformiteRoute: AuthenticatedAdminConformiteRoute,
@@ -2296,9 +2297,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRecettageRoute: AuthenticatedAdminRecettageRoute,
   AuthenticatedAdminRegieRoute: AuthenticatedAdminRegieRoute,
   AuthenticatedAdminRegistreRoute: AuthenticatedAdminRegistreRoute,
-  AuthenticatedAdminAgentsRoute: AuthenticatedAdminAgentsRoute,
-  AuthenticatedAdminTablesRoute: AuthenticatedAdminTablesRoute,
   AuthenticatedAdminSignalementsRoute: AuthenticatedAdminSignalementsRoute,
+  AuthenticatedAdminTablesRoute: AuthenticatedAdminTablesRoute,
   AuthenticatedAdminTemoignagesRoute: AuthenticatedAdminTemoignagesRoute,
   AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
   AuthenticatedCrmActionsRoute: AuthenticatedCrmActionsRoute,
@@ -2349,6 +2349,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnuaireSlugRoute: AnnuaireSlugRoute,
   AnnuaireDepartementsRoute: AnnuaireDepartementsRoute,
   AnnuaireSoumettreRoute: AnnuaireSoumettreRoute,
+  ApiAgentRoute: ApiAgentRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
   BlogSlugRoute: BlogSlugRoute,
   BoutiqueSlugRoute: BoutiqueSlugRoute,
@@ -2375,7 +2376,6 @@ const rootRouteChildren: RootRouteChildren = {
   AnnuaireCommuneCodeRoute: AnnuaireCommuneCodeRoute,
   AnnuaireDepartementSlugRoute: AnnuaireDepartementSlugRoute,
   ApiCronPurgeContactRoute: ApiCronPurgeContactRoute,
-  ApiAgentRoute: ApiAgentRoute,
   BlogEtiquetteSlugRoute: BlogEtiquetteSlugRoute,
   BlogRubriqueSlugRoute: BlogRubriqueSlugRoute,
   BlogSerieSlugRoute: BlogSerieSlugRoute,

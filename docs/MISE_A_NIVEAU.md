@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.18.0**, migration
-  `20261120120000_v1_18_0_tables`.
+  migrations de la plateforme. Version courante : **1.19.0**, migration
+  `20261121120000_v1_19_0_captures_signalements`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -92,6 +92,15 @@ installation.
   et écrit chaque table par l'interface de données, sous ses politiques de sécurité par ligne. Grille,
   fiche, ajout, modification, suppression, export CSV, import CSV en masse. Les tables d'une greffe
   apparaissent d'elles-mêmes ; ce que leurs politiques refusent reste refusé.
+  La 1.19.0 (brique) : la base d'abord ; sans elle, le motif « La page s'affiche mal » est refusé
+  et la capture ne part pas (le signalement, lui, arrive). La personne qui signale joint une capture
+  d'écran facultative dans les 15 minutes ; le navigateur la réécrit (métadonnées retirées, 2 Mo au
+  plus) ; le dossier `signalements-captures` est privé, lu des seuls administrateurs par un lien
+  signé. Effacement par l'interface des fichiers, jamais par SQL : à l'ouverture d'Admin →
+  Signalements, et par `/api/cron/purge-contact`. Code seul : la version du socle s'affiche dans le
+  pied de page (`src/config/socle.ts`) ; les pages de connexion, de maintenance et d'erreur ont un
+  pied de page réduit (`PiedDePageReduit`). Une greffe qui affiche sa propre page plein écran peut
+  le reprendre.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de

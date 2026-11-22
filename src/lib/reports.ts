@@ -20,6 +20,7 @@ export const REPORT_REASONS = [
   { value: "information_erronee", label: "Une information est erronée" },
   { value: "oubli", label: "Une information manque" },
   { value: "correction", label: "Je propose une correction" },
+  { value: "affichage", label: "La page s'affiche mal" },
   { value: "spam", label: "Spam ou publicité non sollicitée" },
   { value: "contenu_inapproprie", label: "Contenu inapproprié" },
   { value: "harcelement", label: "Harcèlement ou propos injurieux" },
@@ -31,7 +32,12 @@ export const REPORT_REASONS = [
 ] as const;
 
 /** Motifs d'amélioration, en tête de la fenêtre : ceux que la page des améliorations met en avant. */
-export const REPORT_IMPROVEMENT_REASONS = ["information_erronee", "oubli", "correction"] as const;
+export const REPORT_IMPROVEMENT_REASONS = [
+  "information_erronee",
+  "oubli",
+  "correction",
+  "affichage",
+] as const;
 
 export const REPORT_STATUSES = [
   { value: "en_attente", label: "À examiner" },
