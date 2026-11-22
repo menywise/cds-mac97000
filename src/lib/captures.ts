@@ -1,7 +1,8 @@
 /**
  * Capture d'écran jointe à un signalement (socle 1.19.0) : règles pures, partagées par la fenêtre
  * de signalement, l'écran Admin → Signalements et les tests. Mêmes bornes que la base (dossier
- * privé `signalements-captures`, `report_capture_permise`).
+ * privé `signalements-captures`, `report_capture_permise`). Copie exacte dans les installations
+ * (depuis le 22/11/2026), avec `captures-navigateur.ts`.
  *
  * Fichier sans dépendance ni alias « @/ » : lu aussi par Node (tests unitaires).
  */
@@ -21,14 +22,18 @@ export const CAPTURE_DELAI_MINUTES = 15;
 /** Durée de validité du lien signé ouvert par un administrateur, en secondes. */
 export const CAPTURE_LIEN_SECONDES = 300;
 
-const CODE = /^[0-9A-F]{10}$/;
+/**
+ * Clé d'un signalement : son code de suivi (socle, 10 caractères hexadécimaux en majuscules) ou
+ * son identifiant (installation dont les signalements portent un UUID choisi par le navigateur).
+ */
+const CODE = /^(?:[0-9A-F]{10}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
 
-/** Nom du fichier de la capture d'un signalement, ou null si le code de suivi est mal formé. */
+/** Nom du fichier de la capture d'un signalement, ou null si sa clé est mal formée. */
 export function cheminCapture(code: string): string | null {
   return CODE.test(code) ? `${code}/capture` : null;
 }
 
-/** Code de suivi lu dans le nom d'un fichier du dossier, ou null. */
+/** Clé du signalement lue dans le nom d'un fichier du dossier, ou null. */
 export function codeDeCapture(nom: string): string | null {
   const [code = "", fichier, ...reste] = nom.split("/");
   return CODE.test(code) && fichier === "capture" && reste.length === 0 ? code : null;
