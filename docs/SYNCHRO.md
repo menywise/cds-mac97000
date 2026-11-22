@@ -140,7 +140,9 @@ Plan détaillé : `docs/plans/CONTENUS_EDITORIAUX.md`. Décision du 03/11/2026 :
 
 ## Journal
 
-| Date       | Passe                                       | Fait                                                                                                                                                                                                                                                                                                                                                    |
+| Date | Passe | Fait |
+
+| 22/11/2026 | Socle 1.20.0                                | Radar des installations (`docs/RADAR.md`). Premier passage : C1 a son code en 1.19.0 mais aucune version du socle enregistrée en base (ses fonctions portées ont leurs propres noms, les témoins du socle n'y valent pas). Action proposée à C1 : enregistrer la version en base. Copies exactes à jour.                                                |
 | ---------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 21/11/2026 | Socle 1.17.0                                | Co-intervenant IA, né de C1 : clé avec fiche, niveau, journal des écritures, ligne du registre qui suit la fiche, entrée `/api/agent` dont les actions viennent de la greffe, écran Admin. Écart S→C1 : `agents.ts` à copier, tables à rapprocher (niveau `recette`, `cle_id`), adresse des agents de C1 à rebrancher sur `actionsAgent`                |
 | 03/11/2026 | Création                                    | Mesure des deux dépôts, première version du registre, décision « modèle `contenus_publics` »                                                                                                                                                                                                                                                            |

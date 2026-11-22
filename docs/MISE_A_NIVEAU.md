@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.19.0**, migration
-  `20261121120000_v1_19_0_captures_signalements`.
+  migrations de la plateforme. Version courante : **1.20.0**, migration
+  `20261122120000_v1_20_0_radar_installations`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -101,6 +101,10 @@ installation.
   pied de page (`src/config/socle.ts`) ; les pages de connexion, de maintenance et d'erreur ont un
   pied de page réduit (`PiedDePageReduit`). Une greffe qui affiche sa propre page plein écran peut
   le reprendre.
+  La 1.20.0 (brique) : ordre indifférent ; la base ne reçoit qu'une ligne au registre et la
+  version. Code seul : `scripts/radar-socle.mjs`, le radar des installations (`docs/RADAR.md`). Il
+  dit où chaque installation en est par rapport au socle, dans les deux sens, en lecture seule. Une
+  installation le reçoit sans rien à faire ; elle peut s'en servir pour se mesurer elle-même.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de

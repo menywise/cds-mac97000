@@ -105,3 +105,17 @@ déposée après l'envoi sous `<code de suivi>/capture` dans le dossier privé `
   `tests/db/test_49_captures_signalements.sql`.
 - Version du socle : `src/config/socle.ts`, affichée dans le pied de page, montée à chaque version
   (`tests/unit/socle-version.test.ts`). Pages plein écran sans en-tête : `PiedDePageReduit`.
+
+## Radar des installations (socle 1.20.0)
+
+`scripts/radar-socle.mjs` dit où chaque installation en est par rapport au socle : code, base,
+ajouts hors greffe, copies exactes, remontées ouvertes. Méthode, empreinte et passage hebdomadaire :
+`docs/RADAR.md`.
+
+- Lecture seule : le radar constate et propose une action par écart, il ne corrige ni ne porte rien.
+  Un ajout d'installation est une question posée au propriétaire, jamais un portage.
+- Aucune installation nommée dans le socle : le recensement se refait à chaque passage, les
+  observations et le rapport vivent hors du dépôt.
+- Une version du socle qui crée une table ou une fonction lui donne un témoin pour le radar ; une
+  version sans objet nouveau ne se mesure que par la version enregistrée en base.
+- Garde-fous : `tests/unit/radar-socle.test.ts`.
