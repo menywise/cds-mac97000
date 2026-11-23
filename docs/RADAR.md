@@ -62,10 +62,14 @@ est signalée, car son retard ne se verrait pas.
 
 ## Passage hebdomadaire
 
-Une tâche planifiée ouvre chaque semaine une session neuve, avec le dépôt du socle et l'accès aux
-projets de la plateforme. Pas d'action GitHub : les bases ne se lisent que par une session qui a cet
-accès. Étapes :
+Une tâche planifiée ouvre chaque semaine une session neuve, avec l'accès aux projets de la
+plateforme. Pas d'action GitHub : les bases ne se lisent que par une session qui a cet accès. La
+session neuve démarre **sans** le dépôt du socle : elle le clone d'abord, historique complet (le
+radar retrouve l'arbre du socle à chaque version). Jamais de reconstruction du dépôt fichier par
+fichier depuis la plateforme : un passage qui l'a tenté a coûté plus de trois fois un passage normal.
+Étapes :
 
+0. Cloner le dépôt du socle (dépôt public), et lancer toutes les commandes du radar dans ce clone.
 1. Lister les projets de chaque espace de travail (date de création, date de dernière modification).
 2. Recenser par l'empreinte ci-dessus : marqueurs lus fichier par fichier (une lecture refusée
    « introuvable » coûte peu).
@@ -108,17 +112,19 @@ Le socle s'y inscrit lui-même (lien « socle ») : sa base est mesurée comme l
 
 ## Coût d'un passage
 
-Mesuré au premier passage (22/11/2026, 28 projets, 4 installations) :
+Premier passage planifié (22/11/2026, 28 projets dans 9 espaces, 4 installations, aucun Remix
+modifié dans la semaine) : 3 minutes, environ 1,40 $.
 
 | Étape                                   | Coût approché               |
 | --------------------------------------- | --------------------------- |
+| Clone du socle                          | négligeable                 |
 | Liste des projets et marqueurs          | 30 000 jetons               |
 | Sondes des bases (une requête par base) | 3 000 jetons par base       |
 | Chemins d'un Remix (500 à 700 fichiers) | 100 000 jetons, par agent   |
 | Rapport                                 | quelques milliers de jetons |
 
-Un passage sans Remix modifié coûte environ 50 000 jetons. Chaque Remix modifié dans la semaine en
-ajoute environ 100 000. Les chemins ne se relisent donc que pour un Remix modifié.
+Chaque Remix modifié dans la semaine ajoute environ 100 000 jetons : les chemins ne se relisent que
+pour lui.
 
 ## Limites connues
 
