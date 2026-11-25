@@ -125,7 +125,7 @@ RESET ROLE;
 
 -- 6. Version ---------------------------------------------------------------------------------------
 DO $$ BEGIN
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.20.0' THEN RAISE EXCEPTION 'réglage socle'; END IF;
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.21.0' THEN RAISE EXCEPTION 'réglage socle'; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.template_checks WHERE code = 'V1-SIGNALEMENTS-CAPTURES') THEN RAISE EXCEPTION 'grille de conformité'; END IF;
 END $$;
 ROLLBACK;

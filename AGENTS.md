@@ -77,6 +77,10 @@ sa fiche obligatoire (usage, utilisateur, dernier jour), un niveau (`lecture`, `
   Une action écrit par `journaliser`, jamais à côté.
 - Règles pures dans `src/lib/agents.ts` (copie exacte dans les installations) ; garde-fous :
   `tests/unit/agents.test.ts`, `tests/db/test_47_agents.sql`.
+- Clé d'usage (socle 1.21.0) : niveau `usage` et nom de l'usage (`usage_code`), hors de l'échelle.
+  Une action déclarée par `usage` ne répond qu'aux clés de cet usage ; la clé d'usage ne fait que ses
+  actions et `aide` (`cleAutorisee`). Le serveur identifie la clé par `agent_identifier()` ;
+  `agent_authentifier()` refuse une clé d'usage. Garde-fou : `tests/db/test_50_cles_usage.sql`.
 
 ## Tables (socle 1.18.0)
 

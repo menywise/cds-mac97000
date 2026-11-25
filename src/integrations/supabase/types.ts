@@ -231,6 +231,7 @@ export type Database = {
           nom: string
           updated_at: string
           usage: string | null
+          usage_code: string | null
           utilisateur: string | null
         }
         Insert: {
@@ -244,6 +245,7 @@ export type Database = {
           nom: string
           updated_at?: string
           usage?: string | null
+          usage_code?: string | null
           utilisateur?: string | null
         }
         Update: {
@@ -257,6 +259,7 @@ export type Database = {
           nom?: string
           updated_at?: string
           usage?: string | null
+          usage_code?: string | null
           utilisateur?: string | null
         }
         Relationships: []
@@ -2955,6 +2958,10 @@ export type Database = {
       agent_authentifier: {
         Args: { _cle_hash: string }
         Returns: { id: string; niveau: string; nom: string }[]
+      }
+      agent_identifier: {
+        Args: { _cle_hash: string }
+        Returns: { id: string; niveau: string; nom: string; usage_code: string | null }[]
       }
       agent_journaliser: {
         Args: {

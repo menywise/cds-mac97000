@@ -17,16 +17,21 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { requireFeature } from "@/config/features";
+import { GREFFE } from "@/greffe";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LIBELLES_NIVEAU,
   NIVEAUX_AGENT,
+  NIVEAU_USAGE,
   cleUtilisable,
+  estNiveauEchelle,
   genererCle,
   hacherCle,
+  libelleCle,
   trierCles,
+  usagesDeclares,
   type CleAgent,
-  type NiveauAgent,
+  type NiveauCle,
 } from "@/lib/agents";
 import { seo } from "@/lib/seo";
 
@@ -52,7 +57,9 @@ type Cle = CleAgent & { id: string };
 type Brouillon = {
   id: string | null;
   nom: string;
-  niveau: NiveauAgent;
+  niveau: NiveauCle;
+  /** Nom de l'usage d'une clé d'usage (socle 1.21.0), choisi parmi ceux que l'installation déclare. */
+  usage_code: string;
   usage: string;
   utilisateur: string;
   expire_le: string;
@@ -82,11 +89,14 @@ const vide = (): Brouillon => ({
   id: null,
   nom: "",
   niveau: "completer",
+  usage_code: "",
   usage: "",
   utilisateur: "",
   expire_le: dansUnMois(),
 });
-const estNiveau = (v: string): v is NiveauAgent => (NIVEAUX_AGENT as readonly string[]).includes(v);
+/** Usages que l'installation déclare dans sa prise de greffe : seuls choix d'une clé d'usage. */
+const USAGES = usagesDeclares(GREFFE.actionsAgent ?? {});
+const estNiveau = (v: string): v is NiveauCle => estNiveauEchelle(v) || v === NIVEAU_USAGE;
 const dateFr = (iso: string | null) =>
   iso ? new Date(iso.length === 10 ? `${iso}T12:00:00` : iso).toLocaleDateString("fr-FR") : "—";
 const heureFr = (iso: string) =>
@@ -143,6 +153,7 @@ function AdminAgentsPage() {
     const fiche = {
       nom: brouillon.nom.trim(),
       niveau: brouillon.niveau,
+      usage_code: brouillon.niveau === NIVEAU_USAGE ? brouillon.usage_code || null : null,
       usage: brouillon.usage.trim(),
       utilisateur: brouillon.utilisateur.trim(),
       expire_le: brouillon.expire_le || null,
@@ -164,7 +175,7 @@ function AdminAgentsPage() {
       toast.error(
         erreur.code === "23505"
           ? "Une clé porte déjà ce nom."
-          : "Fiche refusée : nom, usage, utilisateur et dernier jour sont obligatoires.",
+          : "Fiche refusée : nom, usage, utilisateur et dernier jour sont obligatoires ; une clé d'usage a son usage.",
       );
       return;
     }
@@ -247,7 +258,7 @@ function AdminAgentsPage() {
                     <p className="text-sm font-semibold text-foreground">
                       {c.nom}
                       <Badge className="ml-2 border-border bg-card text-foreground">
-                        {LIBELLES_NIVEAU[c.niveau]}
+                        {libelleCle(c)}
                       </Badge>
                       <Badge
                         className={
@@ -279,6 +290,7 @@ function AdminAgentsPage() {
                           id: c.id,
                           nom: c.nom,
                           niveau: c.niveau,
+                          usage_code: c.usage_code ?? "",
                           usage: c.usage ?? "",
                           utilisateur: c.utilisateur ?? "",
                           expire_le: c.expire_le ?? "",
@@ -386,8 +398,29 @@ function AdminAgentsPage() {
                         {LIBELLES_NIVEAU[n]}
                       </option>
                     ))}
+                    {USAGES.length > 0 || brouillon.niveau === NIVEAU_USAGE ? (
+                      <option value={NIVEAU_USAGE}>{LIBELLES_NIVEAU.usage}</option>
+                    ) : null}
                   </select>
                 </div>
+                {brouillon.niveau === NIVEAU_USAGE ? (
+                  <div>
+                    <Label htmlFor="agent-usage-code">Usage servi</Label>
+                    <select
+                      id="agent-usage-code"
+                      value={brouillon.usage_code}
+                      onChange={(e) => setBrouillon({ ...brouillon, usage_code: e.target.value })}
+                      className={CHAMP_CHOIX}
+                    >
+                      <option value="">Choisir un usage</option>
+                      {[...new Set([...USAGES, brouillon.usage_code].filter(Boolean))].map((u) => (
+                        <option key={u} value={u}>
+                          {u}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
               </div>
               <div>
                 <Label htmlFor="agent-usage">À quoi elle sert</Label>

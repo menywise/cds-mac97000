@@ -1,17 +1,22 @@
 /**
- * Co-intervenants IA (socle 1.17.0, src/lib/agents.ts) : règles pures d'une clé.
+ * Co-intervenants IA (socle 1.17.0, src/lib/agents.ts) : règles pures d'une clé. Clé d'usage :
+ * socle 1.21.0.
  * Lancer : node --test tests/unit/*.test.ts
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  MOTIF_USAGE,
   NIVEAUX_AGENT,
+  cleAutorisee,
   cleUtilisable,
   genererCle,
   hacherCle,
   jourParis,
+  libelleCle,
   niveauSuffit,
   trierCles,
+  usagesDeclares,
 } from "../../src/lib/agents.ts";
 
 test("une clé sert si elle est active et si son dernier jour n'est pas passé (heure de Paris)", () => {
@@ -77,4 +82,37 @@ test("une clé neuve fait 43 caractères sûrs pour une adresse, son empreinte 6
   const empreinte = await hacherCle("abc");
   assert.equal(empreinte, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
   assert.notEqual(await hacherCle(genererCle()), await hacherCle(genererCle()));
+});
+
+test("une clé d'usage ne fait que les actions de son usage, aucune clé de l'échelle ne les fait", () => {
+  const recette = { niveau: "usage", usage_code: "recette" };
+  assert.equal(cleAutorisee(recette, { usage: "recette" }), true);
+  assert.equal(cleAutorisee(recette, { usage: "export" }), false);
+  // Contre-épreuve : même « lecture » lui est fermée, et « corriger » ne fait pas un usage.
+  assert.equal(cleAutorisee(recette, { niveau: "lecture" }), false);
+  assert.equal(cleAutorisee({ niveau: "corriger", usage_code: null }, { usage: "recette" }), false);
+  assert.equal(cleAutorisee({ niveau: "corriger" }, { niveau: "completer" }), true);
+  // Une clé d'usage sans nom d'usage, ou un niveau inconnu, ne fait rien.
+  assert.equal(cleAutorisee({ niveau: "usage", usage_code: null }, { usage: "recette" }), false);
+  assert.equal(cleAutorisee({ niveau: "admin" }, { niveau: "lecture" }), false);
+  assert.equal(niveauSuffit("admin" as never, "lecture"), false);
+});
+
+test("les usages se lisent dans les actions déclarées ; leur nom suit la contrainte de la base", () => {
+  assert.deepEqual(
+    usagesDeclares({
+      b: { usage: "recette" },
+      a: { niveau: "lecture" },
+      c: { usage: "export" },
+      d: { usage: "recette" },
+    }),
+    ["export", "recette"],
+  );
+  assert.deepEqual(usagesDeclares({}), []);
+  assert.equal(MOTIF_USAGE.test("recette"), true);
+  assert.equal(MOTIF_USAGE.test("signature_schema2"), true);
+  for (const faux of ["r", "Recette", "1recette", "recette-poste", "a".repeat(41)])
+    assert.equal(MOTIF_USAGE.test(faux), false, faux);
+  assert.equal(libelleCle({ niveau: "usage", usage_code: "recette" }), "Clé d'usage : recette");
+  assert.equal(libelleCle({ niveau: "completer" }), "Compléter");
 });
