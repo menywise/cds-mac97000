@@ -249,6 +249,30 @@ export const GREFFE: GreffeDeclaration = {
 
 Appel : `POST /api/agent`, en-tête `x-agent-key`, corps `{ "action": "completer_definition", "params": { … } }`.
 
+**Clé d'usage (socle 1.21.0).** Une clé peut servir un seul usage, hors de l'échelle : par exemple
+un script du poste lancé après chaque récupération du code. Elle a le niveau « Clé d'usage » et le
+nom de l'usage (`usage_code` : minuscules, chiffres, tiret bas). L'action la déclare par `usage` au
+lieu de `niveau`. Seules les clés de cet usage la font ; une clé « corriger » ne la fait pas, et la
+clé d'usage ne fait rien d'autre que ses actions et `aide`. L'écran Admin → Co-intervenants IA
+propose les usages que la greffe déclare.
+
+```ts
+export const GREFFE: GreffeDeclaration = {
+  actionsAgent: {
+    lire_signature: {
+      usage: "controle_poste",
+      description: "Rend la signature du schéma, pour le script du poste.",
+      executer: async () => {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data, error } = await supabaseAdmin.rpc("greffe_signature");
+        if (error) throw new Error(error.message);
+        return data;
+      },
+    },
+  },
+};
+```
+
 ### Grille de conformité
 
 Une greffe ajoute ses points de contrôle à la grille avec ses modules (`modules = ARRAY['greffe_veille']`)

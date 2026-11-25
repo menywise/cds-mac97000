@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.20.0**, migration
-  `20261122120000_v1_20_0_radar_installations`.
+  migrations de la plateforme. Version courante : **1.21.0**, migration
+  `20261123120000_v1_21_0_cles_usage`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -105,6 +105,12 @@ installation.
   version. Code seul : `scripts/radar-socle.mjs`, le radar des installations (`docs/RADAR.md`). Il
   dit où chaque installation en est par rapport au socle, dans les deux sens, en lecture seule. Une
   installation le reçoit sans rien à faire ; elle peut s'en servir pour se mesurer elle-même.
+  La 1.21.0 (brique) : la base d'abord. Le serveur 1.21.0 identifie une clé par
+  `agent_identifier()` ; sans la base 1.21.0, `/api/agent` refuse toutes les clés. L'inverse est
+  sûr : un serveur 1.20.0 sur une base 1.21.0 garde ses clés de l'échelle et refuse les clés
+  d'usage. Une installation qui avait un niveau de clé à elle, hors échelle, le passe en clé d'usage
+  (niveau `usage`, nom dans `usage_code`) : la clé en clair ne change pas. Ses actions réservées à
+  ce niveau déclarent `usage` au lieu de `niveau` (`docs/CLONER.md`, « Co-intervenant IA »).
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de

@@ -10,7 +10,7 @@
  */
 import type { FeatureKey, GreffeKey } from "./modules.ts";
 import type { QaPage } from "../lib/qa-plan.ts";
-import type { NiveauAgent } from "../lib/agents.ts";
+import type { NiveauAgent, NiveauCle } from "../lib/agents.ts";
 
 /** Module propre au projet : éteint par défaut, allumé dans Administration → Modules. */
 export type GreffeModule = {
@@ -43,7 +43,7 @@ export type GreffePagePublique = {
 
 /** Ce qu'une action reçoit : la clé authentifiée, ses paramètres, et de quoi journaliser. */
 export type ContexteActionAgent = {
-  agent: { id: string; nom: string; niveau: NiveauAgent };
+  agent: { id: string; nom: string; niveau: NiveauCle; usage_code: string | null };
   params: unknown;
   /** Toute écriture s'inscrit au journal des agents (table, ligne, champ, avant, après). */
   journaliser: (entree: {
@@ -55,10 +55,14 @@ export type ContexteActionAgent = {
   }) => Promise<void>;
 };
 
-/** Action qu'un co-intervenant IA peut appeler sur /api/agent (socle 1.17.0). */
-export type ActionAgent = {
-  /** Niveau de clé exigé : lecture, completer ou corriger. */
-  niveau: NiveauAgent;
+/**
+ * Action qu'un co-intervenant IA peut appeler sur /api/agent (socle 1.17.0). Elle exige soit un
+ * niveau de l'échelle (`niveau` : lecture, completer ou corriger), soit un usage nommé (`usage`,
+ * socle 1.21.0) : seules les clés de cet usage la font.
+ */
+export type ActionAgent = (
+  { niveau: NiveauAgent; usage?: never } | { usage: string; niveau?: never }
+) & {
   /** Une phrase, rendue par l'action « aide ». */
   description: string;
   executer: (contexte: ContexteActionAgent) => Promise<unknown>;

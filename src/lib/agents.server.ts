@@ -3,13 +3,20 @@
  * x-agent-key, exécuter une action déclarée par la greffe, journaliser ce qu'elle écrit. Les
  * actions sont celles de `GREFFE.actionsAgent` ; le socle n'en connaît qu'une, « aide », qui dit à
  * la clé ce qu'elle peut faire. Toute écriture passe par `journaliser`, qui appelle
- * agent_journaliser() dans la base (rôle de service seul).
+ * agent_journaliser() dans la base (rôle de service seul). Socle 1.21.0 : la clé est identifiée par
+ * agent_identifier(), qui rend aussi son usage ; une clé d'usage ne fait que les actions de son
+ * usage (`cleAutorisee`).
  */
 import { GREFFE } from "@/greffe";
 import type { ActionAgent, ContexteActionAgent } from "@/config/greffe";
-import { hacherCle, niveauSuffit, type NiveauAgent } from "@/lib/agents";
+import { cleAutorisee, hacherCle, type NiveauCle } from "@/lib/agents";
 
-export type AgentAuthentifie = { id: string; nom: string; niveau: NiveauAgent };
+export type AgentAuthentifie = {
+  id: string;
+  nom: string;
+  niveau: NiveauCle;
+  usage_code: string | null;
+};
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -20,10 +27,16 @@ async function admin() {
 export async function authentifierAgent(cle: string): Promise<AgentAuthentifie | null> {
   if (!cle.trim()) return null;
   const db = await admin();
-  const { data, error } = await db.rpc("agent_authentifier", { _cle_hash: await hacherCle(cle) });
+  const { data, error } = await db.rpc("agent_identifier", { _cle_hash: await hacherCle(cle) });
   if (error || !data || data.length === 0) return null;
-  const ligne = data[0] as { id: string; nom: string; niveau: string };
-  return { id: ligne.id, nom: ligne.nom, niveau: ligne.niveau as NiveauAgent };
+  const ligne = data[0] as { id: string; nom: string; niveau: string; usage_code: string | null };
+  // Un niveau inconnu ne passe pas cleAutorisee : la clé ne fait alors que « aide ».
+  return {
+    id: ligne.id,
+    nom: ligne.nom,
+    niveau: ligne.niveau as NiveauCle,
+    usage_code: ligne.usage_code ?? null,
+  };
 }
 
 /** Les actions ouvertes : « aide » du socle, puis celles de la greffe. */
@@ -41,15 +54,24 @@ export async function executerAction(
     return {
       agent: agent.nom,
       niveau: agent.niveau,
+      ...(agent.usage_code ? { usage: agent.usage_code } : {}),
       actions: Object.entries(actions)
-        .filter(([, a]) => niveauSuffit(agent.niveau, a.niveau))
-        .map(([nom, a]) => ({ nom, niveau: a.niveau, description: a.description })),
+        .filter(([, a]) => cleAutorisee(agent, a))
+        .map(([nom, a]) => ({
+          nom,
+          ...(a.usage ? { usage: a.usage } : { niveau: a.niveau }),
+          description: a.description,
+        })),
     };
   }
   const declaree = actions[action];
   if (!declaree) throw new Error(`Action inconnue : ${action}`);
-  if (!niveauSuffit(agent.niveau, declaree.niveau))
-    throw new Error(`Action réservée aux clés de niveau « ${declaree.niveau} »`);
+  if (!cleAutorisee(agent, declaree))
+    throw new Error(
+      declaree.usage
+        ? `Action réservée aux clés d'usage « ${declaree.usage} »`
+        : `Action réservée aux clés de niveau « ${declaree.niveau} »`,
+    );
   const db = await admin();
   const contexte: ContexteActionAgent = {
     agent,
