@@ -52,7 +52,7 @@ RESET ROLE;
 \i supabase/migrations/20261118120000_v1_16_4_defaut_visiteur.sql
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.socle_versions WHERE version = '1.16.4' AND niveau = 'correctif') <> 1 THEN RAISE EXCEPTION 'version 1.16.4'; END IF;
-  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.22.0' THEN RAISE EXCEPTION 'réglage socle'; END IF;
+  IF (SELECT value ->> 'version' FROM public.site_settings WHERE key = 'socle') <> '1.23.0' THEN RAISE EXCEPTION 'réglage socle'; END IF;
 END $$;
 RESET client_min_messages;
 ROLLBACK;

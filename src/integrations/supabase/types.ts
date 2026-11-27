@@ -3273,6 +3273,7 @@ export type Database = {
         Args: never
         Returns: { identifiant: string; type: string }[]
       }
+      redirection_pour: { Args: { _chemin: string }; Returns: string }
       registre_inscrire: {
         Args: {
           _a_revoir_le: string

@@ -76,3 +76,4 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 | 27/11/2026 | Pages satellites de campagne (inscription, remerciement) indexées par Google     | Socle 1.22.0 : page hors index, `noindex`, hors plan du site et recherche |
 | 27/11/2026 | Remix : tables du socle recréées sans leurs données de départ (versions vides)   | `CLONER.md` §2 : contrôle et rattrapage par les blocs « version »         |
 | 27/11/2026 | Tests du socle tombés dans un clone : `captures`, `radar-socle`, `socle-version` | Lecture des blocs sans migration ; historique sauté dans un clone         |
+| 27/11/2026 | Anciennes adresses d'un site remplacé (rubriques, fichiers) en page introuvable  | Socle 1.23.0 : redirection de toute adresse, `redirection_pour()`         |

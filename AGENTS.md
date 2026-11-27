@@ -118,6 +118,14 @@ Elle reste en ligne pour qui a le lien, porte la balise `noindex`, et sort du pl
 « Plan du site » et de la recherche du site. La page d'accueil ne peut pas l'être (contrainte en base).
 Garde-fou : `tests/db/test_51_pages_hors_index.sql`.
 
+## Redirection de toute adresse (socle 1.23.0)
+
+Une installation qui remplace un ancien site garde ses anciennes adresses. Toute adresse inconnue
+du site (route `src/routes/$.tsx`) consulte `redirection_pour()` avant la page introuvable et
+répond par une redirection permanente (301). Table `redirections` : fichiers acceptés (point,
+majuscules, tiret bas), destination locale ou en https ; import en masse par Admin → Tables (CSV).
+La table reste fermée à la lecture en masse. Garde-fou : `tests/db/test_52_redirections_toute_adresse.sql`.
+
 ## Radar des installations (socle 1.20.0)
 
 `scripts/radar-socle.mjs` dit où chaque installation en est par rapport au socle : code, base,
