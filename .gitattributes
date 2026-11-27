@@ -1,0 +1,4 @@
+# Fins de ligne Unix (LF) partout, quel que soit le réglage du poste (core.autocrlf).
+# Sans ce fichier, un clone sous Windows reçoit des CRLF et « npm run verifier » échoue
+# dès les jetons (docs/REMONTEES.md, 27/11/2026).
+* text=auto eol=lf
