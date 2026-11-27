@@ -50,26 +50,27 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 
 ## Journal
 
-| Date       | Constat de terrain                                                             | Dans le socle                                                           |
-| ---------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| 27/10/2026 | Cartes blanches peu visibles sur un fond trop pâle                             | Fond de page `#eaeff5` (charte 2.0)                                     |
-| 27/10/2026 | Un même jeton d'état servait de fond pâle et de fond plein                     | Couleurs d'état en quatre usages : plein, `-soft`, `-text`, `-border`   |
-| 27/10/2026 | Installation en police du système, socle en Inter : deux rendus différents     | Police du système, Inter retirée                                        |
-| 27/10/2026 | Charte contournée par l'agent Lovable, hors des hooks                          | Contrôle au `git pull`, hooks au démarrage de session, Knowledge        |
-| 28/10/2026 | Couleurs retouchées à la main dans `styles.css`, écarts entre deux dépôts      | Verrou A : jetons au format W3C, `styles.css` fabriqué                  |
-| 28/10/2026 | Titres et étiquettes en gris, listes posées à nu sur le fond                   | Verrou B : règles du lint, cliquet par fichier                          |
-| 28/10/2026 | Ombre W3C en objet seul écrite `[object Object]` (relecture automatique)       | Générateur des jetons corrigé                                           |
-| 28/10/2026 | Copies des outils de charte modifiées d'un côté seulement                      | Liste des fichiers copiés tels quels, correction toujours dans le socle |
-| 28/10/2026 | Couleurs de données (base, table de familles) posées en texte sous l'AA        | `couleurLisible()` dans `src/lib/couleurs.ts`                           |
-| 28/10/2026 | Anneau de focus à 30 % sur les boutons ; ombre de carte qui l'efface           | Anneau plein décalé de 2 px                                             |
-| 28/10/2026 | Test par mutation : 6 fautes sur 14 passent le hook, `border-l-amber-500`      | Lint et cliquet élargis, test `tests/unit/garde-fous.test.ts`           |
-| 28/10/2026 | Contour des champs à 1,53:1 sur carte (WCAG 1.4.11)                            | `--input` `#7a8697` (3,69:1), paires du contrôle des contrastes         |
-| 28/10/2026 | Focus caché sous l'en-tête collant et sous le bandeau cookies (2.4.11)         | `scroll-padding` de `html` tenu par `useHauteurReservee`                |
-| 28/10/2026 | Halo de focus des champs à 20 % ; anneau de l'onglet actif sur le focus        | Anneau plein d'1 px sur les champs, onglet actif sans anneau au focus   |
-| 28/10/2026 | Survol `bg-*/80` sous 4,5:1 (badge `destructive`)                              | Survol à 90 %, mesuré par l'audit du rendu de DB&M                      |
-| 31/10/2026 | Consignes, absences, aides et onglets inactifs en gris (4 lots, 565 → 475)     | Gris réservé aux métadonnées (charte), deux lots du socle : 546 → 454   |
-| 31/10/2026 | En-têtes de tableau gris (`thead`, `TableHead` shadcn) non vus par le lint     | `intitule-lisible` lit `cn()`, ternaires, `thead`, `caption`            |
-| 27/11/2026 | Remix : dépôt sans historique commun, fusion de `main` du socle refusée        | `CLONER.md` §1 : rattachement par fusion `ours`, fusion en merge commit |
-| 27/11/2026 | Remix : droit d'exécution perdu, hook `pre-commit` ignoré hors Windows         | `CLONER.md` §1 : `git update-index --chmod=+x` sur les scripts          |
-| 27/11/2026 | Clone privé : `qualite` lancée à chaque commit Lovable, sur le quota           | `CLONER.md` §1 : tâches copiées désactivées ou gardées sur décision     |
-| 27/11/2026 | Clone sous Windows (`core.autocrlf=true`) : CRLF, `verifier` refuse les jetons | `.gitattributes` : `* text=auto eol=lf`, fins de ligne LF partout       |
+| Date       | Constat de terrain                                                             | Dans le socle                                                             |
+| ---------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| 27/10/2026 | Cartes blanches peu visibles sur un fond trop pâle                             | Fond de page `#eaeff5` (charte 2.0)                                       |
+| 27/10/2026 | Un même jeton d'état servait de fond pâle et de fond plein                     | Couleurs d'état en quatre usages : plein, `-soft`, `-text`, `-border`     |
+| 27/10/2026 | Installation en police du système, socle en Inter : deux rendus différents     | Police du système, Inter retirée                                          |
+| 27/10/2026 | Charte contournée par l'agent Lovable, hors des hooks                          | Contrôle au `git pull`, hooks au démarrage de session, Knowledge          |
+| 28/10/2026 | Couleurs retouchées à la main dans `styles.css`, écarts entre deux dépôts      | Verrou A : jetons au format W3C, `styles.css` fabriqué                    |
+| 28/10/2026 | Titres et étiquettes en gris, listes posées à nu sur le fond                   | Verrou B : règles du lint, cliquet par fichier                            |
+| 28/10/2026 | Ombre W3C en objet seul écrite `[object Object]` (relecture automatique)       | Générateur des jetons corrigé                                             |
+| 28/10/2026 | Copies des outils de charte modifiées d'un côté seulement                      | Liste des fichiers copiés tels quels, correction toujours dans le socle   |
+| 28/10/2026 | Couleurs de données (base, table de familles) posées en texte sous l'AA        | `couleurLisible()` dans `src/lib/couleurs.ts`                             |
+| 28/10/2026 | Anneau de focus à 30 % sur les boutons ; ombre de carte qui l'efface           | Anneau plein décalé de 2 px                                               |
+| 28/10/2026 | Test par mutation : 6 fautes sur 14 passent le hook, `border-l-amber-500`      | Lint et cliquet élargis, test `tests/unit/garde-fous.test.ts`             |
+| 28/10/2026 | Contour des champs à 1,53:1 sur carte (WCAG 1.4.11)                            | `--input` `#7a8697` (3,69:1), paires du contrôle des contrastes           |
+| 28/10/2026 | Focus caché sous l'en-tête collant et sous le bandeau cookies (2.4.11)         | `scroll-padding` de `html` tenu par `useHauteurReservee`                  |
+| 28/10/2026 | Halo de focus des champs à 20 % ; anneau de l'onglet actif sur le focus        | Anneau plein d'1 px sur les champs, onglet actif sans anneau au focus     |
+| 28/10/2026 | Survol `bg-*/80` sous 4,5:1 (badge `destructive`)                              | Survol à 90 %, mesuré par l'audit du rendu de DB&M                        |
+| 31/10/2026 | Consignes, absences, aides et onglets inactifs en gris (4 lots, 565 → 475)     | Gris réservé aux métadonnées (charte), deux lots du socle : 546 → 454     |
+| 31/10/2026 | En-têtes de tableau gris (`thead`, `TableHead` shadcn) non vus par le lint     | `intitule-lisible` lit `cn()`, ternaires, `thead`, `caption`              |
+| 27/11/2026 | Remix : dépôt sans historique commun, fusion de `main` du socle refusée        | `CLONER.md` §1 : rattachement par fusion `ours`, fusion en merge commit   |
+| 27/11/2026 | Remix : droit d'exécution perdu, hook `pre-commit` ignoré hors Windows         | `CLONER.md` §1 : `git update-index --chmod=+x` sur les scripts            |
+| 27/11/2026 | Clone privé : `qualite` lancée à chaque commit Lovable, sur le quota           | `CLONER.md` §1 : tâches copiées désactivées ou gardées sur décision       |
+| 27/11/2026 | Clone sous Windows (`core.autocrlf=true`) : CRLF, `verifier` refuse les jetons | `.gitattributes` : `* text=auto eol=lf`, fins de ligne LF partout         |
+| 27/11/2026 | Pages satellites de campagne (inscription, remerciement) indexées par Google   | Socle 1.22.0 : page hors index, `noindex`, hors plan du site et recherche |

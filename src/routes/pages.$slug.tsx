@@ -23,6 +23,8 @@ export const Route = createFileRoute("/pages/$slug")({
       description:
         page?.description || (page ? pageExcerpt(page.data) : "") || page?.title || "Page",
       path,
+      // Page satellite d'une campagne (socle 1.22.0) : en ligne pour qui a le lien, hors des moteurs.
+      noindex: page?.hors_index ?? false,
     });
     const faq = page ? pageFaqJsonLd(page.data) : null;
     return {

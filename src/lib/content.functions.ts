@@ -553,9 +553,11 @@ export const listSitemapTopics = createServerFn({ method: "GET" }).handler(async
 });
 
 /* Pages libres (module « pages ») : la base ne renvoie que les pages publiées, module allumé.
-   Le contenu brut (`data`) est normalisé par `toPageRow` (src/lib/pages.ts) côté route. */
+   Le contenu brut (`data`) est normalisé par `toPageRow` (src/lib/pages.ts) côté route.
+   Une page hors index (socle 1.22.0, satellite d'une campagne) s'ouvre par son lien, mais ne figure
+   ni au plan du site ni dans la page « Plan du site » : `listPublicPages` l'écarte. */
 const PAGE_COLUMNS =
-  "id, slug, title, description, data, is_home, published, published_at, updated_at";
+  "id, slug, title, description, data, is_home, hors_index, published, published_at, updated_at";
 
 export const getHomePage = createServerFn({ method: "GET" }).handler(async () => {
   return check(
@@ -589,6 +591,7 @@ export const listPublicPages = createServerFn({ method: "GET" }).handler(async (
       .from("pages")
       .select("slug, title, is_home, updated_at")
       .eq("published", true)
+      .eq("hors_index", false)
       .order("title", { ascending: true }),
     { contexte: "pages" },
   );

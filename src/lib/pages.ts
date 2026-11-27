@@ -21,6 +21,8 @@ export type PageRow = {
   description: string;
   data: PageData;
   is_home: boolean;
+  /** Satellite d'une campagne : noindex, hors plan du site et recherche (socle 1.22.0). */
+  hors_index: boolean;
   published: boolean;
   published_at: string | null;
   updated_at: string;
