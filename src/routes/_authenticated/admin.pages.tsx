@@ -53,7 +53,9 @@ function AdminPagesPage() {
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from("pages")
-      .select("id, slug, title, description, data, is_home, published, published_at, updated_at")
+      .select(
+        "id, slug, title, description, data, is_home, hors_index, published, published_at, updated_at",
+      )
       .order("is_home", { ascending: false })
       .order("title");
     if (error) {
@@ -164,7 +166,8 @@ function PageList({
       .eq("is_home", true);
     const { error } = clearError
       ? { error: clearError }
-      : await supabase.from("pages").update({ is_home: true }).eq("id", page.id);
+      : // La page d'accueil est toujours indexée (socle 1.22.0) : elle perd son état de satellite.
+        await supabase.from("pages").update({ is_home: true, hors_index: false }).eq("id", page.id);
     if (error) toast.error("Accueil non modifié.");
     else toast.success(`« ${page.title} » devient la page d'accueil.`);
     void reload();
@@ -211,6 +214,14 @@ function PageList({
                     {page.is_home ? (
                       <span className="ml-2 rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-primary-text">
                         Accueil
+                      </span>
+                    ) : null}
+                    {page.hors_index ? (
+                      <span
+                        className="ml-2 rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-medium text-warning-text"
+                        title="Page satellite : en ligne pour qui a le lien, hors des moteurs, du plan du site et de la recherche"
+                      >
+                        Hors index
                       </span>
                     ) : null}
                   </p>
@@ -279,6 +290,7 @@ function PageEditor({
   const [title, setTitle] = useState(page.title);
   const [slug, setSlug] = useState(page.slug);
   const [description, setDescription] = useState(page.description);
+  const [horsIndex, setHorsIndex] = useState(page.hors_index);
   const [data, setData] = useState<PageData>(() => structuredClone(page.data));
   const [addType, setAddType] = useState<SectionType>("Text");
   const [preview, setPreview] = useState(false);
@@ -287,6 +299,7 @@ function PageEditor({
     title !== page.title ||
     slug !== page.slug ||
     description !== page.description ||
+    horsIndex !== page.hors_index ||
     JSON.stringify(data) !== JSON.stringify(page.data);
 
   function setSections(next: Section[]) {
@@ -315,6 +328,7 @@ function PageEditor({
         title: title.trim(),
         slug: cleanSlug,
         description: description.trim(),
+        hors_index: page.is_home ? false : horsIndex,
         data: data as unknown as Json,
       })
       .eq("id", page.id);
@@ -417,6 +431,24 @@ function PageEditor({
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            {!page.is_home ? (
+              <div className="space-y-1 sm:col-span-2">
+                <label className="flex min-h-11 items-center gap-2 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={horsIndex}
+                    onChange={(e) => setHorsIndex(e.target.checked)}
+                  />
+                  Page satellite (hors index)
+                </label>
+                <p className="text-xs text-foreground">
+                  Pour une inscription, un remerciement ou une campagne : la page reste en ligne
+                  pour qui a le lien, mais sort des moteurs de recherche, du plan du site et de la
+                  recherche du site.
+                </p>
+              </div>
+            ) : null}
           </fieldset>
 
           {data.content.length === 0 ? (

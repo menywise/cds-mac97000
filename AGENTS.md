@@ -110,6 +110,14 @@ déposée après l'envoi sous `<code de suivi>/capture` dans le dossier privé `
 - Version du socle : `src/config/socle.ts`, affichée dans le pied de page, montée à chaque version
   (`tests/unit/socle-version.test.ts`). Pages plein écran sans en-tête : `PiedDePageReduit`.
 
+## Page hors index (socle 1.22.0)
+
+Une page libre peut être un satellite de campagne (inscription à un webinaire, remerciement, page
+d'un séminaire envoyée par e-mail) : case « Page satellite » dans Admin → Pages, colonne `hors_index`.
+Elle reste en ligne pour qui a le lien, porte la balise `noindex`, et sort du plan du site, de la page
+« Plan du site » et de la recherche du site. La page d'accueil ne peut pas l'être (contrainte en base).
+Garde-fou : `tests/db/test_51_pages_hors_index.sql`.
+
 ## Radar des installations (socle 1.20.0)
 
 `scripts/radar-socle.mjs` dit où chaque installation en est par rapport au socle : code, base,

@@ -1956,6 +1956,7 @@ export type Database = {
           created_at: string
           data: Json
           description: string
+          hors_index: boolean
           id: string
           is_home: boolean
           published: boolean
@@ -1970,6 +1971,7 @@ export type Database = {
           created_at?: string
           data?: Json
           description?: string
+          hors_index?: boolean
           id?: string
           is_home?: boolean
           published?: boolean
@@ -1984,6 +1986,7 @@ export type Database = {
           created_at?: string
           data?: Json
           description?: string
+          hors_index?: boolean
           id?: string
           is_home?: boolean
           published?: boolean
