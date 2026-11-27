@@ -5,7 +5,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
   CAPTURE_DELAI_MINUTES,
@@ -19,17 +19,21 @@ import {
   tailleLisible,
 } from "../../src/lib/captures.ts";
 
-const MIGRATION = readFileSync(
-  join(
-    import.meta.dirname,
-    "..",
-    "..",
-    "supabase",
-    "migrations",
-    "20261121120000_v1_19_0_captures_signalements.sql",
-  ),
-  "utf8",
+// La migration de la 1.19.0, ou, dans un clone sans supabase/migrations (le Remix le retire), les
+// blocs supabase/seed/v1_19_0/ qui portent le même SQL (comme modules-sql.test.ts).
+const SUPABASE = join(import.meta.dirname, "..", "..", "supabase");
+const FICHIER_MIGRATION = join(
+  SUPABASE,
+  "migrations",
+  "20261121120000_v1_19_0_captures_signalements.sql",
 );
+const BLOCS = join(SUPABASE, "seed", "v1_19_0");
+const MIGRATION = existsSync(FICHIER_MIGRATION)
+  ? readFileSync(FICHIER_MIGRATION, "utf8")
+  : readdirSync(BLOCS)
+      .filter((nom) => nom.endsWith(".sql"))
+      .map((nom) => readFileSync(join(BLOCS, nom), "utf8"))
+      .join("\n");
 
 test("le nom du fichier suit le code de suivi, et seulement lui", () => {
   assert.equal(cheminCapture("0A1B2C3D4E"), "0A1B2C3D4E/capture");
