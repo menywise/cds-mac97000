@@ -72,3 +72,4 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 | 27/11/2026 | Remix : dépôt sans historique commun, fusion de `main` du socle refusée    | `CLONER.md` §1 : rattachement par fusion `ours`, fusion en merge commit |
 | 27/11/2026 | Remix : droit d'exécution perdu, hook `pre-commit` ignoré hors Windows     | `CLONER.md` §1 : `git update-index --chmod=+x` sur les scripts          |
 | 27/11/2026 | Clone privé : `qualite` lancée à chaque commit Lovable, sur le quota       | `CLONER.md` §1 : tâches copiées désactivées ou gardées sur décision     |
+| 27/11/2026 | Clone sous Windows (`core.autocrlf=true`) : CRLF, `verifier` refuse les jetons | `.gitattributes` : `* text=auto eol=lf`, fins de ligne LF partout          |
