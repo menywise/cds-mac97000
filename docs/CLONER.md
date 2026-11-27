@@ -14,6 +14,19 @@ Durée indicative : une heure, hors contenus.
    (par exemple « Le premier clone »).
 2. Dans le clone : **GitHub → Connect** pour créer son dépôt (`<organisation>/<nom>`).
 3. Activer **Lovable Cloud** si ce n'est pas fait : le clone a sa propre base de données, vide.
+4. **Rattacher le dépôt au socle**, une fois, sur une branche du clone. Le Remix crée un dépôt sans
+   historique commun avec le socle : sans ce rattachement, la fusion de `main` du socle
+   (section 9) est refusée. Noter le commit du socle remixé (`<commit>`), puis :
+   `git remote add socle <adresse du dépôt du socle>`, `git fetch socle main`,
+   `git merge -s ours --allow-unrelated-histories <commit>`. Cette fusion ne change aucun fichier.
+   La demande de fusion se fusionne en « Create a merge commit », jamais en « Squash » : le lien
+   serait perdu.
+5. **Rendre le droit d'exécution** aux scripts à qui le Remix l'a retiré (hooks de `.githooks/`,
+   `.claude/hooks/`, scripts `.sh`) : `git update-index --chmod=+x <fichier>`. Sans lui, git ignore
+   le hook `pre-commit` hors Windows, et une session cloud commite sans contrôle.
+6. **Dépôt privé** : ses minutes GitHub Actions comptent dans le quota du compte, contrairement à
+   celles du socle public. Désactiver les tâches copiées (Actions → la tâche → Disable workflow),
+   ou les garder sur décision du propriétaire. Le noter dans `docs/greffe/CLAUDE.md`.
 
 ## 2. Passer le SQL du socle
 

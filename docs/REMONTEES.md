@@ -69,3 +69,6 @@ copie modifiée chez elle. Sans ce contrôle, la règle reste une consigne écri
 | 28/10/2026 | Survol `bg-*/80` sous 4,5:1 (badge `destructive`)                          | Survol à 90 %, mesuré par l'audit du rendu de DB&M                      |
 | 31/10/2026 | Consignes, absences, aides et onglets inactifs en gris (4 lots, 565 → 475) | Gris réservé aux métadonnées (charte), deux lots du socle : 546 → 454   |
 | 31/10/2026 | En-têtes de tableau gris (`thead`, `TableHead` shadcn) non vus par le lint | `intitule-lisible` lit `cn()`, ternaires, `thead`, `caption`            |
+| 27/11/2026 | Remix : dépôt sans historique commun, fusion de `main` du socle refusée    | `CLONER.md` §1 : rattachement par fusion `ours`, fusion en merge commit |
+| 27/11/2026 | Remix : droit d'exécution perdu, hook `pre-commit` ignoré hors Windows     | `CLONER.md` §1 : `git update-index --chmod=+x` sur les scripts          |
+| 27/11/2026 | Clone privé : `qualite` lancée à chaque commit Lovable, sur le quota       | `CLONER.md` §1 : tâches copiées désactivées ou gardées sur décision     |
