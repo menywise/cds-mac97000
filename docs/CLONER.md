@@ -38,6 +38,15 @@ blocs (`supabase/seed/<lot>/`), passer les blocs à la place de la migration, un
 Règles de l'éditeur de Lovable : il coupe le script à chaque ligne vide et refuse l'antislash et
 l'opérateur « ? ». Les blocs du socle les respectent déjà.
 
+**Tables présentes, registre des versions vide** (constat du 27/11/2026) : le Remix peut recréer les
+tables du socle sans leurs données de départ. Contrôle : `SELECT count(*) FROM public.socle_versions`
+et le réglage « socle » (`SELECT value FROM public.site_settings WHERE key = 'socle'`). Vide, le
+radar ne sait pas mesurer le clone. Rattrapage, rejouable : passer dans l'ordre le bloc « version »
+de chaque dossier `supabase/seed/v1_*/` (`3_historique.sql` pour la 1.1.0, `<n>_version.sql`
+ensuite), puis inscrire l'installation : une ligne `socle_installation` de niveau `installation`,
+version du socle remixé. Vérifier aussi le réglage « modules » : il doit refléter le choix fait dans
+Administration → Modules (section 6).
+
 ## 3. Devenir administrateur
 
 Créer son compte sur la prévisualisation du clone **avant de publier** : sur une base sans

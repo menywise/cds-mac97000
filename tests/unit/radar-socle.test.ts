@@ -25,12 +25,17 @@ import {
 
 const RACINE = join(import.meta.dirname, "..", "..");
 const DOSSIER = join(RACINE, "supabase", "migrations");
-// Un clone par Remix n'a pas de supabase/migrations : les tests tirés des migrations y sont sautés.
-const MIGRATIONS = existsSync(DOSSIER)
-  ? readdirSync(DOSSIER)
-      .filter((n) => n.endsWith(".sql"))
-      .map((nom) => ({ nom, texte: readFileSync(join(DOSSIER, nom), "utf8") }))
-  : [];
+// Un clone par Remix n'a pas de supabase/migrations, puis n'en reçoit que quelques-unes à chaque
+// fusion du socle : les tests tirés de l'historique complet des migrations y sont sautés. Un clone
+// se reconnaît à sa prise de greffe remplie (règle de AGENTS.md, comme socle-neutre.test.ts).
+const PRISE = readFileSync(join(RACINE, "src", "greffe", "index.ts"), "utf8");
+const CLONE = !/export const GREFFE: GreffeDeclaration = \{\};/.test(PRISE);
+const MIGRATIONS =
+  !CLONE && existsSync(DOSSIER)
+    ? readdirSync(DOSSIER)
+        .filter((n) => n.endsWith(".sql"))
+        .map((nom) => ({ nom, texte: readFileSync(join(DOSSIER, nom), "utf8") }))
+    : [];
 const SANS_MIGRATIONS = { skip: MIGRATIONS.length === 0 };
 
 type Version = { version: string; niveau: string };

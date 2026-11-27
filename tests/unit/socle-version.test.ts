@@ -6,7 +6,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { SOCLE_VERSION } from "../../src/config/socle.ts";
 
@@ -25,13 +25,22 @@ test("version du pied de page = dernier dossier de blocs", () => {
   assert.equal(SOCLE_VERSION, derniere(dossiers));
 });
 
-test("version du pied de page = dernière version écrite par une migration", () => {
-  const versions = readdirSync(join(RACINE, "supabase", "migrations"))
-    .map((nom) => /_v(\d+)_(\d+)_(\d+)_/.exec(nom))
-    .filter((m): m is RegExpExecArray => m !== null)
-    .map((m) => `${m[1]}.${m[2]}.${m[3]}`);
-  assert.equal(SOCLE_VERSION, derniere(versions));
-});
+// Un clone par Remix n'a pas de supabase/migrations (il n'en reçoit qu'aux fusions du socle).
+const MIGRATIONS = join(RACINE, "supabase", "migrations");
+
+test(
+  "version du pied de page = dernière version écrite par une migration",
+  {
+    skip: !existsSync(MIGRATIONS),
+  },
+  () => {
+    const versions = readdirSync(MIGRATIONS)
+      .map((nom) => /_v(\d+)_(\d+)_(\d+)_/.exec(nom))
+      .filter((m): m is RegExpExecArray => m !== null)
+      .map((m) => `${m[1]}.${m[2]}.${m[3]}`);
+    assert.equal(SOCLE_VERSION, derniere(versions));
+  },
+);
 
 test("version du pied de page = version courante du guide de mise à niveau", () => {
   const guide = readFileSync(join(RACINE, "docs", "MISE_A_NIVEAU.md"), "utf8");
