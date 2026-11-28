@@ -143,8 +143,10 @@ INSERT INTO public.redirections (de, vers) VALUES ('/blog/ancien', '/blog/nouvea
 SELECT pg_temp.as_anon();
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.rubriques) + (SELECT count(*) FROM public.etiquettes) + (SELECT count(*) FROM public.series)
-     + (SELECT count(*) FROM public.redirections) <> 0 THEN RAISE EXCEPTION 'taxonomies lisibles, blog éteint'; END IF;
+     <> 0 THEN RAISE EXCEPTION 'taxonomies lisibles, blog éteint'; END IF;
 END $$;
+-- Redirections (1.23.1) : un visiteur ne lit jamais la table ; redirection_pour() lui suffit.
+SELECT pg_temp.expect_error($$SELECT count(*) FROM public.redirections$$, 'visiteur lit les redirections');
 SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a3', 'membre@test.fr');
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.rubriques) <> 0 THEN RAISE EXCEPTION 'membre lit les rubriques, blog éteint'; END IF;
@@ -160,8 +162,13 @@ UPDATE public.site_settings SET value = value || '{"blog": true}' WHERE key = 'm
 SELECT pg_temp.as_anon();
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.rubriques) <> 1 OR (SELECT count(*) FROM public.etiquettes) <> 1
-     OR (SELECT count(*) FROM public.series) <> 1 OR (SELECT vers FROM public.redirections WHERE de = '/blog/ancien') <> '/blog/nouveau'
+     OR (SELECT count(*) FROM public.series) <> 1 OR public.redirection_pour('/blog/ancien') IS DISTINCT FROM '/blog/nouveau'
   THEN RAISE EXCEPTION 'taxonomies invisibles, blog allumé'; END IF;
+END $$;
+SELECT pg_temp.expect_error($$SELECT count(*) FROM public.redirections$$, 'visiteur lit les redirections, blog allumé');
+SELECT pg_temp.as_user('00000000-0000-0000-0000-0000000000a3', 'membre@test.fr');
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.redirections) <> 0 THEN RAISE EXCEPTION 'membre lit les redirections en masse'; END IF;
 END $$;
 RESET ROLE;
 

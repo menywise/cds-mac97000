@@ -130,6 +130,7 @@ SELECT pg_temp.expect_error($$SELECT public.maillage_etat()$$, 'visiteur lit le 
 
 -- 8. À lire ensuite : pilier et frères d'abord, articles en ligne seulement -------------------------
 RESET ROLE;
+SELECT set_config('essai.redirection_de', (SELECT de FROM public.redirections ORDER BY de LIMIT 1), false);
 INSERT INTO public.contenus_publics (id, slug, titre, corps, etiquettes) VALUES
   ('00000000-0000-0000-0000-0000000000b5', 'brouillon', 'Brouillon frère', 'Texte.', '{Maillage interne}');
 SELECT pg_temp.as_anon();
@@ -140,8 +141,11 @@ DO $$ BEGIN
     RAISE EXCEPTION 'lire ensuite : %', (SELECT array_agg(slug) FROM public.lire_ensuite('00000000-0000-0000-0000-0000000000b2', 2)); END IF;
   IF EXISTS (SELECT 1 FROM public.lire_ensuite('00000000-0000-0000-0000-0000000000b2', 12) WHERE slug = 'brouillon') THEN
     RAISE EXCEPTION 'lire ensuite : brouillon visible'; END IF;
-  IF NOT EXISTS (SELECT 1 FROM public.redirections) THEN RAISE EXCEPTION 'visiteur lit les redirections'; END IF;
+  -- 1.23.1 : le visiteur suit une redirection par redirection_pour(), sans lire la table.
+  IF public.redirection_pour(current_setting('essai.redirection_de')) IS NULL THEN
+    RAISE EXCEPTION 'visiteur sans sa redirection'; END IF;
 END $$;
+SELECT pg_temp.expect_error($$SELECT count(*) FROM public.redirections$$, 'visiteur lit les redirections en masse');
 
 -- 9. Séries -----------------------------------------------------------------------------------------
 RESET ROLE;
