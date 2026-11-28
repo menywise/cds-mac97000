@@ -370,12 +370,17 @@ export const trouverRedirection = createServerFn({ method: "GET" })
         }) ?? null
       );
     } catch {
-      // Base pas encore en 1.23.0 : la fonction manque, lecture directe comme en 1.11.0.
-      const data = check(
-        await client.from("redirections").select("vers").eq("de", input.chemin).maybeSingle(),
-        { contexte: "redirections" },
-      );
-      return data?.vers ?? null;
+      // Base pas encore en 1.23.0 : la fonction manque, lecture directe comme en 1.11.0. En cas
+      // d'échec, aucune redirection : le visiteur reçoit la page introuvable, jamais une erreur.
+      try {
+        const data = check(
+          await client.from("redirections").select("vers").eq("de", input.chemin).maybeSingle(),
+          { contexte: "redirections" },
+        );
+        return data?.vers ?? null;
+      } catch {
+        return null;
+      }
     }
   });
 

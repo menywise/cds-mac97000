@@ -124,7 +124,8 @@ Une installation qui remplace un ancien site garde ses anciennes adresses. Toute
 du site (route `src/routes/$.tsx`) consulte `redirection_pour()` avant la page introuvable et
 répond par une redirection permanente (301). Table `redirections` : fichiers acceptés (point,
 majuscules, tiret bas), destination locale ou en https ; import en masse par Admin → Tables (CSV).
-La table reste fermée à la lecture en masse. Garde-fou : `tests/db/test_52_redirections_toute_adresse.sql`.
+La table reste fermée à la lecture en masse : aucun visiteur ne la lit, un compte connecté la lit
+s'il rédige ou administre (1.23.1). Garde-fou : `tests/db/test_52_redirections_toute_adresse.sql`.
 
 ## Radar des installations (socle 1.20.0)
 

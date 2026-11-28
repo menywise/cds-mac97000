@@ -7,8 +7,8 @@ installation.
 ## Ce qu'il faut savoir avant
 
 - **La référence d'une version est une migration du dépôt du socle**, jamais le journal de
-  migrations de la plateforme. Version courante : **1.23.0**, migration
-  `20261125120000_v1_23_0_redirections_toute_adresse`.
+  migrations de la plateforme. Version courante : **1.23.1**, migration
+  `20261126120000_v1_23_1_redirections_fermees`.
 - **Charte de style 2.0 (27/10/2026, code seul, aucune migration).** Fond de page `#eaeff5`, couleurs
   d'état en quatre usages, police du système (Inter retirée de `public/fonts/`), champs blancs. Une
   greffe qui pose `bg-warning` ou `bg-info` en fond pâle passe à `bg-warning-soft` ou
@@ -118,6 +118,9 @@ installation.
   l'ancienne lecture de `redirections` : seuls les articles renommés restent suivis. Une
   installation qui remplace un ancien site importe ses anciennes adresses par Admin → Tables →
   `redirections` (CSV, colonnes `de` et `vers`).
+  La 1.23.1 (correctif) : après la 1.23.0, base et code. Un visiteur ne lit plus la table
+  `redirections` ; `redirection_pour()` lui suffit. Un code 1.22.0 ou plus ancien, qui lisait la
+  table, ne suit plus les articles renommés sur une base 1.23.1.
   Le `LISEZMOI.md` des blocs de chaque version donne l'ordre.
 - **Chaque base dit ce qu'elle embarque.** `socle_versions` liste les versions publiées du socle.
   `socle_installation` trace la vie de cette base (vide dans le socle). Le réglage « socle » de

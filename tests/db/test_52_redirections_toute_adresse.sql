@@ -3,7 +3,7 @@
 --      refuse toujours une adresse relative, une adresse avec espace ou une destination non https ;
 --   2. redirection_pour() trouve une ancienne adresse avec ou sans barre oblique finale, préfère
 --      l'adresse exacte, ne rend rien pour une adresse inconnue ;
---   3. un visiteur s'en sert module blog éteint, sans pouvoir lire la table en masse ;
+--   3. un visiteur s'en sert, module blog éteint ou allumé, sans jamais lire la table en masse (1.23.1) ;
 --   4. version 1.23.0 publiée.
 \set ON_ERROR_STOP 1
 \i tests/db/_helpers.sql
@@ -40,8 +40,16 @@ DO $$ BEGIN
   IF public.redirection_pour('/adresse-inconnue') IS NOT NULL THEN
     RAISE EXCEPTION 'contre-épreuve : une adresse inconnue ne rend rien';
   END IF;
-  IF (SELECT count(*) FROM public.redirections) <> 0 THEN
-    RAISE EXCEPTION 'la table ne doit pas être lisible en masse, module blog éteint';
+END $$;
+-- Lecture en masse fermée au visiteur, même module blog allumé (1.23.1).
+SELECT pg_temp.expect_error($$SELECT count(*) FROM public.redirections$$, 'visiteur lit la table, blog éteint');
+RESET ROLE;
+UPDATE public.site_settings SET value = value || '{"blog": true}' WHERE key = 'modules';
+SELECT pg_temp.as_anon();
+SELECT pg_temp.expect_error($$SELECT count(*) FROM public.redirections$$, 'visiteur lit la table, blog allumé');
+DO $$ BEGIN
+  IF public.redirection_pour('/ancienne-rubrique/ancien-article') IS DISTINCT FROM '/blog/nouvel-article' THEN
+    RAISE EXCEPTION 'contre-épreuve : la fonction sert toujours le visiteur, blog allumé';
   END IF;
 END $$;
 RESET ROLE;
