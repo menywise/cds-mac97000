@@ -351,17 +351,32 @@ export const getPost = createServerFn({ method: "GET" })
     };
   });
 
-/** Ancienne adresse d'un article : nouvelle adresse, ou null (socle 1.11.0). */
+/**
+ * Ancienne adresse du site : nouvelle adresse, ou null. Articles renommés (socle 1.11.0) et toute
+ * adresse d'un ancien site, fichiers compris (socle 1.23.0) : la base cherche avec et sans barre
+ * oblique finale, une adresse à la fois (`redirection_pour`). Base pas encore en 1.23.0 : lecture
+ * directe de la table, comme avant.
+ */
 export const trouverRedirection = createServerFn({ method: "GET" })
   .inputValidator((input: { chemin: string }) => ({
-    chemin: String(input?.chemin ?? "").slice(0, 200),
+    chemin: String(input?.chemin ?? "").slice(0, 300),
   }))
   .handler(async ({ data: input }) => {
-    const data = check(
-      await publicClient().from("redirections").select("vers").eq("de", input.chemin).maybeSingle(),
-      { contexte: "redirections" },
-    );
-    return data?.vers ?? null;
+    const client = publicClient();
+    try {
+      return (
+        check(await client.rpc("redirection_pour", { _chemin: input.chemin }), {
+          contexte: "redirections",
+        }) ?? null
+      );
+    } catch {
+      // Base pas encore en 1.23.0 : la fonction manque, lecture directe comme en 1.11.0.
+      const data = check(
+        await client.from("redirections").select("vers").eq("de", input.chemin).maybeSingle(),
+        { contexte: "redirections" },
+      );
+      return data?.vers ?? null;
+    }
   });
 
 /** Articles en ligne d'une liste, du plus récent au plus ancien, sans le texte. */
